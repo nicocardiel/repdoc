@@ -159,6 +159,11 @@ def main(args=None):
         debug=args.debug
     )
 
+    tabla_asignaturas_grado_en_iec = read_tabla_asignaturas(
+        'asignaturas_' + tabla_titulaciones['csvfile'][1] + '.csv',
+        debug=args.debug
+    )
+
     tabla_profesores = read_tabla_profesores(
         args.teachers,
         debug=args.debug
