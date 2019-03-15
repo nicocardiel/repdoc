@@ -4,6 +4,12 @@ import PySimpleGUI as sg
 import sys
 
 
+WIDTH_HLINE = 90
+WIDTH_TEXT_LABEL = 20
+WIDTH_INPUT_COMBO = 50
+WIDTH_BEFORE_EXIT_BUTTON = 55
+
+
 def read_tabla_profesores(teachers_csv_file, debug=False):
     """Read csv file with teachers participating in the assignment round.
 
@@ -38,6 +44,14 @@ def main(args=None):
     parser.add_argument("teachers",
                         help="CSV file with teacher lists",
                         type=argparse.FileType('rt'))
+    parser.add_argument("--fontname",
+                        help="font name for GUI",
+                        default='Helvetica',
+                        type=str)
+    parser.add_argument("--fontsize",
+                        help="font name for GUI",
+                        default=12,
+                        type=int)
     parser.add_argument("--debug",
                         help="run code in debugging mode",
                         action="store_true")
@@ -54,10 +68,10 @@ def main(args=None):
 
     tabla_profesores = read_tabla_profesores(args.teachers, debug=args.debug)
     num_profesores = tabla_profesores.shape[0]
-    list_profesores = [tabla_profesores['nombre'][i] + ' ' +
+    list_profesores = ['---'] + \
+                      [tabla_profesores['nombre'][i] + ' ' +
                        tabla_profesores['apellidos'][i]
-                       for i in range(num_profesores)
-                       ]
+                       for i in range(num_profesores)]
 
     list_titulaciones = ['?',
                          'Grado en Física',
@@ -91,16 +105,58 @@ def main(args=None):
                                        'La única que hay'
                                        ]
 
-    layout = [[sg.T('Profesor/a:', size=(15,1), key='_label_profesor_'),
+    sg.SetOptions(font=(args.fontname, args.fontsize))
+
+    layout = [[sg.T('Resumen...')],
+              [sg.T('_' * WIDTH_HLINE)],
+              [sg.T('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right', key='_label_profesor_'),
                sg.InputCombo(values=list_profesores,
-                             size=(40,1), enable_events=True, key='_profesor_')],
-              [sg.T('Titulación:', size=(15,1), key='_label_titulacion_'),
+                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             key='_profesor_')],
+              [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right',
+                    key='_label_encargo_docente_'),
+               sg.T('---')],
+              [sg.T('Créditos asignados:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right',
+                    key='_label_creditos_asignados_'),
+               sg.T('---')],
+              [sg.T('Diferencia:', size=(
+                  WIDTH_TEXT_LABEL,1),
+                    justification='right',
+                    key='_label_diferencia_'),
+               sg.T('---')],
+              [sg.T('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right',
+                    key='_label_docencia_asignada_'),
                sg.InputCombo(values='---', disabled=True,
-                             size=(40,1), enable_events=True, key='_titulacion_')],
-              [sg.T('Asignatura:', size=(15,1), key='_label_asignatura_'),
+                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             key='_docencia_elegida_')],
+              [sg.Button('Continuar', disabled=True),
+               sg.Button('Modificar', disabled=True)],
+              [sg.T('_' * WIDTH_HLINE)],
+              [sg.T('Titulación:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right', key='_label_titulacion_'),
                sg.InputCombo(values='---', disabled=True,
-                             size=(40,1), enable_events=True, key='_asignatura_')],
-              [sg.Button('Aplicar'), sg.Button('Cancelar')]
+                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             key='_titulacion_')],
+              [sg.T('Asignatura:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right', key='_label_asignatura_'),
+               sg.InputCombo(values='---', disabled=True,
+                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             key='_asignatura_')],
+              [sg.T('', size=(WIDTH_TEXT_LABEL,1)),
+               sg.Radio('Todos los créditos', '_fraccion_asignatura_',
+                        default=True, size=(WIDTH_TEXT_LABEL,1),
+                        disabled=True),
+               sg.Radio('Solo una parte', '_fraccion_asignatura_',
+                        default=False, size=(WIDTH_TEXT_LABEL,1),
+                        disabled=True)],
+              [sg.Button('Aplicar', disabled=True),
+               sg.Button('Cancelar', disabled=True),
+               sg.T(' ', size=(WIDTH_BEFORE_EXIT_BUTTON,1)),
+               sg.Button('Salir')]
               ]
 
     window = sg.Window("Reparto Docente (FTA)").Layout(layout)
@@ -108,32 +164,40 @@ def main(args=None):
     while True:
         event, values = window.Read()
         print(event, values)
-        if event is None:
-            break
+        if event is None or event == "Salir":
+            cout = ''
+            while cout != 'y' and cout != 'n':
+                cout = input('Do you really want to exit (y/n) [y] ? ')
+                if cout == '':
+                    cout = 'y'
+                if cout != 'y' and cout != 'n':
+                    print('Invalid answer. Try again!')
+            if cout == 'y':
+                break
         elif event == "Cancelar":
-            window.FindElement('_profesor_').Update(values=list_profesores)
-            window.FindElement('_titulacion_').Update(values='---', disabled=True)
-            window.FindElement('_asignatura_').Update(values='---', disabled=True)
+            window.Element('_profesor_').Update(values=list_profesores)
+            window.Element('_titulacion_').Update(values='---', disabled=True)
+            window.Element('_asignatura_').Update(values='---', disabled=True)
         elif event == "Aplicar":
             break
         elif event == '_profesor_':
             if values['_profesor_'] != '?':
-                window.FindElement('_titulacion_').Update(values=list_titulaciones, disabled=False)
+                window.Element('_titulacion_').Update(values=list_titulaciones, disabled=False)
         elif event == '_titulacion_':
             if values['_titulacion_'] != '?':
-                window.FindElement('_asignatura_').Update(disabled=False)
+                window.Element('_asignatura_').Update(disabled=False)
             if values['_titulacion_'] == 'Grado en Física':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_grado_fisica)
+                window.Element('_asignatura_').Update(values=list_asignaturas_grado_fisica)
             elif values['_titulacion_'] == 'Grado en IEC':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_grado_iec)
+                window.Element('_asignatura_').Update(values=list_asignaturas_grado_iec)
             elif values['_titulacion_'] == 'Otros grados':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_otros_grados)
+                window.Element('_asignatura_').Update(values=list_asignaturas_otros_grados)
             elif values['_titulacion_'] == 'Máster en Astrofísica':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_master_astrofisica)
+                window.Element('_asignatura_').Update(values=list_asignaturas_master_astrofisica)
             elif values['_titulacion_'] == 'Máster en Meteorología y Geofísica':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_master_meteogeo)
+                window.Element('_asignatura_').Update(values=list_asignaturas_master_meteogeo)
             elif values['_titulacion_'] == 'Máster en Energía':
-                window.FindElement('_asignatura_').Update(values=list_asignaturas_master_energia)
+                window.Element('_asignatura_').Update(values=list_asignaturas_master_energia)
 
     window.Close()
 
