@@ -1,13 +1,87 @@
 import argparse
+import numpy as np
 import pandas as pd
 import PySimpleGUI as sg
 import sys
 
 
 WIDTH_HLINE = 90
-WIDTH_TEXT_LABEL = 20
+WIDTH_TEXT_LABEL = 18
 WIDTH_INPUT_COMBO = 50
-WIDTH_BEFORE_EXIT_BUTTON = 55
+WIDTH_INPUT_NUMBER = 10
+
+
+def fill_cell_with_previous_value(s):
+    """Return list removing NaN in Series
+
+    """
+
+    l = len(s)
+    result = []
+    i = 0
+    last = None
+    while i < l:
+        if type(s[i]) is str:
+            last = s[i]
+            result.append(last)
+        else:
+            if np.isnan(s[i]):
+                if last is None:
+                    raise ValueError('Unexpected error')
+                else:
+                    result.append(last)
+            else:
+                last = s[i]
+                result.append(last)
+        i += 1
+
+    return result
+
+
+def read_tabla_asignaturas(tabla_titulacion, debug=False):
+    """Read csv files with subjects.
+
+    """
+
+    tabla_asignaturas = pd.read_csv(
+        tabla_titulacion,
+        skiprows=5,
+        sep=";",
+        header=None,
+        usecols=range(10),
+        names=['curso', 'semestre', 'codigo', 'asignatura', 'area', 'uuid',
+               'creditos', 'comentarios', 'grupo', 'profesor_anterior']
+    )
+
+    # remove unnecessary rows
+    lok = tabla_asignaturas['uuid'].notnull()
+    tabla_asignaturas = tabla_asignaturas[lok]
+
+    # reset index values
+    tabla_asignaturas = tabla_asignaturas.reset_index(drop=True)
+
+    # fill empty cells
+    for item in ['curso', 'semestre', 'codigo', 'asignatura']:
+        tabla_asignaturas[item] = \
+            fill_cell_with_previous_value(tabla_asignaturas[item])
+
+    # convert to integer
+    for item in ['semestre', 'codigo']:
+        tabla_asignaturas[item] = tabla_asignaturas[item].apply(
+            lambda f: int(f)
+        )
+
+    # convert creditos into float (e.g. "1,6" -> 1.6)
+    tabla_asignaturas['creditos'] = tabla_asignaturas['creditos'].apply(
+        lambda s: float(s.replace(',', '.'))
+    )
+
+    if(debug):
+        print(tabla_asignaturas)
+        print('Créditos totales:', tabla_asignaturas['creditos'].sum())
+        input("Stop here!")
+
+    return tabla_asignaturas
 
 
 def read_tabla_profesores(teachers_csv_file, debug=False):
@@ -15,25 +89,33 @@ def read_tabla_profesores(teachers_csv_file, debug=False):
 
     """
 
-    teachers_table = pd.read_csv(teachers_csv_file,
-                                 skiprows=2, sep=';', header=None,
-                                 usecols=[0, 1, 2, 3, 17],
-                                 names=['uuid', 'apellidos', 'nombre',
-                                        'categoria', 'encargo']
-                                 )
+    tabla_profesores = pd.read_csv(
+        teachers_csv_file,
+        skiprows=2,
+        sep=';',
+        header=None,
+        usecols=[0, 1, 2, 3, 17],
+        names=['uuid', 'apellidos', 'nombre', 'categoria', 'encargo']
+    )
 
     # remove unnecessary rows
-    lok = teachers_table['uuid'].notnull()
-    teachers_table = teachers_table[lok]
+    lok = tabla_profesores['uuid'].notnull()
+    tabla_profesores = tabla_profesores[lok]
 
     # reset index values
-    teachers_table = teachers_table.reset_index(drop=True)
+    tabla_profesores = tabla_profesores.reset_index(drop=True)
+
+    # convert encargo into float (e.g. "1,6" -> 1.6)
+    tabla_profesores['encargo'] = tabla_profesores['encargo'].apply(
+        lambda s: float(s.replace(',', '.'))
+    )
 
     if debug:
-        print(teachers_table)
+        print(tabla_profesores)
+        print('Encargo total:', tabla_profesores['encargo'].sum())
         input('Stop here!')
 
-    return teachers_table
+    return tabla_profesores
 
 
 def main(args=None):
@@ -66,8 +148,24 @@ def main(args=None):
 
     # ---
 
-    tabla_profesores = read_tabla_profesores(args.teachers, debug=args.debug)
+    tabla_titulaciones = pd.DataFrame(
+        data={'label': ['Grado en Física', 'Grado en IEC', 'Otros Grados',
+                        'Másteres'],
+              'csvfile': ['grado_en_fisica', 'grado_en_iec', 'otros_grados',
+                          'masteres']})
+
+    tabla_asignaturas_grado_en_fisica = read_tabla_asignaturas(
+        'asignaturas_' + tabla_titulaciones['csvfile'][0] + '.csv',
+        debug=args.debug
+    )
+
+    tabla_profesores = read_tabla_profesores(
+        args.teachers,
+        debug=args.debug
+    )
+
     num_profesores = tabla_profesores.shape[0]
+
     list_profesores = ['---'] + \
                       [tabla_profesores['nombre'][i] + ' ' +
                        tabla_profesores['apellidos'][i]
@@ -77,9 +175,7 @@ def main(args=None):
                          'Grado en Física',
                          'Grado en IEC',
                          'Otros grados',
-                         'Máster en Astrofísica',
-                         'Máster en Meteorología y Geofísica',
-                         'Máster en Energía'
+                         'Másteres'
                          ]
 
     list_asignaturas_grado_fisica = ['?',
@@ -92,18 +188,13 @@ def main(args=None):
                                      'Física para Biólogos',
                                      'Física para Geólogos'
                                      ]
-    list_asignaturas_master_astrofisica = ['?',
-                                           'Atmósferas Estelares',
-                                           'Dinámica de Galaxias'
-                                           ]
-    list_asignaturas_master_meteogeo = ['?',
-                                        'Meteorología 1',
-                                        'Geofísica 2',
-                                        'Geofísica avanzada'
-                                        ]
-    list_asignaturas_master_energia = ['?',
-                                       'La única que hay'
-                                       ]
+    list_asignaturas_masteres = ['?',
+                                 'Atmósferas Estelares',
+                                 'Dinámica de Galaxias'
+                                 'Meteorología 1',
+                                 'Geofísica 2',
+                                 'Geofísica avanzada'
+                                 ]
 
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
@@ -117,22 +208,22 @@ def main(args=None):
               [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_encargo_docente_'),
-               sg.T('---')],
+               sg.T('---', key='_encargo_docente_')],
               [sg.T('Créditos asignados:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_creditos_asignados_'),
-               sg.T('---')],
+               sg.T('---', key='_creditos_asignados_')],
               [sg.T('Diferencia:', size=(
                   WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_diferencia_'),
-               sg.T('---')],
+               sg.T('---', key='_diferencia_')],
               [sg.T('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_docencia_asignada_'),
                sg.InputCombo(values='---', disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
-                             key='_docencia_elegida_')],
+                             key='_docencia_asignada_')],
               [sg.Button('Continuar', disabled=True),
                sg.Button('Modificar', disabled=True)],
               [sg.T('_' * WIDTH_HLINE)],
@@ -141,22 +232,30 @@ def main(args=None):
                sg.InputCombo(values='---', disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_titulacion_')],
-              [sg.T('Asignatura:', size=(WIDTH_TEXT_LABEL,1),
-                    justification='right', key='_label_asignatura_'),
+              [sg.T('Asignatura elegida:', size=(WIDTH_TEXT_LABEL,1),
+                    justification='right', key='_label_asignatura_elegida_'),
                sg.InputCombo(values='---', disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
-                             key='_asignatura_')],
+                             key='_asignatura_elegida_'),
+               sg.T('Créditos: ' + str(0.0),
+                    key='_creditos_asignatura_elegida_')],
               [sg.T('', size=(WIDTH_TEXT_LABEL,1)),
-               sg.Radio('Todos los créditos', '_fraccion_asignatura_',
+               sg.Radio('Todos los créditos',
+                        '_fraccion_de_asignatura_',
                         default=True, size=(WIDTH_TEXT_LABEL,1),
                         disabled=True),
                sg.Radio('Solo una parte', '_fraccion_asignatura_',
                         default=False, size=(WIDTH_TEXT_LABEL,1),
-                        disabled=True)],
+                        disabled=True),
+               sg.T('Créditos elegidos'),
+               sg.InputText(default_text='0.0', size=(WIDTH_INPUT_NUMBER,1),
+                            justification='right',
+                            do_not_clear=True, disabled=True,
+                            key='_creditos_elegidos_de_asignatura_')],
               [sg.Button('Aplicar', disabled=True),
-               sg.Button('Cancelar', disabled=True),
-               sg.T(' ', size=(WIDTH_BEFORE_EXIT_BUTTON,1)),
-               sg.Button('Salir')]
+               sg.Button('Cancelar', disabled=True)],
+              [sg.T('_' * WIDTH_HLINE)],
+              [sg.Button('Salir')]
               ]
 
     window = sg.Window("Reparto Docente (FTA)").Layout(layout)
@@ -192,12 +291,8 @@ def main(args=None):
                 window.Element('_asignatura_').Update(values=list_asignaturas_grado_iec)
             elif values['_titulacion_'] == 'Otros grados':
                 window.Element('_asignatura_').Update(values=list_asignaturas_otros_grados)
-            elif values['_titulacion_'] == 'Máster en Astrofísica':
-                window.Element('_asignatura_').Update(values=list_asignaturas_master_astrofisica)
-            elif values['_titulacion_'] == 'Máster en Meteorología y Geofísica':
-                window.Element('_asignatura_').Update(values=list_asignaturas_master_meteogeo)
-            elif values['_titulacion_'] == 'Máster en Energía':
-                window.Element('_asignatura_').Update(values=list_asignaturas_master_energia)
+            elif values['_titulacion_'] == 'Másteres':
+                window.Element('_asignatura_').Update(values=list_asignaturas_masteres)
 
     window.Close()
 
