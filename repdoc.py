@@ -11,6 +11,17 @@ WIDTH_INPUT_COMBO = 50
 WIDTH_INPUT_NUMBER = 10
 
 
+def str_nonan(s):
+    """Avoid NaN due to empty strings: return single space instead.
+
+    """
+
+    if len(s) > 0:
+        return s
+    else:
+        return ' '
+
+
 def fill_cell_with_previous_value(s):
     """Return list removing NaN in Series
 
@@ -96,8 +107,10 @@ def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
         names=['curso', 'semestre', 'codigo', 'asignatura', 'area', 'uuid',
                'creditos', 'comentarios', 'grupo', 'profesor_anterior'],
         converters={'curso': str, 'semestre': int, 'codigo': int, 'area': str,
-                    'uuid': str, 'creditos': float, 'comentarios': str,
-                    'grupo': str, 'profesor_anterior': str}
+                    'uuid': str, 'creditos': float,
+                    'comentarios': str_nonan,
+                    'grupo': str_nonan,
+                    'profesor_anterior': str_nonan}
     )
 
     # remove unnecessary rows
@@ -230,17 +243,15 @@ def main(args=None):
         usecols=range(1,11)
     else:
         raise ValueError("Unexpected course!")
-    lista_tablas_asignaturas = []
+    dict_tablas_asignaturas = {}
     for titulacion in tabla_titulaciones['titulacion']:
-        lista_tablas_asignaturas.append(
-            read_tabla_asignaturas(
+        dict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 sheetname=titulacion,
                 skiprows=skiprows,
                 usecols=usecols,
                 debug=args.debug
             )
-        )
 
     # profesores
     tabla_profesores = read_tabla_profesores(
@@ -361,29 +372,37 @@ def main(args=None):
                 values=lista_titulaciones, disabled=False)
             window.Element('_cancelar_').Update(disabled=False)
         elif event == '_titulacion_':
-            if values['_titulacion_'] == '---':
+            titulacion = values['_titulacion_']
+            if titulacion == '---':
                 window.Element('_asignatura_elegida_').Update('---')
                 window.Element('_asignatura_elegida_').Update(disabled=True)
+                window.Element('_aplicar_').Update(disabled=True)
             else:
-                window.Element('_asignatura_elegida_').Update(disabled=False)
-            print(values['_titulacion_'])
-            '''
-            if values['_titulacion_'] == 'Grado en Física':
-                window.Element('_asignatura_').Update(
-                    values=list_asignaturas_grado_fisica)
-            elif values['_titulacion_'] == 'Grado en IEC':
-                window.Element('_asignatura_').Update(
-                    values=list_asignaturas_grado_iec)
-            elif values['_titulacion_'] == 'Otros grados':
-                window.Element('_asignatura_').Update(
-                    values=list_asignaturas_otros_grados)
-            elif values['_titulacion_'] == 'Másteres':
-                window.Element('_asignatura_').Update(
-                    values=list_asignaturas_masteres)
-            '''
-        elif event == "_aplicar_":
+                tabla_asignaturas = dict_tablas_asignaturas[titulacion]
+                num_asignaturas = tabla_asignaturas.shape[0]
+                lista_asignaturas = []
+                for i in range(num_asignaturas):
+                    dumtxt = tabla_asignaturas['asignatura'][i] + ', ' + \
+                             str(round(tabla_asignaturas['creditos'][i], 4)) \
+                             + ' créditos'
+                    if tabla_asignaturas['comentarios'][i] != ' ':
+                        dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
+                    if tabla_asignaturas['grupo'][i] != ' ':
+                        dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+                    lista_asignaturas.append(dumtxt)
+                window.Element('_asignatura_elegida_').Update(
+                    values=['---'] + lista_asignaturas,
+                    disabled=False
+                )
+        elif event == '_asignatura_elegida_':
+            asignatura_elegida = values['_asignatura_elegida_']
+            if asignatura_elegida == '---':
+                window.Element('_aplicar_').Update(disabled=True)
+            else:
+                window.Element('_aplicar_').Update(disabled=False)
+        elif event == '_aplicar_':
             break
-        elif event == "_cancelar_":
+        elif event == '_cancelar_':
             window.Element('_profesor_').Update(
                 #values=lista_profesores,
                 disabled=False
