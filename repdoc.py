@@ -38,19 +38,61 @@ def fill_cell_with_previous_value(s):
     return result
 
 
-def read_tabla_asignaturas(tabla_titulacion, debug=False):
-    """Read csv files with subjects.
+def read_tabla_titulaciones(xlsxfilename, debug=False):
+    """Lee hoja Excel con lista de titulaciones.
 
     """
 
-    tabla_asignaturas = pd.read_csv(
-        tabla_titulacion,
-        skiprows=5,
-        sep=";",
+    if debug:
+        print('Reading ' + xlsxfilename)
+        print('-> Sheet: "Resumen Encargo"')
+
+    tabla_titulaciones = pd.read_excel(
+        xlsxfilename,
+        sheet_name='Resumen Encargo',
+        skiprows=4,
         header=None,
-        usecols=range(10),
+        usecols=[1,2],
+        names=['uuid', 'titulacion'],
+        converters={'uuid': str,
+                    'titulacion': str}
+    )
+
+    # remove unnecessary rows
+    lok = tabla_titulaciones['uuid'].notnull()
+    tabla_titulaciones = tabla_titulaciones[lok]
+
+    # reset index values
+    tabla_titulaciones = tabla_titulaciones.reset_index(drop=True)
+
+    if debug:
+        print(tabla_titulaciones)
+        input('Press <CR> to continue...')
+
+    return tabla_titulaciones
+
+
+def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
+                           usecols=None, debug=False):
+    """Lee hoja Excel con lista de asignaturas
+
+    """
+
+    if debug:
+        print('Reading ' + xlsxfilename)
+        print('-> Sheet: "' + sheetname + '"')
+
+    tabla_asignaturas = pd.read_excel(
+        xlsxfilename,
+        sheet_name=sheetname,
+        skiprows=skiprows,
+        header=None,
+        usecols=usecols,
         names=['curso', 'semestre', 'codigo', 'asignatura', 'area', 'uuid',
-               'creditos', 'comentarios', 'grupo', 'profesor_anterior']
+               'creditos', 'comentarios', 'grupo', 'profesor_anterior'],
+        converters={'curso': str, 'semestre': int, 'codigo': int, 'area': str,
+                    'uuid': str, 'creditos': float, 'comentarios': str,
+                    'grupo': str, 'profesor_anterior': str}
     )
 
     # remove unnecessary rows
@@ -65,6 +107,7 @@ def read_tabla_asignaturas(tabla_titulacion, debug=False):
         tabla_asignaturas[item] = \
             fill_cell_with_previous_value(tabla_asignaturas[item])
 
+    '''
     # convert to integer
     for item in ['semestre', 'codigo']:
         tabla_asignaturas[item] = tabla_asignaturas[item].apply(
@@ -75,6 +118,7 @@ def read_tabla_asignaturas(tabla_titulacion, debug=False):
     tabla_asignaturas['creditos'] = tabla_asignaturas['creditos'].apply(
         lambda s: float(s.replace(',', '.'))
     )
+    '''
 
     if(debug):
         print(tabla_asignaturas)
@@ -84,18 +128,27 @@ def read_tabla_asignaturas(tabla_titulacion, debug=False):
     return tabla_asignaturas
 
 
-def read_tabla_profesores(teachers_csv_file, debug=False):
-    """Read csv file with teachers participating in the assignment round.
+def read_tabla_profesores(xlsxfilename, debug=False):
+    """Lee hoja Excel con lista de profesores que participan en rondas
 
     """
 
-    tabla_profesores = pd.read_csv(
-        teachers_csv_file,
+    if debug:
+        print('Reading ' + xlsxfilename)
+        print('-> Sheet: "PDA"')
+
+    tabla_profesores = pd.read_excel(
+        xlsxfilename,
+        sheet_name='PDA',
         skiprows=2,
-        sep=';',
         header=None,
         usecols=[0, 1, 2, 3, 17],
-        names=['uuid', 'apellidos', 'nombre', 'categoria', 'encargo']
+        names=['uuid', 'apellidos', 'nombre', 'categoria', 'encargo'],
+        converters={'uuid': str,
+                    'apellidos': str,
+                    'nombre': str,
+                    'categoria': str,
+                    'encargo': float}
     )
 
     # remove unnecessary rows
@@ -104,11 +157,6 @@ def read_tabla_profesores(teachers_csv_file, debug=False):
 
     # reset index values
     tabla_profesores = tabla_profesores.reset_index(drop=True)
-
-    # convert encargo into float (e.g. "1,6" -> 1.6)
-    tabla_profesores['encargo'] = tabla_profesores['encargo'].apply(
-        lambda s: float(s.replace(',', '.'))
-    )
 
     if debug:
         print(tabla_profesores)
@@ -123,9 +171,12 @@ def main(args=None):
     # parse command-line options
     parser = argparse.ArgumentParser(description='Subject assignment tool')
 
-    parser.add_argument("teachers",
-                        help="CSV file with teacher lists",
+    parser.add_argument("xlsxfile",
+                        help="Excel file with input data",
                         type=argparse.FileType('rt'))
+    parser.add_argument("--course", required=True,
+                        help="Academic course (e.g. 2019-2020)",
+                        type=str)
     parser.add_argument("--fontname",
                         help="font name for GUI",
                         default='Helvetica',
@@ -148,58 +199,40 @@ def main(args=None):
 
     # ---
 
-    tabla_titulaciones = pd.DataFrame(
-        data={'label': ['Grado en Física', 'Grado en IEC', 'Otros Grados',
-                        'Másteres'],
-              'csvfile': ['grado_en_fisica', 'grado_en_iec', 'otros_grados',
-                          'masteres']})
-
-    tabla_asignaturas_grado_en_fisica = read_tabla_asignaturas(
-        'asignaturas_' + tabla_titulaciones['csvfile'][0] + '.csv',
+    tabla_titulaciones = read_tabla_titulaciones(
+        xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
+    lista_titulaciones = tabla_titulaciones['titulacion']
 
-    tabla_asignaturas_grado_en_iec = read_tabla_asignaturas(
-        'asignaturas_' + tabla_titulaciones['csvfile'][1] + '.csv',
-        debug=args.debug
-    )
+    if args.course == '2019-2020':
+        skiprows=5
+        usecols=range(1,11)
+    else:
+        raise ValueError("Unexpected course!")
+    lista_tablas_asignaturas = []
+    for titulacion in tabla_titulaciones['titulacion']:
+        lista_tablas_asignaturas.append(
+            read_tabla_asignaturas(
+                xlsxfilename=args.xlsxfile.name,
+                sheetname=titulacion,
+                skiprows=skiprows,
+                usecols=usecols,
+                debug=args.debug
+            )
+        )
 
     tabla_profesores = read_tabla_profesores(
-        args.teachers,
+        xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
 
     num_profesores = tabla_profesores.shape[0]
 
-    list_profesores = ['---'] + \
-                      [tabla_profesores['nombre'][i] + ' ' +
-                       tabla_profesores['apellidos'][i]
-                       for i in range(num_profesores)]
-
-    list_titulaciones = ['?',
-                         'Grado en Física',
-                         'Grado en IEC',
-                         'Otros grados',
-                         'Másteres'
-                         ]
-
-    list_asignaturas_grado_fisica = ['?',
-                                     'Fundamentos de Física I',
-                                     'Matemáticas',
-                                     'LCC'
-                                     ]
-    list_asignaturas_grado_iec = ['?', 'Álgebra']
-    list_asignaturas_otros_grados = ['?',
-                                     'Física para Biólogos',
-                                     'Física para Geólogos'
-                                     ]
-    list_asignaturas_masteres = ['?',
-                                 'Atmósferas Estelares',
-                                 'Dinámica de Galaxias'
-                                 'Meteorología 1',
-                                 'Geofísica 2',
-                                 'Geofísica avanzada'
-                                 ]
+    lista_profesores = ['---'] + \
+                       [tabla_profesores['nombre'][i] + ' ' +
+                        tabla_profesores['apellidos'][i]
+                        for i in range(num_profesores)]
 
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
@@ -207,7 +240,7 @@ def main(args=None):
               [sg.T('_' * WIDTH_HLINE)],
               [sg.T('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_profesor_'),
-               sg.InputCombo(values=list_profesores,
+               sg.InputCombo(values=lista_profesores,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_profesor_')],
               [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
@@ -279,14 +312,15 @@ def main(args=None):
             if cout == 'y':
                 break
         elif event == "Cancelar":
-            window.Element('_profesor_').Update(values=list_profesores)
+            window.Element('_profesor_').Update(values=lista_profesores)
             window.Element('_titulacion_').Update(values='---', disabled=True)
             window.Element('_asignatura_').Update(values='---', disabled=True)
         elif event == "Aplicar":
             break
         elif event == '_profesor_':
             if values['_profesor_'] != '?':
-                window.Element('_titulacion_').Update(values=list_titulaciones, disabled=False)
+                window.Element('_titulacion_').Update(
+                    values=lista_titulaciones, disabled=False)
         elif event == '_titulacion_':
             if values['_titulacion_'] != '?':
                 window.Element('_asignatura_').Update(disabled=False)
