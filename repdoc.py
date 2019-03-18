@@ -347,21 +347,31 @@ def main(args=None):
         event, values = window.Read()
         print(event, values)
         if event == '_establecer_umbral_':
-            umbral = float(values['_umbral_creditos_'])
             lista_profesores = ['---']
-            if umbral < 0:
-                sg.Popup('ERROR',
-                         '¡El umbral ha de ser mayor o igual que cero!')
-                window.Element('_umbral_creditos_').Update('0.0')
-            else:
-                num_profesores = tabla_profesores.shape[0]
-                for i in range(num_profesores):
-                    nombre_completo = tabla_profesores['nombre'][i] + ' ' + \
-                                      tabla_profesores['apellidos'][i]
-                    if umbral == 0:
-                        lista_profesores.append(nombre_completo)
-                    elif tabla_profesores['asignados'][i] < umbral:
-                        lista_profesores.append(nombre_completo)
+            umbral_is_float = True
+            umbral = 0.0  # avoid warning
+            try:
+                umbral = float(values['_umbral_creditos_'])
+            except ValueError:
+                sg.Popup('ERROR', 'Número inválido')
+                umbral_is_float = False
+            if umbral_is_float:
+                if umbral < 0:
+                    sg.Popup('ERROR',
+                             '¡El umbral ha de ser mayor o igual que cero!')
+                    window.Element('_umbral_creditos_').Update('0.0')
+                else:
+                    window.Element('_umbral_creditos_').Update(
+                        str(float(umbral))
+                    )
+                    num_profesores = tabla_profesores.shape[0]
+                    for i in range(num_profesores):
+                        nombre_completo = tabla_profesores['nombre'][i] + ' ' + \
+                                          tabla_profesores['apellidos'][i]
+                        if umbral == 0:
+                            lista_profesores.append(nombre_completo)
+                        elif tabla_profesores['asignados'][i] < umbral:
+                            lista_profesores.append(nombre_completo)
             window.Element('_profesor_').Update(
                 values=lista_profesores,
                 disabled=False
