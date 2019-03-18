@@ -47,7 +47,7 @@ def read_tabla_titulaciones(xlsxfilename, debug=False):
         print('Reading ' + xlsxfilename)
         print('-> Sheet: "Resumen Encargo"')
 
-    tabla_titulaciones = pd.read_excel(
+    tabla_inicial = pd.read_excel(
         xlsxfilename,
         sheet_name='Resumen Encargo',
         skiprows=4,
@@ -59,11 +59,16 @@ def read_tabla_titulaciones(xlsxfilename, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_titulaciones['uuid'].notnull()
-    tabla_titulaciones = tabla_titulaciones[lok]
+    lok = tabla_inicial['uuid'].notnull()
+    tabla_inicial = tabla_inicial[lok]
 
     # reset index values
-    tabla_titulaciones = tabla_titulaciones.reset_index(drop=True)
+    tabla_inicial = tabla_inicial.reset_index(drop=True)
+
+    # use uuid as index
+    tabla_titulaciones = tabla_inicial.copy()
+    tabla_titulaciones.index = tabla_inicial['uuid']
+    del tabla_titulaciones['uuid']
 
     if debug:
         print(tabla_titulaciones)
@@ -82,7 +87,7 @@ def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
         print('Reading ' + xlsxfilename)
         print('-> Sheet: "' + sheetname + '"')
 
-    tabla_asignaturas = pd.read_excel(
+    tabla_inicial = pd.read_excel(
         xlsxfilename,
         sheet_name=sheetname,
         skiprows=skiprows,
@@ -96,16 +101,21 @@ def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
     )
 
     # remove unnecessary rows
-    lok = tabla_asignaturas['uuid'].notnull()
-    tabla_asignaturas = tabla_asignaturas[lok]
+    lok = tabla_inicial['uuid'].notnull()
+    tabla_inicial = tabla_inicial[lok]
 
     # reset index values
-    tabla_asignaturas = tabla_asignaturas.reset_index(drop=True)
+    tabla_inicial = tabla_inicial.reset_index(drop=True)
 
     # fill empty cells
     for item in ['curso', 'semestre', 'codigo', 'asignatura']:
-        tabla_asignaturas[item] = \
-            fill_cell_with_previous_value(tabla_asignaturas[item])
+        tabla_inicial[item] = \
+            fill_cell_with_previous_value(tabla_inicial[item])
+
+    # use uuid as index
+    tabla_asignaturas = tabla_inicial.copy()
+    tabla_asignaturas.index = tabla_inicial['uuid']
+    del tabla_asignaturas['uuid']
 
     if(debug):
         print(tabla_asignaturas)
@@ -124,7 +134,7 @@ def read_tabla_profesores(xlsxfilename, debug=False):
         print('Reading ' + xlsxfilename)
         print('-> Sheet: "PDA"')
 
-    tabla_profesores = pd.read_excel(
+    tabla_inicial = pd.read_excel(
         xlsxfilename,
         sheet_name='PDA',
         skiprows=2,
@@ -139,11 +149,16 @@ def read_tabla_profesores(xlsxfilename, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_profesores['uuid'].notnull()
-    tabla_profesores = tabla_profesores[lok]
+    lok = tabla_inicial['uuid'].notnull()
+    tabla_inicial = tabla_inicial[lok]
 
     # reset index values
-    tabla_profesores = tabla_profesores.reset_index(drop=True)
+    tabla_inicial = tabla_inicial.reset_index(drop=True)
+
+    # use uuid as index
+    tabla_profesores = tabla_inicial.copy()
+    tabla_profesores.index = tabla_inicial['uuid']
+    del tabla_profesores['uuid']
 
     if debug:
         print(tabla_profesores)
@@ -153,18 +168,18 @@ def read_tabla_profesores(xlsxfilename, debug=False):
     return tabla_profesores
 
 
-def busca_profesor(profesor, tabla_profesores):
+def busca_profesor_por_nombre_completo(profesor, tabla_profesores):
     """Return index of 'profesor' within tabla_profesores.
 
     """
 
     nombre_completo = None
-    for i, (nombre, apellidos) in enumerate(zip(tabla_profesores['nombre'],
-                                                tabla_profesores['apellidos'])
-                                            ):
+    for i, (nombre, apellidos) in enumerate(zip(
+            tabla_profesores['nombre'],
+            tabla_profesores['apellidos'])):
         nombre_completo = nombre + ' ' + apellidos
         if nombre_completo == profesor:
-            return i
+            return tabla_profesores.index[i]
 
     raise ValueError('¡Profesor ' + nombre_completo + ' no encontrado!')
 
@@ -202,13 +217,14 @@ def main(args=None):
 
     # ---
 
+    # titulaciones
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
     lista_titulaciones = ['---'] + tabla_titulaciones['titulacion'].tolist()
-    print(lista_titulaciones)
 
+    # asignaturas de cada titulacion
     if args.course == '2019-2020':
         skiprows=5
         usecols=range(1,11)
@@ -226,10 +242,12 @@ def main(args=None):
             )
         )
 
+    # profesores
     tabla_profesores = read_tabla_profesores(
         xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
+    tabla_profesores['asignados'] = 0.0
 
     num_profesores = tabla_profesores.shape[0]
 
@@ -251,21 +269,21 @@ def main(args=None):
               # ---
               [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
-                    key='_label_encargo_docente_'),
-               sg.T('---', key='_encargo_docente_',
+                    key='_label_encargo_'),
+               sg.T('---', key='_encargo_',
                     size=(WIDTH_TEXT_LABEL, 1))],
               # ---
               [sg.T('Créditos asignados:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
-                    key='_label_creditos_asignados_'),
-               sg.T('---', key='_creditos_asignados_',
+                    key='_label_asignados_'),
+               sg.T('---', key='_asignados_',
                     size=(WIDTH_TEXT_LABEL, 1))],
               # ---
               [sg.T('Diferencia:', size=(
                   WIDTH_TEXT_LABEL,1),
                     justification='right',
-                    key='_label_diferencia_creditos_'),
-               sg.T('---', key='_diferencia_creditos_',
+                    key='_label_diferencia_'),
+               sg.T('---', key='_diferencia_',
                     size=(WIDTH_TEXT_LABEL, 1))],
               # ---
               [sg.T('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
@@ -275,8 +293,8 @@ def main(args=None):
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_docencia_asignada_')],
               # ---
-              [sg.Button('Continuar', disabled=True),
-               sg.Button('Modificar', disabled=True)],
+              [sg.Button('Continuar', disabled=True, key='_continuar_'),
+               sg.Button('Modificar', disabled=True, key='_modificar_')],
               [sg.T('_' * WIDTH_HLINE)],
               # ---
               [sg.T('Titulación:', size=(WIDTH_TEXT_LABEL,1),
@@ -306,10 +324,10 @@ def main(args=None):
                             do_not_clear=True, disabled=True,
                             key='_creditos_elegidos_de_asignatura_')],
               # ---
-              [sg.Button('Aplicar', disabled=True),
-               sg.Button('Cancelar', disabled=True)],
+              [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
+               sg.Button('Cancelar', disabled=True, key='_cancelar_')],
               [sg.T('_' * WIDTH_HLINE)],
-              [sg.Button('Salir')]
+              [sg.Button('Salir', key='_salir_')]
               ]
 
     window = sg.Window("Reparto Docente (FTA)").Layout(layout)
@@ -317,35 +335,31 @@ def main(args=None):
     while True:
         event, values = window.Read()
         print(event, values)
-        if event is None or event == "Salir":
-            cout = ''
-            while cout != 'y' and cout != 'n':
-                cout = input('Do you really want to exit (y/n) [y] ? ')
-                if cout == '':
-                    cout = 'y'
-                if cout != 'y' and cout != 'n':
-                    print('Invalid answer. Try again!')
-            if cout == 'y':
-                break
-        elif event == "Cancelar":
-            window.Element('_profesor_').Update(values=lista_profesores)
-            window.Element('_titulacion_').Update(values='---', disabled=True)
-            window.Element('_asignatura_').Update(values='---', disabled=True)
-        elif event == "Aplicar":
-            break
-        elif event == '_profesor_':
+        if event == '_profesor_':
             if values['_profesor_'] == '---':
-                window.Element('_encargo_docente_').Update('---')
-                window.Element('_creditos_asignados_').Update('---')
-                window.Element('_diferencia_creditos_').Update('---')
+                window.Element('_encargo_').Update('---')
+                window.Element('_asignados_').Update('---')
+                window.Element('_diferencia_').Update('---')
                 window.Element('_docencia_asignada_').Update('---')
                 window.Element('_titulacion_').Update('---')
+                window.Element('_continuar_').Update(disabled=True)
             else:
-                iprof = busca_profesor(values['_profesor_'], tabla_profesores)
-                window.Element('_encargo_docente_').Update(
-                    str(round(tabla_profesores['encargo'][iprof], 4)))
-                window.Element('_titulacion_').Update(
-                    values=lista_titulaciones, disabled=False)
+                uuid_profesor = busca_profesor_por_nombre_completo(
+                    values['_profesor_'], tabla_profesores
+                )
+                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
+                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
+                diferencia = asignados - encargo
+                window.Element('_encargo_').Update(round(encargo, 4))
+                window.Element('_asignados_').Update(round(asignados, 4))
+                window.Element('_diferencia_').Update(round(diferencia, 4))
+                window.Element('_continuar_').Update(disabled=False)
+        elif event == '_continuar_':
+            window.Element('_profesor_').Update(disabled=True)
+            window.Element('_continuar_').Update(disabled=True)
+            window.Element('_titulacion_').Update(
+                values=lista_titulaciones, disabled=False)
+            window.Element('_cancelar_').Update(disabled=False)
         elif event == '_titulacion_':
             if values['_titulacion_'] == '---':
                 window.Element('_asignatura_elegida_').Update('---')
@@ -353,7 +367,6 @@ def main(args=None):
             else:
                 window.Element('_asignatura_elegida_').Update(disabled=False)
             print(values['_titulacion_'])
-            input("Stop here!")
             '''
             if values['_titulacion_'] == 'Grado en Física':
                 window.Element('_asignatura_').Update(
@@ -368,6 +381,33 @@ def main(args=None):
                 window.Element('_asignatura_').Update(
                     values=list_asignaturas_masteres)
             '''
+        elif event == "_aplicar_":
+            break
+        elif event == "_cancelar_":
+            window.Element('_profesor_').Update(
+                #values=lista_profesores,
+                disabled=False
+            )
+            window.Element('_titulacion_').Update(
+                values='---',
+                disabled=True
+            )
+            window.Element('_asignatura_elegida_').Update(
+                values='---',
+                disabled=True
+            )
+            window.Element('_continuar_').Update(disabled=False)
+            window.Element('_cancelar_').Update(disabled=True)
+        elif event is None or event == "_salir_":
+            cout = ''
+            while cout != 'y' and cout != 'n':
+                cout = input('Do you really want to exit (y/n) [y] ? ')
+                if cout == '':
+                    cout = 'y'
+                if cout != 'y' and cout != 'n':
+                    print('Invalid answer. Try again!')
+            if cout == 'y':
+                break
 
     window.Close()
 
