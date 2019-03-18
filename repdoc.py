@@ -235,7 +235,6 @@ def main(args=None):
         xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
-    lista_titulaciones = ['---'] + tabla_titulaciones['titulacion'].tolist()
 
     # asignaturas de cada titulacion
     if args.course == '2019-2020':
@@ -260,22 +259,23 @@ def main(args=None):
     )
     tabla_profesores['asignados'] = 0.0
 
-    num_profesores = tabla_profesores.shape[0]
-
-    lista_profesores = ['---'] + \
-                       [tabla_profesores['nombre'][i] + ' ' +
-                        tabla_profesores['apellidos'][i]
-                        for i in range(num_profesores)]
-
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
     layout = [[sg.T('Resumen...')],
               [sg.T('_' * WIDTH_HLINE)],
               # ---
+              [sg.T('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
+                    justification='right', key='_label_umbral_creditos_'),
+               sg.InputText(default_text='0.0', size=(WIDTH_INPUT_NUMBER,1),
+                            justification='right',
+                            do_not_clear=True, disabled=False,
+                            key='_umbral_creditos_'),
+               sg.Button('Establecer umbral', key='_establecer_umbral_')],
               [sg.T('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_profesor_'),
-               sg.InputCombo(values=lista_profesores,
+               sg.InputCombo(values=['---'],
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             disabled=True,
                              key='_profesor_')],
               # ---
               [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
@@ -300,7 +300,7 @@ def main(args=None):
               [sg.T('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_docencia_asignada_'),
-               sg.InputCombo(values='---', disabled=True,
+               sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_docencia_asignada_')],
               # ---
@@ -310,13 +310,13 @@ def main(args=None):
               # ---
               [sg.T('Titulación:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_titulacion_'),
-               sg.InputCombo(values='---', disabled=True,
+               sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_titulacion_')],
               # ---
               [sg.T('Asignatura elegida:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_asignatura_elegida_'),
-               sg.InputCombo(values='---', disabled=True,
+               sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_asignatura_elegida_'),
                sg.T('Créditos: ' + str(0.0),
@@ -346,7 +346,44 @@ def main(args=None):
     while True:
         event, values = window.Read()
         print(event, values)
-        if event == '_profesor_':
+        if event == '_establecer_umbral_':
+            umbral = float(values['_umbral_creditos_'])
+            lista_profesores = ['---']
+            if umbral < 0:
+                sg.Popup('ERROR',
+                         '¡El umbral ha de ser mayor o igual que cero!')
+                window.Element('_umbral_creditos_').Update('0.0')
+            else:
+                num_profesores = tabla_profesores.shape[0]
+                for i in range(num_profesores):
+                    nombre_completo = tabla_profesores['nombre'][i] + ' ' + \
+                                      tabla_profesores['apellidos'][i]
+                    if umbral == 0:
+                        lista_profesores.append(nombre_completo)
+                    elif tabla_profesores['asignados'][i] < umbral:
+                        lista_profesores.append(nombre_completo)
+            window.Element('_profesor_').Update(
+                values=lista_profesores,
+                disabled=False
+            )
+            window.Element('_encargo_').Update('---')
+            window.Element('_asignados_').Update('---')
+            window.Element('_diferencia_').Update('---')
+            window.Element('_docencia_asignada_').Update('---')
+            window.Element('_titulacion_').Update('---')
+            window.Element('_continuar_').Update(disabled=True)
+            window.Element('_modificar_').Update(disabled=True)
+            window.Element('_titulacion_').Update(
+                values='---',
+                disabled=True
+            )
+            window.Element('_asignatura_elegida_').Update(
+                values='---',
+                disabled=True
+            )
+            window.Element('_aplicar_').Update(disabled=True)
+            window.Element('_cancelar_').Update(disabled=True)
+        elif event == '_profesor_':
             if values['_profesor_'] == '---':
                 window.Element('_encargo_').Update('---')
                 window.Element('_asignados_').Update('---')
@@ -354,6 +391,7 @@ def main(args=None):
                 window.Element('_docencia_asignada_').Update('---')
                 window.Element('_titulacion_').Update('---')
                 window.Element('_continuar_').Update(disabled=True)
+                window.Element('_modificar_').Update(disabled=True)
             else:
                 uuid_profesor = busca_profesor_por_nombre_completo(
                     values['_profesor_'], tabla_profesores
@@ -368,6 +406,7 @@ def main(args=None):
         elif event == '_continuar_':
             window.Element('_profesor_').Update(disabled=True)
             window.Element('_continuar_').Update(disabled=True)
+            lista_titulaciones = ['---'] + tabla_titulaciones['titulacion'].tolist()
             window.Element('_titulacion_').Update(
                 values=lista_titulaciones, disabled=False)
             window.Element('_cancelar_').Update(disabled=False)
@@ -403,10 +442,7 @@ def main(args=None):
         elif event == '_aplicar_':
             break
         elif event == '_cancelar_':
-            window.Element('_profesor_').Update(
-                #values=lista_profesores,
-                disabled=False
-            )
+            window.Element('_profesor_').Update(disabled=False)
             window.Element('_titulacion_').Update(
                 values='---',
                 disabled=True
