@@ -107,19 +107,6 @@ def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
         tabla_asignaturas[item] = \
             fill_cell_with_previous_value(tabla_asignaturas[item])
 
-    '''
-    # convert to integer
-    for item in ['semestre', 'codigo']:
-        tabla_asignaturas[item] = tabla_asignaturas[item].apply(
-            lambda f: int(f)
-        )
-
-    # convert creditos into float (e.g. "1,6" -> 1.6)
-    tabla_asignaturas['creditos'] = tabla_asignaturas['creditos'].apply(
-        lambda s: float(s.replace(',', '.'))
-    )
-    '''
-
     if(debug):
         print(tabla_asignaturas)
         print('Créditos totales:', tabla_asignaturas['creditos'].sum())
@@ -166,6 +153,22 @@ def read_tabla_profesores(xlsxfilename, debug=False):
     return tabla_profesores
 
 
+def busca_profesor(profesor, tabla_profesores):
+    """Return index of 'profesor' within tabla_profesores.
+
+    """
+
+    nombre_completo = None
+    for i, (nombre, apellidos) in enumerate(zip(tabla_profesores['nombre'],
+                                                tabla_profesores['apellidos'])
+                                            ):
+        nombre_completo = nombre + ' ' + apellidos
+        if nombre_completo == profesor:
+            return i
+
+    raise ValueError('¡Profesor ' + nombre_completo + ' no encontrado!')
+
+
 def main(args=None):
 
     # parse command-line options
@@ -203,7 +206,8 @@ def main(args=None):
         xlsxfilename=args.xlsxfile.name,
         debug=args.debug
     )
-    lista_titulaciones = tabla_titulaciones['titulacion']
+    lista_titulaciones = ['---'] + tabla_titulaciones['titulacion'].tolist()
+    print(lista_titulaciones)
 
     if args.course == '2019-2020':
         skiprows=5
@@ -238,38 +242,49 @@ def main(args=None):
 
     layout = [[sg.T('Resumen...')],
               [sg.T('_' * WIDTH_HLINE)],
+              # ---
               [sg.T('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_profesor_'),
                sg.InputCombo(values=lista_profesores,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_profesor_')],
+              # ---
               [sg.T('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_encargo_docente_'),
-               sg.T('---', key='_encargo_docente_')],
+               sg.T('---', key='_encargo_docente_',
+                    size=(WIDTH_TEXT_LABEL, 1))],
+              # ---
               [sg.T('Créditos asignados:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_creditos_asignados_'),
-               sg.T('---', key='_creditos_asignados_')],
+               sg.T('---', key='_creditos_asignados_',
+                    size=(WIDTH_TEXT_LABEL, 1))],
+              # ---
               [sg.T('Diferencia:', size=(
                   WIDTH_TEXT_LABEL,1),
                     justification='right',
-                    key='_label_diferencia_'),
-               sg.T('---', key='_diferencia_')],
+                    key='_label_diferencia_creditos_'),
+               sg.T('---', key='_diferencia_creditos_',
+                    size=(WIDTH_TEXT_LABEL, 1))],
+              # ---
               [sg.T('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right',
                     key='_label_docencia_asignada_'),
                sg.InputCombo(values='---', disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_docencia_asignada_')],
+              # ---
               [sg.Button('Continuar', disabled=True),
                sg.Button('Modificar', disabled=True)],
               [sg.T('_' * WIDTH_HLINE)],
+              # ---
               [sg.T('Titulación:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_titulacion_'),
                sg.InputCombo(values='---', disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
                              key='_titulacion_')],
+              # ---
               [sg.T('Asignatura elegida:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_asignatura_elegida_'),
                sg.InputCombo(values='---', disabled=True,
@@ -290,6 +305,7 @@ def main(args=None):
                             justification='right',
                             do_not_clear=True, disabled=True,
                             key='_creditos_elegidos_de_asignatura_')],
+              # ---
               [sg.Button('Aplicar', disabled=True),
                sg.Button('Cancelar', disabled=True)],
               [sg.T('_' * WIDTH_HLINE)],
@@ -318,20 +334,40 @@ def main(args=None):
         elif event == "Aplicar":
             break
         elif event == '_profesor_':
-            if values['_profesor_'] != '?':
+            if values['_profesor_'] == '---':
+                window.Element('_encargo_docente_').Update('---')
+                window.Element('_creditos_asignados_').Update('---')
+                window.Element('_diferencia_creditos_').Update('---')
+                window.Element('_docencia_asignada_').Update('---')
+                window.Element('_titulacion_').Update('---')
+            else:
+                iprof = busca_profesor(values['_profesor_'], tabla_profesores)
+                window.Element('_encargo_docente_').Update(
+                    str(round(tabla_profesores['encargo'][iprof], 4)))
                 window.Element('_titulacion_').Update(
                     values=lista_titulaciones, disabled=False)
         elif event == '_titulacion_':
-            if values['_titulacion_'] != '?':
-                window.Element('_asignatura_').Update(disabled=False)
+            if values['_titulacion_'] == '---':
+                window.Element('_asignatura_elegida_').Update('---')
+                window.Element('_asignatura_elegida_').Update(disabled=True)
+            else:
+                window.Element('_asignatura_elegida_').Update(disabled=False)
+            print(values['_titulacion_'])
+            input("Stop here!")
+            '''
             if values['_titulacion_'] == 'Grado en Física':
-                window.Element('_asignatura_').Update(values=list_asignaturas_grado_fisica)
+                window.Element('_asignatura_').Update(
+                    values=list_asignaturas_grado_fisica)
             elif values['_titulacion_'] == 'Grado en IEC':
-                window.Element('_asignatura_').Update(values=list_asignaturas_grado_iec)
+                window.Element('_asignatura_').Update(
+                    values=list_asignaturas_grado_iec)
             elif values['_titulacion_'] == 'Otros grados':
-                window.Element('_asignatura_').Update(values=list_asignaturas_otros_grados)
+                window.Element('_asignatura_').Update(
+                    values=list_asignaturas_otros_grados)
             elif values['_titulacion_'] == 'Másteres':
-                window.Element('_asignatura_').Update(values=list_asignaturas_masteres)
+                window.Element('_asignatura_').Update(
+                    values=list_asignaturas_masteres)
+            '''
 
     window.Close()
 
