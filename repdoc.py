@@ -242,9 +242,9 @@ def main(args=None):
         usecols=range(1,11)
     else:
         raise ValueError("Unexpected course!")
-    dict_tablas_asignaturas = {}
+    bigdict_tablas_asignaturas = {}
     for titulacion in tabla_titulaciones['titulacion']:
-        dict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
+        bigdict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 sheetname=titulacion,
                 skiprows=skiprows,
@@ -266,7 +266,8 @@ def main(args=None):
               # ---
               [sg.T('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
                     justification='right', key='_label_umbral_creditos_'),
-               sg.InputText(default_text='0.0', size=(WIDTH_INPUT_NUMBER,1),
+               sg.InputText(default_text='0.0',
+                            size=(WIDTH_INPUT_NUMBER, 1),
                             justification='right',
                             do_not_clear=True, disabled=False,
                             key='_umbral_creditos_'),
@@ -311,28 +312,46 @@ def main(args=None):
               [sg.T('Titulación:', size=(WIDTH_TEXT_LABEL,1),
                     justification='right', key='_label_titulacion_'),
                sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              key='_titulacion_')],
               # ---
-              [sg.T('Asignatura elegida:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.T('Asignatura elegida:', size=(WIDTH_TEXT_LABEL, 1),
                     justification='right', key='_label_asignatura_elegida_'),
                sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO,1), enable_events=True,
-                             key='_asignatura_elegida_'),
-               sg.T('Créditos: ' + str(0.0),
-                    key='_creditos_asignatura_elegida_')],
-              [sg.T('', size=(WIDTH_TEXT_LABEL,1)),
-               sg.Radio('Todos los créditos',
-                        '_fraccion_de_asignatura_',
-                        default=True, size=(WIDTH_TEXT_LABEL,1),
-                        disabled=True),
-               sg.Radio('Solo una parte', '_fraccion_asignatura_',
-                        default=False, size=(WIDTH_TEXT_LABEL,1),
-                        disabled=True),
-               sg.T('Créditos elegidos'),
-               sg.InputText(default_text='0.0', size=(WIDTH_INPUT_NUMBER,1),
+                             key='_asignatura_elegida_')],
+              [sg.T('', size=(WIDTH_TEXT_LABEL, 1)),
+               sg.T('Créditos: ',
+                    text_color='#aaaaaa',
+                    auto_size_text=True,
+                    key='_label_creditos_asignatura_elegida_'),
+               sg.InputText(str(0.0),
+                            size=(WIDTH_INPUT_NUMBER, 1),
+                            text_color='#aaaaaa',
+                            do_not_clear=True,
+                            disabled=True,
+                            key='_creditos_asignatura_elegida_')],
+              [sg.T('', size=(WIDTH_TEXT_LABEL, 1)),
+               sg.Checkbox('Todos los créditos',
+                           default=False,
+                           change_submits=True,
+                           auto_size_text=True,
+                           key='_fraccion_de_asignatura_todo_',
+                           disabled=True),
+               sg.Checkbox('Solo una parte',
+                           default=False,
+                           change_submits=True,
+                           auto_size_text=True,
+                           key='_fraccion_de_asignatura_parte_',
+                           disabled=True),
+               sg.T('¿Créditos a elegir?',
+                    auto_size_text=True,
+                    key='_label_creditos_elegidos_de_asignatura_',
+                    visible=False),
+               sg.InputText(default_text='0.0', size=(WIDTH_INPUT_NUMBER, 1),
                             justification='right',
                             do_not_clear=True, disabled=True,
+                            visible=False,
                             key='_creditos_elegidos_de_asignatura_')],
               # ---
               [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
@@ -342,6 +361,11 @@ def main(args=None):
               ]
 
     window = sg.Window("Reparto Docente (FTA)").Layout(layout)
+
+    uuid_profesor = None
+    uuid_titulacion = None
+    uuid_lista_asignaturas = None
+    uuid_asignatura = None
 
     while True:
         event, values = window.Read()
@@ -402,6 +426,7 @@ def main(args=None):
                 window.Element('_titulacion_').Update('---')
                 window.Element('_continuar_').Update(disabled=True)
                 window.Element('_modificar_').Update(disabled=True)
+                uuid_profesor = None
             else:
                 uuid_profesor = busca_profesor_por_nombre_completo(
                     values['_profesor_'], tabla_profesores
@@ -414,9 +439,13 @@ def main(args=None):
                 window.Element('_diferencia_').Update(round(diferencia, 4))
                 window.Element('_continuar_').Update(disabled=False)
         elif event == '_continuar_':
+            if uuid_profesor is None:
+                raise ValueError('Unexpected uuid_profesor == None')
+            print('* Profesor elegido:', tabla_profesores.loc[uuid_profesor])
             window.Element('_profesor_').Update(disabled=True)
             window.Element('_continuar_').Update(disabled=True)
-            lista_titulaciones = ['---'] + tabla_titulaciones['titulacion'].tolist()
+            lista_titulaciones = ['---'] + \
+                                 tabla_titulaciones['titulacion'].tolist()
             window.Element('_titulacion_').Update(
                 values=lista_titulaciones, disabled=False)
             window.Element('_cancelar_').Update(disabled=False)
@@ -425,11 +454,26 @@ def main(args=None):
             if titulacion == '---':
                 window.Element('_asignatura_elegida_').Update('---')
                 window.Element('_asignatura_elegida_').Update(disabled=True)
+                window.Element('_creditos_asignatura_elegida_').Update(
+                    str(0.0)
+                )
+                window.Element('_fraccion_de_asignatura_todo_').Update(
+                    value=False, disabled=True
+                )
+                window.Element('_fraccion_de_asignatura_parte_').Update(
+                    value=False, disabled=True
+                )
                 window.Element('_aplicar_').Update(disabled=True)
+                uuid_titulacion = None
+                uuid_lista_asignaturas = None
             else:
-                tabla_asignaturas = dict_tablas_asignaturas[titulacion]
+                uuid_titulacion = tabla_titulaciones.loc[
+                    tabla_titulaciones['titulacion'] == titulacion
+                ].index.values[0]
+                tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
                 num_asignaturas = tabla_asignaturas.shape[0]
                 lista_asignaturas = []
+                uuid_lista_asignaturas = {}
                 for i in range(num_asignaturas):
                     dumtxt = tabla_asignaturas['asignatura'][i] + ', ' + \
                              str(round(tabla_asignaturas['creditos'][i], 4)) \
@@ -439,6 +483,7 @@ def main(args=None):
                     if tabla_asignaturas['grupo'][i] != ' ':
                         dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
                     lista_asignaturas.append(dumtxt)
+                    uuid_lista_asignaturas[dumtxt] = tabla_asignaturas.index[i]
                 window.Element('_asignatura_elegida_').Update(
                     values=['---'] + lista_asignaturas,
                     disabled=False
@@ -446,13 +491,90 @@ def main(args=None):
         elif event == '_asignatura_elegida_':
             asignatura_elegida = values['_asignatura_elegida_']
             if asignatura_elegida == '---':
+                uuid_asignatura = None
+                window.Element('_creditos_asignatura_elegida_').Update(
+                    str(0.0)
+                )
+                window.Element('_fraccion_de_asignatura_todo_').Update(
+                    value=False, disabled=True
+                )
+                window.Element('_fraccion_de_asignatura_parte_').Update(
+                    value=False, disabled=True
+                )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
-                window.Element('_aplicar_').Update(disabled=False)
+                uuid_asignatura = uuid_lista_asignaturas[asignatura_elegida]
+                print('* uuid_profesor..:', uuid_profesor)
+                print('* uuid_titulacion:', uuid_titulacion)
+                print('* uuid_asignatura:', uuid_asignatura)
+                titulacion = values['_titulacion_']
+                window.Element('_creditos_asignatura_elegida_').Update(
+                    str(round(bigdict_tablas_asignaturas[
+                        titulacion].loc[uuid_asignatura]['creditos'], 4))
+                )
+                window.Element('_fraccion_de_asignatura_todo_').Update(
+                    disabled=False
+                )
+                window.Element('_fraccion_de_asignatura_parte_').Update(
+                    disabled=False
+                )
+        elif event == '_fraccion_de_asignatura_todo_':
+            window.Element('_fraccion_de_asignatura_parte_').Update(
+                value=False
+            )
+            window.Element('_label_creditos_elegidos_de_asignatura_').Update(
+                visible=False
+            )
+            window.Element('_creditos_elegidos_de_asignatura_').Update(
+                visible=False, disabled=True,
+            )
+            window.Element('_aplicar_').Update(disabled=False)
+        elif event == '_fraccion_de_asignatura_parte_':
+            window.Element('_fraccion_de_asignatura_todo_').Update(
+                value=False
+            )
+            window.Element('_label_creditos_elegidos_de_asignatura_').Update(
+                visible=True
+            )
+            window.Element('_creditos_elegidos_de_asignatura_').Update(
+                visible=True, disabled=False,
+            )
+            window.Element('_aplicar_').Update(disabled=False)
         elif event == '_aplicar_':
-            break
+            if values['_fraccion_de_asignatura_todo_']:
+                print('* Usando todos los créditos:',
+                      values['_creditos_asignatura_elegida_'])
+            elif values['_fraccion_de_asignatura_parte_']:
+                print('* Usando solo una parte')
+                creditos_elegidos_de_asignatura_is_float = True
+                creditos_elegidos_de_asignatura = 0.0
+                limite_maximo = float(values['_creditos_asignatura_elegida_'])
+                try:
+                    creditos_elegidos_de_asignatura = float(
+                        values['_creditos_elegidos_de_asignatura_']
+                    )
+                except ValueError:
+                    sg.Popup('ERROR', 'Número inválido')
+                    creditos_elegidos_de_asignatura_is_float = False
+                if creditos_elegidos_de_asignatura_is_float:
+                    if  0 < creditos_elegidos_de_asignatura < limite_maximo:
+                        window.Element(
+                            '_creditos_elegidos_de_asignatura_').Update(
+                            str(float(creditos_elegidos_de_asignatura))
+                        )
+                    else:
+                        sg.Popup('ERROR',
+                                 '¡Número fuera del intervalo válido!\n' +
+                                 '0 < valor < ' + str(limite_maximo))
+                        window.Element(
+                            '_creditos_elegidos_de_asignatura_').Update(
+                            '0.0'
+                        )
+            else:
+                raise ValueError('Unexpected error: fraccion_de_asignaturas')
         elif event == '_cancelar_':
             window.Element('_profesor_').Update(disabled=False)
+            window.Element('_continuar_').Update(disabled=False)
             window.Element('_titulacion_').Update(
                 values='---',
                 disabled=True
@@ -461,7 +583,20 @@ def main(args=None):
                 values='---',
                 disabled=True
             )
-            window.Element('_continuar_').Update(disabled=False)
+            window.Element('_creditos_asignatura_elegida_').Update(str(0.0))
+            window.Element('_fraccion_de_asignatura_todo_').Update(
+                value=False, disabled=True
+            )
+            window.Element('_fraccion_de_asignatura_parte_').Update(
+                value=False, disabled=True
+            )
+            window.Element('_label_creditos_elegidos_de_asignatura_').Update(
+                visible=False
+            )
+            window.Element('_creditos_elegidos_de_asignatura_').Update(
+                visible=False, disabled=True
+            )
+            window.Element('_aplicar_').Update(disabled=True)
             window.Element('_cancelar_').Update(disabled=True)
         elif event is None or event == "_salir_":
             cout = ''
