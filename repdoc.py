@@ -269,10 +269,12 @@ def main(args=None):
                        justification='right', key='_label_umbral_creditos_'),
                sg.InputText(default_text='0.0',
                             size=(WIDTH_INPUT_NUMBER, 1),
-                            justification='right',
+                            justification='left',
                             do_not_clear=True, disabled=False,
                             key='_umbral_creditos_'),
                sg.Button('Establecer umbral', key='_establecer_umbral_')],
+              # ---
+              [sg.Text('_' * WIDTH_HLINE)],
               # ---
               [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
                        justification='right', key='_label_profesor_'),
@@ -308,7 +310,7 @@ def main(args=None):
                              key='_docencia_asignada_')],
               # ---
               [sg.Button('Continuar', disabled=True, key='_continuar_'),
-               sg.Button('Modificar', disabled=True, key='_modificar_')],
+               sg.Button('Eliminar', disabled=True, key='_eliminar_')],
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
               [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL,1),
@@ -353,12 +355,12 @@ def main(args=None):
                            auto_size_text=True,
                            key='_fraccion_de_asignatura_parte_',
                            disabled=True),
-               sg.Text('¿Créditos a elegir?', text_color="#aaaaaa",
+               sg.Text('Créditos a elegir:', text_color="#aaaaaa",
                        auto_size_text=True,
                        key='_label_creditos_elegidos_de_asignatura_'),
                sg.InputText(default_text='0.0', text_color="#aaaaaa",
                             size=(WIDTH_INPUT_NUMBER, 1),
-                            justification='right',
+                            justification='left',
                             do_not_clear=True, disabled=True,
                             key='_creditos_elegidos_de_asignatura_')],
               # ---
@@ -416,7 +418,7 @@ def main(args=None):
             window.Element('_docencia_asignada_').Update('---')
             window.Element('_titulacion_').Update('---')
             window.Element('_continuar_').Update(disabled=True)
-            window.Element('_modificar_').Update(disabled=True)
+            window.Element('_eliminar_').Update(disabled=True)
             window.Element('_titulacion_').Update(
                 values='---',
                 disabled=True
@@ -435,7 +437,7 @@ def main(args=None):
                 window.Element('_docencia_asignada_').Update('---')
                 window.Element('_titulacion_').Update('---')
                 window.Element('_continuar_').Update(disabled=True)
-                window.Element('_modificar_').Update(disabled=True)
+                window.Element('_eliminar_').Update(disabled=True)
                 uuid_profesor = None
                 window.Element('_uuid_profesor_').Update('---')
             else:
@@ -565,9 +567,10 @@ def main(args=None):
             limite_maximo = creditos_max_asignatura
             while loop:
                 dumtxt = sg.PopupGetText(
-                    '¿Créditos?',
                     '¿Créditos a elegir?  (0 < valor < ' +
-                    str(limite_maximo))
+                    str(limite_maximo) + ')',
+                    '¿Créditos?'
+                )
                 if dumtxt is None:
                     loop = False
                 else:
