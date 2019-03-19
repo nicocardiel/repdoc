@@ -89,11 +89,27 @@ def read_tabla_titulaciones(xlsxfilename, debug=False):
     return tabla_titulaciones
 
 
-def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
-                           usecols=None, debug=False):
+def read_tabla_asignaturas(xlsxfilename, course, sheetname, debug=False):
     """Lee hoja Excel con lista de asignaturas
 
     """
+
+
+    if course == '2019-2020':
+        skiprows = 5
+        usecols = range(1,12)
+        names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
+                 'uuid', 'creditos', 'comentarios', 'grupo', 'bec_col',
+                 'profesor_anterior'
+                 ]
+        converters = {'curso': str, 'semestre': int, 'codigo': int,
+                      'area': str, 'uuid': str, 'creditos': float,
+                      'comentarios': str_nonan, 'grupo': str_nonan,
+                      'bec_col': int, 'profesor_anterior': str_nonan
+                      }
+    else:
+        print('Course: ' + course)
+        raise ValueError('Unexpected course!')
 
     if debug:
         print('Reading ' + xlsxfilename)
@@ -105,13 +121,8 @@ def read_tabla_asignaturas(xlsxfilename, sheetname, skiprows=None,
         skiprows=skiprows,
         header=None,
         usecols=usecols,
-        names=['curso', 'semestre', 'codigo', 'asignatura', 'area', 'uuid',
-               'creditos', 'comentarios', 'grupo', 'profesor_anterior'],
-        converters={'curso': str, 'semestre': int, 'codigo': int, 'area': str,
-                    'uuid': str, 'creditos': float,
-                    'comentarios': str_nonan,
-                    'grupo': str_nonan,
-                    'profesor_anterior': str_nonan}
+        names=names,
+        converters=converters
     )
 
     # remove unnecessary rows
@@ -238,18 +249,12 @@ def main(args=None):
     )
 
     # asignaturas de cada titulacion
-    if args.course == '2019-2020':
-        skiprows=5
-        usecols=range(1,11)
-    else:
-        raise ValueError("Unexpected course!")
     bigdict_tablas_asignaturas = {}
     for titulacion in tabla_titulaciones['titulacion']:
         bigdict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
+                course=args.course,
                 sheetname=titulacion,
-                skiprows=skiprows,
-                usecols=usecols,
                 debug=args.debug
             )
 
