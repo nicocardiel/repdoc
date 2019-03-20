@@ -160,8 +160,13 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     if debug:
         print(tabla_asignaturas)
-        print('Créditos totales:', tabla_asignaturas['creditos'].sum())
-        input("Stop here!")
+        print('Créditos totales:',
+              round(tabla_asignaturas['creditos'].sum(), 3))
+        sumproduct = tabla_asignaturas['creditos'] * \
+                     tabla_asignaturas['bec_col']
+        print('Créditos posibles para becarios/colaboradores:',
+              round(sumproduct.sum(), 3))
+        input("Press <CR> to continue...")
 
     return tabla_asignaturas
 
@@ -218,7 +223,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     if debug:
         print(tabla_profesores)
         print('Encargo total:', tabla_profesores['encargo'].sum())
-        input('Stop here!')
+        input('Press <CR> to continue...')
 
     return tabla_profesores
 
@@ -297,10 +302,20 @@ def main(args=None):
     )
     tabla_profesores['asignados'] = 0.0
 
+    # ---
+
+    # set global GUI options
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
+    # define GUI layout
     layout = [[sg.Text('Resumen...')],
               [sg.Text('_' * WIDTH_HLINE)],
+              # ---
+              [sg.Checkbox('Excluir RyC y asimilados RyC',
+                           default=False,
+                           change_submits=True,
+                           auto_size_text=True,
+                           key='_excluir_RyC_')],
               # ---
               [sg.Text('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_umbral_creditos_'),
@@ -410,7 +425,10 @@ def main(args=None):
               [sg.Button('Salir', key='_salir_')]
               ]
 
-    window = sg.Window("Reparto Docente (FTA)").Layout(layout)
+    window = sg.Window('Reparto Docente (FTA), Curso ' +
+                       args.course).Layout(layout)
+
+    # ---
 
     uuid_profesor = None
     uuid_titulacion = None
