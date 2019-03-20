@@ -111,11 +111,11 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
         skiprows = 5
         usecols = range(1, 12)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
-                 'uuid', 'creditos', 'comentarios', 'grupo', 'bec_col',
-                 'profesor_anterior'
+                 'uuid', 'creditos_iniciales', 'comentarios', 'grupo',
+                 'bec_col', 'profesor_anterior'
                  ]
         converters = {'curso': str, 'semestre': int, 'codigo': int,
-                      'area': str, 'uuid': str, 'creditos': float,
+                      'area': str, 'uuid': str, 'creditos_iniciales': float,
                       'comentarios': str_nonan, 'grupo': str_nonan,
                       'bec_col': int, 'profesor_anterior': str_nonan
                       }
@@ -161,8 +161,8 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     if debug:
         print(tabla_asignaturas)
         print('Créditos totales:',
-              round(tabla_asignaturas['creditos'].sum(), 3))
-        sumproduct = tabla_asignaturas['creditos'] * \
+              round(tabla_asignaturas['creditos_iniciales'].sum(), 3))
+        sumproduct = tabla_asignaturas['creditos_iniciales'] * \
                      tabla_asignaturas['bec_col']
         print('Créditos posibles para becarios/colaboradores:',
               round(sumproduct.sum(), 3))
@@ -229,7 +229,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
 
 
 def busca_profesor_por_nombre_completo(profesor, tabla_profesores):
-    """Return index of 'profesor' within tabla_profesores.
+    """Return index (UUID) of 'profesor' within tabla_profesores.
 
     """
 
@@ -292,12 +292,15 @@ def main(args=None):
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
     for titulacion in tabla_titulaciones['titulacion']:
-        bigdict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
+        dumtable = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 course=args.course,
                 sheet_name=titulacion,
                 debug=args.debug
             )
+        # incluye columna con créditos disponibles
+        dumtable['creditos_disponibles'] = dumtable['creditos_iniciales']
+        bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
     for titulacion in tabla_titulaciones['titulacion']:
@@ -316,8 +319,12 @@ def main(args=None):
         course=args.course,
         debug=args.debug
     )
-    tabla_profesores['asignados'] = 0.0
     dumdumlist += tabla_profesores.index.tolist()
+    # transforma el encargo de cada profesor de horas a créditos
+    tabla_profesores['encargo'] /= 10
+    # define columna para almacenar docencia elegida
+    tabla_profesores['asignados'] = 0.0
+
 
     # comprueba que los UUIDs de titulaciones, asignaturas y profesores
     # son todos distintos
@@ -333,7 +340,10 @@ def main(args=None):
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
     # define GUI layout
-    layout = [[sg.Text('Resumen...')],
+    layout = [[sg.Text('Encargo docente total (créditos):',
+                       justification='right'),
+               sg.Text(str(tabla_profesores['encargo'].sum()))],
+              # ---
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
               [sg.Checkbox('Excluir RyC y asimilados RyC',
@@ -576,9 +586,11 @@ def main(args=None):
                 lista_asignaturas = []
                 uuid_lista_asignaturas = {}
                 for i in range(num_asignaturas):
-                    dumtxt = tabla_asignaturas['asignatura'][i] + ', ' + \
-                             str(round(tabla_asignaturas['creditos'][i], 4)) \
-                             + ' créditos'
+                    dumtxt = \
+                        tabla_asignaturas['asignatura'][i] + ', ' + \
+                        str(round(
+                            tabla_asignaturas['creditos_disponibles'][i], 4
+                        )) + ' créditos'
                     if tabla_asignaturas['comentarios'][i] != ' ':
                         dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
                     if tabla_asignaturas['grupo'][i] != ' ':
@@ -612,7 +624,7 @@ def main(args=None):
                 print('* uuid_asignatura:', uuid_asignatura)
                 titulacion = values['_titulacion_']
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
-                    titulacion].loc[uuid_asignatura]['creditos']
+                    titulacion].loc[uuid_asignatura]['creditos_disponibles']
                 window.Element('_fraccion_de_asignatura_todo_').Update(
                     disabled=False
                 )
@@ -620,9 +632,10 @@ def main(args=None):
                     disabled=False
                 )
                 window.Element('_creditos_elegidos_de_asignatura_').Update(
-                    str(round(bigdict_tablas_asignaturas[
-                                  titulacion].loc[uuid_asignatura]['creditos'],
-                              4))
+                    str(round(
+                        bigdict_tablas_asignaturas[titulacion].loc[
+                            uuid_asignatura]['creditos_disponibles'],4)
+                    )
                 )
         elif event == '_fraccion_de_asignatura_todo_':
             window.Element('_fraccion_de_asignatura_todo_').Update(
@@ -677,14 +690,32 @@ def main(args=None):
             )
             window.Element('_aplicar_').Update(disabled=False)
         elif event == '_aplicar_':
-            print('* uuid_profesor..: ' +
-                  window.Element('_uuid_profesor_').Get())
-            print('* uuid_titulacion: ' +
-                  window.Element('_uuid_titulacion_').Get())
-            print('* uuid_asignatura: ' +
-                  window.Element('_uuid_asignatura_').Get())
-            print('* creditos.......: ' +
-                  str(values['_creditos_elegidos_de_asignatura_']))
+            uuid_profesor = window.Element('_uuid_profesor_').Get()
+            uuid_titulacion = window.Element('_uuid_titulacion_').Get()
+            uuid_asignatura = window.Element('_uuid_asignatura_').Get()
+            print('* uuid_profesor....: ' + uuid_profesor)
+            print('* uuid_titulacion..: ' + uuid_titulacion)
+            print('* uuid_asignatura..: ' + uuid_asignatura)
+            creditos_elegidos_de_asignatura = float(
+                values['_creditos_elegidos_de_asignatura_']
+            )
+            print('* creditos elegidos: ' +
+                  values['_creditos_elegidos_de_asignatura_'])
+            #
+            titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
+            print('>> titulación: ' + titulacion)
+            tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
+            print('-> créditos iniciales..: ',
+                  tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
+            print('-> créditos disponibles: ',
+                  tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
+            print('-> aplicamos eleccion...')
+            tabla_asignaturas.loc[uuid_asignatura, 'creditos_disponibles'] -= \
+                creditos_elegidos_de_asignatura
+            print('-> créditos iniciales..: ',
+                  tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
+            print('-> créditos disponibles: ',
+                  tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
         elif event == '_cancelar_':
             window.Element('_profesor_').Update(disabled=False)
             window.Element('_continuar_').Update(disabled=False)
