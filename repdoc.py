@@ -28,11 +28,11 @@ def fill_cell_with_previous_value(s):
 
     """
 
-    l = len(s)
+    ll = len(s)
     result = []
     i = 0
     last = None
-    while i < l:
+    while i < ll:
         if type(s[i]) is str:
             last = s[i]
             result.append(last)
@@ -109,7 +109,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     if course == '2019-2020':
         skiprows = 5
-        usecols = range(1,12)
+        usecols = range(1, 12)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
                  'uuid', 'creditos', 'comentarios', 'grupo', 'bec_col',
                  'profesor_anterior'
@@ -158,7 +158,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     if len(tabla_asignaturas.index) != len(set(tabla_asignaturas.index)):
         raise ValueError('UUIDs are not unique!')
 
-    if(debug):
+    if debug:
         print(tabla_asignaturas)
         print('Créditos totales:', tabla_asignaturas['creditos'].sum())
         input("Stop here!")
@@ -316,10 +316,10 @@ def main(args=None):
               # ---
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
-              [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_profesor_'),
                sg.InputCombo(values=['---'],
-                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              disabled=True,
                              key='_profesor_')],
               # ---
@@ -331,29 +331,29 @@ def main(args=None):
                             disabled=True, do_not_clear=True,
                             key='_uuid_profesor_')],
               # ---
-              [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_encargo_'),
                sg.Text('---', key='_encargo_', size=(WIDTH_TEXT_LABEL, 1))],
               # ---
-              [sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_asignados_'),
                sg.Text('---', key='_asignados_', size=(WIDTH_TEXT_LABEL, 1))],
               # ---
-              [sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_diferencia_'),
                sg.Text('---', key='_diferencia_', size=(WIDTH_TEXT_LABEL, 1))],
               # ---
-              [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_docencia_asignada_'),
                sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              key='_docencia_asignada_')],
               # ---
               [sg.Button('Continuar', disabled=True, key='_continuar_'),
                sg.Button('Eliminar', disabled=True, key='_eliminar_')],
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
-              [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL,1),
+              [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_titulacion_'),
                sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
@@ -371,7 +371,7 @@ def main(args=None):
                        justification='right',
                        key='_label_asignatura_elegida_'),
                sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO,1), enable_events=True,
+                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              key='_asignatura_elegida_')],
               # ---
               [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
@@ -441,7 +441,8 @@ def main(args=None):
                     )
                     num_profesores = tabla_profesores.shape[0]
                     for i in range(num_profesores):
-                        nombre_completo = tabla_profesores['nombre'][i] + ' ' + \
+                        nombre_completo = tabla_profesores['nombre'][i] +\
+                                          ' ' +\
                                           tabla_profesores['apellidos'][i]
                         if umbral == 0:
                             lista_profesores.append(nombre_completo)
@@ -577,7 +578,8 @@ def main(args=None):
                 )
                 window.Element('_creditos_elegidos_de_asignatura_').Update(
                     str(round(bigdict_tablas_asignaturas[
-                                  titulacion].loc[uuid_asignatura]['creditos'], 4))
+                                  titulacion].loc[uuid_asignatura]['creditos'],
+                              4))
                 )
         elif event == '_fraccion_de_asignatura_todo_':
             window.Element('_fraccion_de_asignatura_todo_').Update(
