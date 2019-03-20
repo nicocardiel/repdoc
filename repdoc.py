@@ -150,27 +150,37 @@ def read_tabla_asignaturas(xlsxfilename, course, sheetname, debug=False):
     return tabla_asignaturas
 
 
-def read_tabla_profesores(xlsxfilename, debug=False):
+def read_tabla_profesores(xlsxfilename, course, debug=False):
     """Lee hoja Excel con lista de profesores que participan en rondas
 
     """
 
+    if course == '2019-2020':
+        sheet_name = 'Asignación'
+        skiprows = 7
+        usecols = [0, 1, 2, 3, 17]
+        names = ['uuid', 'apellidos', 'nombre', 'categoria', 'encargo']
+        converters = {'uuid': str,
+                      'apellidos': str,
+                      'nombre': str,
+                      'categoria': str,
+                      'encargo': float}
+    else:
+        print('Course: ' + course)
+        raise ValueError('Unexpected course!')
+
     if debug:
         print('Reading ' + xlsxfilename)
-        print('-> Sheet: "PDA"')
+        print('-> Sheet: "' + sheet_name + '"')
 
     tabla_inicial = pd.read_excel(
         xlsxfilename,
-        sheet_name='PDA',
-        skiprows=2,
+        sheet_name=sheet_name,
+        skiprows=skiprows,
         header=None,
-        usecols=[0, 1, 2, 3, 17],
-        names=['uuid', 'apellidos', 'nombre', 'categoria', 'encargo'],
-        converters={'uuid': str,
-                    'apellidos': str,
-                    'nombre': str,
-                    'categoria': str,
-                    'encargo': float}
+        usecols=usecols,
+        names=names,
+        converters=converters
     )
 
     # remove unnecessary rows
@@ -261,6 +271,7 @@ def main(args=None):
     # profesores
     tabla_profesores = read_tabla_profesores(
         xlsxfilename=args.xlsxfile.name,
+        course=args.course,
         debug=args.debug
     )
     tabla_profesores['asignados'] = 0.0
@@ -277,7 +288,10 @@ def main(args=None):
                             justification='left',
                             do_not_clear=True, disabled=False,
                             key='_umbral_creditos_'),
-               sg.Button('Establecer umbral', key='_establecer_umbral_')],
+               sg.Button('Establecer umbral', key='_establecer_umbral_'),
+               sg.Text('(0: selecciona todos los profesores)',
+                       text_color='#aaaaaa',
+                       auto_size_text=True)],
               # ---
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
