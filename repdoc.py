@@ -277,12 +277,17 @@ def main(args=None):
 
     # ---
 
+    # variable para almacenar los UUIDs de titulaciones, asignaturas
+    # y profesores
+    dumdumlist = []
+
     # titulaciones
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
         course=args.course,
         debug=args.debug
     )
+    dumdumlist += tabla_titulaciones.index.tolist()
 
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
@@ -293,13 +298,17 @@ def main(args=None):
                 sheet_name=titulacion,
                 debug=args.debug
             )
-    # check that uuid's are unique when combining all the subjects
+    # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
     for titulacion in tabla_titulaciones['titulacion']:
         dumtable = bigdict_tablas_asignaturas[titulacion]
         dumlist += dumtable.index.tolist()
     if len(dumlist) != len(set(dumlist)):
+        for uuid in dumlist:
+            if dumlist.count(uuid) > 1:
+                print(uuid)
         raise ValueError('UUIDs are not unique when mixing all the subjects!')
+    dumdumlist += dumlist
 
     # profesores
     tabla_profesores = read_tabla_profesores(
@@ -308,6 +317,15 @@ def main(args=None):
         debug=args.debug
     )
     tabla_profesores['asignados'] = 0.0
+    dumdumlist += tabla_profesores.index.tolist()
+
+    # comprueba que los UUIDs de titulaciones, asignaturas y profesores
+    # son todos distintos
+    if len(dumdumlist) != len(set(dumdumlist)):
+        for uuid in dumdumlist:
+            if dumdumlist.count(uuid) > 1:
+                print(uuid)
+        raise ValueError('UUIDs are not unique when mixing everything!')
 
     # ---
 
