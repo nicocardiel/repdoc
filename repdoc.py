@@ -293,6 +293,13 @@ def main(args=None):
                 sheet_name=titulacion,
                 debug=args.debug
             )
+    # check that uuid's are unique when combining all the subjects
+    dumlist = []
+    for titulacion in tabla_titulaciones['titulacion']:
+        dumtable = bigdict_tablas_asignaturas[titulacion]
+        dumlist += dumtable.index.tolist()
+    if len(dumlist) != len(set(dumlist)):
+        raise ValueError('UUIDs are not unique when mixing all the subjects!')
 
     # profesores
     tabla_profesores = read_tabla_profesores(
