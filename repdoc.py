@@ -82,6 +82,10 @@ def read_tabla_titulaciones(xlsxfilename, debug=False):
     tabla_titulaciones.index = tabla_inicial['uuid']
     del tabla_titulaciones['uuid']
 
+    # check that uuid's are unique
+    if len(tabla_titulaciones.index) != len(set(tabla_titulaciones.index)):
+        raise ValueError('UUIDs are not unique!')
+
     if debug:
         print(tabla_titulaciones)
         input('Press <CR> to continue...')
@@ -142,6 +146,10 @@ def read_tabla_asignaturas(xlsxfilename, course, sheetname, debug=False):
     tabla_asignaturas.index = tabla_inicial['uuid']
     del tabla_asignaturas['uuid']
 
+    # check that uuid's are unique
+    if len(tabla_asignaturas.index) != len(set(tabla_asignaturas.index)):
+        raise ValueError('UUIDs are not unique!')
+
     if(debug):
         print(tabla_asignaturas)
         print('Créditos totales:', tabla_asignaturas['creditos'].sum())
@@ -194,6 +202,10 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     tabla_profesores = tabla_inicial.copy()
     tabla_profesores.index = tabla_inicial['uuid']
     del tabla_profesores['uuid']
+
+    # check that uuid's are unique
+    if len(tabla_profesores.index) != len(set(tabla_profesores.index)):
+        raise ValueError('UUIDs are not unique!')
 
     if debug:
         print(tabla_profesores)
