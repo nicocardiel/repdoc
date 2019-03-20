@@ -50,24 +50,33 @@ def fill_cell_with_previous_value(s):
     return result
 
 
-def read_tabla_titulaciones(xlsxfilename, debug=False):
+def read_tabla_titulaciones(xlsxfilename, course, debug=False):
     """Lee hoja Excel con lista de titulaciones.
 
     """
 
+    if course == '2019-2020':
+        sheet_name = 'Resumen Encargo'
+        skiprows = 4
+        usecols = [1, 2]
+        names = ['uuid', 'titulacion']
+        converters = {'uuid': str, 'titulacion': str}
+    else:
+        print('Course: ' + course)
+        raise ValueError('Unexpected course!')
+
     if debug:
         print('Reading ' + xlsxfilename)
-        print('-> Sheet: "Resumen Encargo"')
+        print('-> Sheet: "' + sheet_name + '"')
 
     tabla_inicial = pd.read_excel(
         xlsxfilename,
-        sheet_name='Resumen Encargo',
-        skiprows=4,
+        sheet_name=sheet_name,
+        skiprows=skiprows,
         header=None,
-        usecols=[1,2],
-        names=['uuid', 'titulacion'],
-        converters={'uuid': str,
-                    'titulacion': str}
+        usecols=usecols,
+        names=names,
+        converters=converters
     )
 
     # remove unnecessary rows
@@ -93,11 +102,10 @@ def read_tabla_titulaciones(xlsxfilename, debug=False):
     return tabla_titulaciones
 
 
-def read_tabla_asignaturas(xlsxfilename, course, sheetname, debug=False):
+def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     """Lee hoja Excel con lista de asignaturas
 
     """
-
 
     if course == '2019-2020':
         skiprows = 5
@@ -117,11 +125,11 @@ def read_tabla_asignaturas(xlsxfilename, course, sheetname, debug=False):
 
     if debug:
         print('Reading ' + xlsxfilename)
-        print('-> Sheet: "' + sheetname + '"')
+        print('-> Sheet: "' + sheet_name + '"')
 
     tabla_inicial = pd.read_excel(
         xlsxfilename,
-        sheet_name=sheetname,
+        sheet_name=sheet_name,
         skiprows=skiprows,
         header=None,
         usecols=usecols,
@@ -267,6 +275,7 @@ def main(args=None):
     # titulaciones
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
+        course=args.course,
         debug=args.debug
     )
 
@@ -276,7 +285,7 @@ def main(args=None):
         bigdict_tablas_asignaturas[titulacion] = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 course=args.course,
-                sheetname=titulacion,
+                sheet_name=titulacion,
                 debug=args.debug
             )
 
