@@ -380,16 +380,7 @@ def main(args=None):
                        justification='right', key='_label_profesor_'),
                sg.InputCombo(values=['---'],
                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                             disabled=True,
-                             key='_profesor_')],
-              # ---
-              [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
-               sg.Text('uuid:', text_color="#aaaaaa", auto_size_text=True,
-                       key='_label_uuid_profesor_'),
-               sg.InputText('---', text_color="#aaaaaa",
-                            size=(WIDTH_TEXT_UUID, 1),
-                            disabled=True, do_not_clear=True,
-                            key='_uuid_profesor_')],
+                             disabled=True, key='_profesor_')],
               # ---
               [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_encargo_'),
@@ -419,28 +410,12 @@ def main(args=None):
                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              key='_titulacion_')],
               # ---
-              [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
-               sg.Text('uuid:', text_color="#aaaaaa", auto_size_text=True,
-                       key='_label_uuid_titulacion_'),
-               sg.InputText('---', text_color="#aaaaaa",
-                            size=(WIDTH_TEXT_UUID, 1),
-                            disabled=True, do_not_clear=True,
-                            key='_uuid_titulacion_')],
-              # ---
               [sg.Text('Asignatura elegida:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right',
                        key='_label_asignatura_elegida_'),
                sg.InputCombo(values=['---'], disabled=True,
                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
                              key='_asignatura_elegida_')],
-              # ---
-              [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
-               sg.Text('uuid:', text_color="#aaaaaa", auto_size_text=True,
-                       key='_label_uuid_asignatura_'),
-               sg.InputText('---', text_color="#aaaaaa",
-                            size=(WIDTH_TEXT_UUID, 1),
-                            disabled=True, do_not_clear=True,
-                            key='_uuid_asignatura_')],
               # ---
               [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
                sg.Checkbox('Todos los créditos',
@@ -520,7 +495,6 @@ def main(args=None):
                 values=lista_profesores,
                 disabled=False
             )
-            window.Element('_uuid_profesor_').Update('---')
             window.Element('_encargo_').Update('---')
             window.Element('_asignados_').Update('---')
             window.Element('_diferencia_').Update('---')
@@ -548,10 +522,8 @@ def main(args=None):
                 window.Element('_continuar_').Update(disabled=True)
                 window.Element('_eliminar_').Update(disabled=True)
                 uuid_profesor = None
-                window.Element('_uuid_profesor_').Update('---')
             else:
                 uuid_profesor = values['_profesor_'][-36:]
-                window.Element('_uuid_profesor_').Update(uuid_profesor)
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
                 asignados = tabla_profesores.loc[uuid_profesor]['asignados']
                 diferencia = asignados - encargo
@@ -581,10 +553,8 @@ def main(args=None):
             if titulacion == '---':
                 uuid_titulacion = None
                 uuid_lista_asignaturas = None
-                window.Element('_uuid_titulacion_').Update('---')
                 window.Element('_asignatura_elegida_').Update('---')
                 window.Element('_asignatura_elegida_').Update(disabled=True)
-                window.Element('_uuid_asignatura_').Update('---')
                 window.Element('_fraccion_de_asignatura_todo_').Update(
                     value=False, disabled=True
                 )
@@ -597,7 +567,6 @@ def main(args=None):
                 window.Element('_aplicar_').Update(disabled=True)
             else:
                 uuid_titulacion = values['_titulacion_'][-36:]
-                window.Element('_uuid_titulacion_').Update(uuid_titulacion)
                 titulacion = tabla_titulaciones.loc[uuid_titulacion][
                     'titulacion']
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
@@ -626,7 +595,6 @@ def main(args=None):
             asignatura_elegida = values['_asignatura_elegida_']
             if asignatura_elegida == '---':
                 uuid_asignatura = None
-                window.Element('_uuid_asignatura_').Update('---')
                 window.Element('_fraccion_de_asignatura_todo_').Update(
                     value=False, disabled=True
                 )
@@ -639,7 +607,6 @@ def main(args=None):
                 window.Element('_aplicar_').Update(disabled=True)
             else:
                 uuid_asignatura = values['_asignatura_elegida_'][-36:]
-                window.Element('_uuid_asignatura_').Update(uuid_asignatura)
                 print('* uuid_profesor..:', uuid_profesor)
                 print('* uuid_titulacion:', uuid_titulacion)
                 print('* uuid_asignatura:', uuid_asignatura)
@@ -731,11 +698,26 @@ def main(args=None):
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
             print('-> créditos disponibles: ',
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
-            # OJO: VER SINTAXIS PARA EVITAR PROBLEMAS DE MODIFICACION DE
-            # COLUMNA COPIADA
             print('-> aplicamos eleccion...')
-            tabla_asignaturas.loc[uuid_asignatura, 'creditos_disponibles'] -= \
-                creditos_elegidos_de_asignatura
+            # evitamos restar dos números reales iguales para evitar errores
+            # de redondeo
+            # ojo: ver sintaxis para evitar problemas de modificación de
+            # una columna ('creditos_disponibles') que se ha generado como
+            # una copia de otra ('creditos_iniciales')
+            if values['_fraccion_de_asignatura_todo_']:
+                tabla_asignaturas.loc[uuid_asignatura,
+                                      'creditos_disponibles'] = 0
+            elif values['_fraccion_de_asignatura_parte_']:
+                if tabla_asignaturas.loc[uuid_asignatura,
+                                         'creditos_disponibles'] > \
+                        creditos_elegidos_de_asignatura:
+                    tabla_asignaturas.loc[uuid_asignatura,
+                                          'creditos_disponibles'] -= \
+                        creditos_elegidos_de_asignatura
+                else:
+                    raise ValueError('Créditos disponibles insuficiente')
+            else:
+                raise ValueError('Fracción de asignatura no establecida')
             print('-> créditos iniciales..: ',
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
             print('-> créditos disponibles: ',
@@ -747,12 +729,10 @@ def main(args=None):
                 values='---',
                 disabled=True
             )
-            window.Element('_uuid_titulacion_').Update('---')
             window.Element('_asignatura_elegida_').Update(
                 values='---',
                 disabled=True
             )
-            window.Element('_uuid_asignatura_').Update('---')
             window.Element('_fraccion_de_asignatura_todo_').Update(
                 value=False, disabled=True
             )
