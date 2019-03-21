@@ -229,6 +229,25 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     return tabla_profesores
 
 
+def display_in_terminal(event, values):
+    """Show 'event' and 'values' in the terminal
+
+    """
+
+    print("\nEvent: '" + event + "'")
+    for key in values:
+        output = "    '" + key + "': "
+        if isinstance(values[key], str):
+            if values[key][-41:-36] == 'uuid=':
+                output += "'" + values[key][:-41].rstrip() + " ... " + \
+                          values[key][-41:] + "'"
+            else:
+                output += "'" + values[key] + "'"
+        else:
+            output += str(values[key])
+        print(output)
+
+
 def main(args=None):
 
     # parse command-line options
@@ -331,11 +350,17 @@ def main(args=None):
               # ---
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
-              [sg.Checkbox('Excluir RyC y asimilados RyC',
+              [sg.Checkbox('Excluir docentes RyC y asimilados',
                            default=False,
                            change_submits=True,
                            auto_size_text=True,
                            key='_excluir_RyC_')],
+              # ---
+              [sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
+                           default=False,
+                           change_submits=True,
+                           auto_size_text=True,
+                           key='_excluir_asignaturas_beccol_')],
               # ---
               [sg.Text('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_umbral_creditos_'),
@@ -458,9 +483,7 @@ def main(args=None):
 
     while True:
         event, values = window.Read()
-        print("\nEvent: '" + event + "'")
-        for key in values:
-            print("    '" + key + "': ", values[key], type(values[key]))
+        display_in_terminal(event, values)
         if event == '_establecer_umbral_':
             lista_profesores = ['---']
             umbral_is_float = True
