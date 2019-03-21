@@ -485,10 +485,6 @@ def main(args=None):
 
     # ---
 
-    uuid_profesor = None
-    uuid_titulacion = None
-    uuid_lista_asignaturas = None
-    uuid_asignatura = None
     creditos_max_asignatura = 0.0
 
     def clear_screen_profesor(profesor_disabled=True):
@@ -572,7 +568,6 @@ def main(args=None):
         elif event == '_profesor_':
             if values['_profesor_'] == '---':
                 clear_screen_profesor(profesor_disabled=False)
-                uuid_profesor = None
             else:
                 uuid_profesor = values['_profesor_'][-36:]
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
@@ -583,6 +578,7 @@ def main(args=None):
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
                 window.Element('_continuar_').Update(disabled=False)
         elif event == '_continuar_':
+            uuid_profesor = values['_profesor_'][-36:]
             if uuid_profesor is None:
                 raise ValueError('Unexpected uuid_profesor == None')
             window.Element('_profesor_').Update(disabled=True)
@@ -603,7 +599,6 @@ def main(args=None):
             titulacion = values['_titulacion_']
             if titulacion == '---':
                 uuid_titulacion = None
-                uuid_lista_asignaturas = None
                 window.Element('_asignatura_elegida_').Update('---')
                 window.Element('_asignatura_elegida_').Update(disabled=True)
                 window.Element('_fraccion_todo_').Update(
@@ -645,7 +640,6 @@ def main(args=None):
         elif event == '_asignatura_elegida_':
             asignatura_elegida = values['_asignatura_elegida_']
             if asignatura_elegida == '---':
-                uuid_asignatura = None
                 window.Element('_fraccion_todo_').Update(
                     value=False, disabled=True
                 )
@@ -657,10 +651,8 @@ def main(args=None):
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
+                uuid_titulacion = values['_titulacion_'][-36:]
                 uuid_asignatura = values['_asignatura_elegida_'][-36:]
-                print('* uuid_profesor..:', uuid_profesor)
-                print('* uuid_titulacion:', uuid_titulacion)
-                print('* uuid_asignatura:', uuid_asignatura)
                 titulacion = tabla_titulaciones.loc[uuid_titulacion][
                     'titulacion']
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
