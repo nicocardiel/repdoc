@@ -301,6 +301,11 @@ def define_layout(fontsize):
               # ---
               [sg.Text('_' * WIDTH_HLINE)],
               # ---
+              [sg.Text('Nº de profesores seleccionados:',
+                       text_color='#aaaaaa', auto_size_text=True),
+               sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
+                       key='_num_prof_seleccionados_')],
+              # ---
               [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right', key='_label_profesor_'),
                sg.InputCombo(values=['---'],
@@ -486,13 +491,44 @@ def main(args=None):
     uuid_asignatura = None
     creditos_max_asignatura = 0.0
 
+    def clear_screen_profesor(profesor_disabled=True):
+        if profesor_disabled:
+            window.Element('_profesor_').Update(values='---', disabled=True)
+        window.Element('_encargo_prof_').Update('---')
+        window.Element('_asignados_prof_').Update('---')
+        window.Element('_diferencia_prof_').Update('---')
+        window.Element('_docencia_asignada_').Update('---')
+        window.Element('_titulacion_').Update('---')
+        window.Element('_continuar_').Update(disabled=True)
+        window.Element('_eliminar_').Update(disabled=True)
+
+    def clear_screen_asignatura():
+        window.Element('_titulacion_').Update(values='---', disabled=True)
+        window.Element('_asignatura_elegida_').Update(
+            values='---',
+            disabled=True
+        )
+        window.Element('_creditos_elegidos_').Update(
+            value='0.0',
+            disabled=True
+        )
+        window.Element('_aplicar_').Update(disabled=True)
+        window.Element('_cancelar_').Update(disabled=True)
+
     while True:
         event, values = window.Read()
         display_in_terminal(event, values)
-        if event == '_establecer_umbral_':
+        if event == '_excluir_asignaturas_beccol_':
+            clear_screen_profesor()
+            clear_screen_asignatura()
+        elif event == '_excluir_RyC_':
+            clear_screen_asignatura()
+            clear_screen_profesor()
+        elif event == '_establecer_umbral_':
             lista_profesores = ['---']
             umbral_is_float = True
             umbral = 0.0  # avoid warning
+            num_profesores = 0
             try:
                 umbral = float(values['_umbral_creditos_'])
             except ValueError:
@@ -507,50 +543,35 @@ def main(args=None):
                     window.Element('_umbral_creditos_').Update(
                         str(float(umbral))
                     )
-                    num_profesores = tabla_profesores.shape[0]
-                    for i in range(num_profesores):
-                        nombre_completo = tabla_profesores['nombre'][i] +\
-                                          ' ' +\
-                                          tabla_profesores['apellidos'][i]
-                        ldum = len(nombre_completo)
-                        if ldum < WIDTH_SPACES_FOR_UUID:
-                            nombre_completo += \
-                                (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                        nombre_completo += ' uuid=' + tabla_profesores.index[i]
-                        if umbral == 0:
-                            lista_profesores.append(nombre_completo)
-                        elif tabla_profesores['asignados'][i] < umbral:
-                            lista_profesores.append(nombre_completo)
+                    for i in range(tabla_profesores.shape[0]):
+                        if not 'RyC' in tabla_profesores['categoria'][i] or \
+                            not values['_excluir_RyC_']:
+                            nombre_completo = tabla_profesores['nombre'][i] +\
+                                              ' ' +\
+                                              tabla_profesores['apellidos'][i]
+                            ldum = len(nombre_completo)
+                            if ldum < WIDTH_SPACES_FOR_UUID:
+                                nombre_completo += \
+                                    (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                            nombre_completo += ' uuid=' + tabla_profesores.index[i]
+                            if umbral == 0:
+                                num_profesores += 1
+                                lista_profesores.append(nombre_completo)
+                            elif tabla_profesores['asignados'][i] < umbral:
+                                num_profesores += 1
+                                lista_profesores.append(nombre_completo)
+            clear_screen_profesor()
+            window.Element('_num_prof_seleccionados_').Update(
+                str(num_profesores)
+            )
             window.Element('_profesor_').Update(
                 values=lista_profesores,
                 disabled=False
             )
-            window.Element('_encargo_prof_').Update('---')
-            window.Element('_asignados_prof_').Update('---')
-            window.Element('_diferencia_prof_').Update('---')
-            window.Element('_docencia_asignada_').Update('---')
-            window.Element('_titulacion_').Update('---')
-            window.Element('_continuar_').Update(disabled=True)
-            window.Element('_eliminar_').Update(disabled=True)
-            window.Element('_titulacion_').Update(
-                values='---',
-                disabled=True
-            )
-            window.Element('_asignatura_elegida_').Update(
-                values='---',
-                disabled=True
-            )
-            window.Element('_aplicar_').Update(disabled=True)
-            window.Element('_cancelar_').Update(disabled=True)
+            clear_screen_asignatura()
         elif event == '_profesor_':
             if values['_profesor_'] == '---':
-                window.Element('_encargo_prof_').Update('---')
-                window.Element('_asignados_prof_').Update('---')
-                window.Element('_diferencia_prof_').Update('---')
-                window.Element('_docencia_asignada_').Update('---')
-                window.Element('_titulacion_').Update('---')
-                window.Element('_continuar_').Update(disabled=True)
-                window.Element('_eliminar_').Update(disabled=True)
+                clear_screen_profesor(profesor_disabled=False)
                 uuid_profesor = None
             else:
                 uuid_profesor = values['_profesor_'][-36:]
