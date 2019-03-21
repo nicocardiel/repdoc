@@ -10,6 +10,7 @@ WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO = 50
 WIDTH_INPUT_NUMBER = 10
+WIDTH_SPACES_FOR_UUID = 150
 
 
 def str_nonan(s):
@@ -226,22 +227,6 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
         input('Press <CR> to continue...')
 
     return tabla_profesores
-
-
-def busca_profesor_por_nombre_completo(profesor, tabla_profesores):
-    """Return index (UUID) of 'profesor' within tabla_profesores.
-
-    """
-
-    nombre_completo = None
-    for i, (nombre, apellidos) in enumerate(zip(
-            tabla_profesores['nombre'],
-            tabla_profesores['apellidos'])):
-        nombre_completo = nombre + ' ' + apellidos
-        if nombre_completo == profesor:
-            return tabla_profesores.index[i]
-
-    raise ValueError('¡Profesor ' + nombre_completo + ' no encontrado!')
 
 
 def main(args=None):
@@ -473,7 +458,9 @@ def main(args=None):
 
     while True:
         event, values = window.Read()
-        print(event, values)
+        print("\nEvent: '" + event + "'")
+        for key in values:
+            print("    '" + key + "': ", values[key], type(values[key]))
         if event == '_establecer_umbral_':
             lista_profesores = ['---']
             umbral_is_float = True
@@ -497,6 +484,11 @@ def main(args=None):
                         nombre_completo = tabla_profesores['nombre'][i] +\
                                           ' ' +\
                                           tabla_profesores['apellidos'][i]
+                        ldum = len(nombre_completo)
+                        if ldum < WIDTH_SPACES_FOR_UUID:
+                            nombre_completo += \
+                                (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                        nombre_completo += ' uuid=' + tabla_profesores.index[i]
                         if umbral == 0:
                             lista_profesores.append(nombre_completo)
                         elif tabla_profesores['asignados'][i] < umbral:
@@ -535,9 +527,7 @@ def main(args=None):
                 uuid_profesor = None
                 window.Element('_uuid_profesor_').Update('---')
             else:
-                uuid_profesor = busca_profesor_por_nombre_completo(
-                    values['_profesor_'], tabla_profesores
-                )
+                uuid_profesor = values['_profesor_'][-36:]
                 window.Element('_uuid_profesor_').Update(uuid_profesor)
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
                 asignados = tabla_profesores.loc[uuid_profesor]['asignados']
@@ -549,11 +539,17 @@ def main(args=None):
         elif event == '_continuar_':
             if uuid_profesor is None:
                 raise ValueError('Unexpected uuid_profesor == None')
-            print('* Profesor elegido:', tabla_profesores.loc[uuid_profesor])
             window.Element('_profesor_').Update(disabled=True)
             window.Element('_continuar_').Update(disabled=True)
-            lista_titulaciones = ['---'] + \
-                                 tabla_titulaciones['titulacion'].tolist()
+            lista_titulaciones = ['---']
+            num_titulaciones = tabla_titulaciones.shape[0]
+            for i in range(num_titulaciones):
+                nombre_titulacion = tabla_titulaciones['titulacion'][i]
+                ldum = len(nombre_titulacion)
+                if ldum < WIDTH_SPACES_FOR_UUID:
+                    nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                nombre_titulacion += ' uuid=' + tabla_titulaciones.index[i]
+                lista_titulaciones.append(nombre_titulacion)
             window.Element('_titulacion_').Update(
                 values=lista_titulaciones, disabled=False)
             window.Element('_cancelar_').Update(disabled=False)
@@ -577,14 +573,13 @@ def main(args=None):
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
-                uuid_titulacion = tabla_titulaciones.loc[
-                    tabla_titulaciones['titulacion'] == titulacion
-                ].index.values[0]
+                uuid_titulacion = values['_titulacion_'][-36:]
                 window.Element('_uuid_titulacion_').Update(uuid_titulacion)
+                titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                    'titulacion']
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
                 num_asignaturas = tabla_asignaturas.shape[0]
                 lista_asignaturas = []
-                uuid_lista_asignaturas = {}
                 for i in range(num_asignaturas):
                     dumtxt = \
                         tabla_asignaturas['asignatura'][i] + ', ' + \
@@ -595,8 +590,11 @@ def main(args=None):
                         dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
                     if tabla_asignaturas['grupo'][i] != ' ':
                         dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+                    ldum = len(dumtxt)
+                    if ldum < WIDTH_SPACES_FOR_UUID:
+                        dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                    dumtxt += ' uuid=' + tabla_asignaturas.index[i]
                     lista_asignaturas.append(dumtxt)
-                    uuid_lista_asignaturas[dumtxt] = tabla_asignaturas.index[i]
                 window.Element('_asignatura_elegida_').Update(
                     values=['---'] + lista_asignaturas,
                     disabled=False
@@ -617,12 +615,13 @@ def main(args=None):
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
-                uuid_asignatura = uuid_lista_asignaturas[asignatura_elegida]
+                uuid_asignatura = values['_asignatura_elegida_'][-36:]
                 window.Element('_uuid_asignatura_').Update(uuid_asignatura)
                 print('* uuid_profesor..:', uuid_profesor)
                 print('* uuid_titulacion:', uuid_titulacion)
                 print('* uuid_asignatura:', uuid_asignatura)
-                titulacion = values['_titulacion_']
+                titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                    'titulacion']
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
                     titulacion].loc[uuid_asignatura]['creditos_disponibles']
                 window.Element('_fraccion_de_asignatura_todo_').Update(
@@ -690,9 +689,9 @@ def main(args=None):
             )
             window.Element('_aplicar_').Update(disabled=False)
         elif event == '_aplicar_':
-            uuid_profesor = window.Element('_uuid_profesor_').Get()
-            uuid_titulacion = window.Element('_uuid_titulacion_').Get()
-            uuid_asignatura = window.Element('_uuid_asignatura_').Get()
+            uuid_profesor = values['_profesor_'][-36:]
+            uuid_titulacion = values['_titulacion_'][-36:]
+            uuid_asignatura = values['_asignatura_elegida_'][-36:]
             print('* uuid_profesor....: ' + uuid_profesor)
             print('* uuid_titulacion..: ' + uuid_titulacion)
             print('* uuid_asignatura..: ' + uuid_asignatura)
@@ -709,6 +708,8 @@ def main(args=None):
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
             print('-> créditos disponibles: ',
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
+            # OJO: VER SINTAXIS PARA EVITAR PROBLEMAS DE MODIFICACION DE
+            # COLUMNA COPIADA
             print('-> aplicamos eleccion...')
             tabla_asignaturas.loc[uuid_asignatura, 'creditos_disponibles'] -= \
                 creditos_elegidos_de_asignatura
