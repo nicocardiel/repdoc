@@ -376,11 +376,11 @@ def define_layout(fontsize):
               [sg.Text('Explicación:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right',
                        key='_label_explicacion_'),
-              sg.InputText(default_text=' ',
-                           size=(WIDTH_INPUT_COMMENT, 1),
-                           justification='left',
-                           do_not_clear=True, disabled=True,
-                           key='_explicacion_')],
+               sg.InputText(default_text=' ',
+                            size=(WIDTH_INPUT_COMMENT, 1),
+                            justification='left',
+                            do_not_clear=True, disabled=True,
+                            key='_explicacion_')],
               # ---
               [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
                sg.Button('Cancelar', disabled=True, key='_cancelar_')],
@@ -389,6 +389,86 @@ def define_layout(fontsize):
               ]
 
     return layout
+
+
+def filtra_titulaciones(tabla_titulaciones):
+    """Return list with degrees with available credits.
+
+    """
+
+    num_titulaciones = tabla_titulaciones.shape[0]
+    lista_titulaciones = []
+    for i in range(num_titulaciones):
+        if tabla_titulaciones['creditos_disponibles'][i] > 0:
+            nombre_titulacion = tabla_titulaciones['titulacion'][i]
+            ldum = len(nombre_titulacion)
+            if ldum < WIDTH_SPACES_FOR_UUID:
+                nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+            nombre_titulacion += ' uuid=' + tabla_titulaciones.index[i]
+            lista_titulaciones.append(nombre_titulacion)
+
+    return lista_titulaciones
+
+
+def export_to_html_titulaciones(tabla_titulaciones):
+    """Export to html tabla_titulaciones
+
+    """
+
+    tabla_titulaciones.to_html('xxx_titulaciones.html')
+
+
+def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
+    """Export to html bigdict_tablas_asignaturas
+
+    """
+
+    for key in bigdict_tablas_asignaturas.keys():
+        dumtable = bigdict_tablas_asignaturas[key]
+        dumtable.to_html('xxx_' + key + '.html')
+
+
+def export_to_html_profesores(tabla_profesores):
+    """Export to html tabla_profesores
+
+    """
+
+    tabla_profesores.to_html('xxx_profesores.html')
+
+
+
+def export_to_html_csv_inout(csv_inout):
+    """Export to html csv_inout
+
+    """
+
+    csv_inout.to_html('xxx_csv_inout.html')
+
+
+def filtra_asignaturas(tabla_asignaturas):
+    """Return list with subjects with available credits.
+
+    """
+
+    num_asignaturas = tabla_asignaturas.shape[0]
+    lista_asignaturas = []
+    for i in range(num_asignaturas):
+        if tabla_asignaturas['creditos_disponibles'][i] > 0:
+            dumtxt = tabla_asignaturas['asignatura'][i] + ', ' + \
+                     str(
+                         round(tabla_asignaturas['creditos_disponibles'][i], 4)
+                     ) + ' créditos'
+            if tabla_asignaturas['comentarios'][i] != ' ':
+                dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
+            if tabla_asignaturas['grupo'][i] != ' ':
+                dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+            ldum = len(dumtxt)
+            if ldum < WIDTH_SPACES_FOR_UUID:
+                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+            dumtxt += ' uuid=' + tabla_asignaturas.index[i]
+            lista_asignaturas.append(dumtxt)
+
+    return lista_asignaturas
 
 
 def main(args=None):
@@ -438,11 +518,14 @@ def main(args=None):
         course=args.course,
         debug=args.debug
     )
+    # incluye columna con créditos disponibles
+    tabla_titulaciones['creditos_disponibles'] = 0.0
     dumdumlist += tabla_titulaciones.index.tolist()
 
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
-    for titulacion in tabla_titulaciones['titulacion']:
+    for uuid_titulacion in tabla_titulaciones.index:
+        titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
         dumtable = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 course=args.course,
@@ -452,6 +535,10 @@ def main(args=None):
         # incluye columna con créditos disponibles
         dumtable['creditos_disponibles'] = dumtable['creditos_iniciales']
         bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
+        # actualiza número total de créditos disponibles (todas las
+        # asignaturas) en tabla de titulaciones
+        tabla_titulaciones.loc[uuid_titulacion, 'creditos_disponibles'] = \
+            dumtable['creditos_iniciales'].sum()
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
     for titulacion in tabla_titulaciones['titulacion']:
@@ -485,6 +572,13 @@ def main(args=None):
         raise ValueError('UUIDs are not unique when mixing everything!')
 
     # ---
+    # export to HTML files
+
+    export_to_html_titulaciones(tabla_titulaciones)
+    export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+    export_to_html_profesores(tabla_profesores)
+
+    # ---
     # define csv_inout
     csv_colnames_profesor = ['apellidos', 'nombre', 'categoria']
     csv_colnames_asignatura = ['curso', 'semestre', 'codigo', 'asignatura',
@@ -507,6 +601,8 @@ def main(args=None):
             print('Initialasing csv_inout DataFrame:')
             print(csv_inout)
             input('Press <CR> to continue...')
+        # export to HTML
+        export_to_html_csv_inout(csv_inout)
     else:
         raise ValueError("This option is still not available")
 
@@ -518,7 +614,6 @@ def main(args=None):
 
     # define GUI layout
     layout = define_layout(args.fontsize)
-    #sg.Text(str(tabla_profesores['encargo'].sum()),
 
     # define GUI window
     window = sg.Window('Reparto Docente (FTA), Curso ' +
@@ -632,22 +727,15 @@ def main(args=None):
                 raise ValueError('Unexpected uuid_profesor == None')
             window.Element('_profesor_').Update(disabled=True)
             window.Element('_continuar_').Update(disabled=True)
-            lista_titulaciones = ['---']
-            num_titulaciones = tabla_titulaciones.shape[0]
-            for i in range(num_titulaciones):
-                nombre_titulacion = tabla_titulaciones['titulacion'][i]
-                ldum = len(nombre_titulacion)
-                if ldum < WIDTH_SPACES_FOR_UUID:
-                    nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                nombre_titulacion += ' uuid=' + tabla_titulaciones.index[i]
-                lista_titulaciones.append(nombre_titulacion)
+            lista_titulaciones = filtra_titulaciones(tabla_titulaciones)
             window.Element('_titulacion_').Update(
-                values=lista_titulaciones, disabled=False)
+                values=['---'] + lista_titulaciones,
+                disabled=False
+            )
             window.Element('_cancelar_').Update(disabled=False)
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
             if titulacion == '---':
-                uuid_titulacion = None
                 window.Element('_asignatura_elegida_').Update('---')
                 window.Element('_asignatura_elegida_').Update(disabled=True)
                 window.Element('_fraccion_todo_').Update(
@@ -668,23 +756,7 @@ def main(args=None):
                 titulacion = tabla_titulaciones.loc[uuid_titulacion][
                     'titulacion']
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-                num_asignaturas = tabla_asignaturas.shape[0]
-                lista_asignaturas = []
-                for i in range(num_asignaturas):
-                    dumtxt = \
-                        tabla_asignaturas['asignatura'][i] + ', ' + \
-                        str(round(
-                            tabla_asignaturas['creditos_disponibles'][i], 4
-                        )) + ' créditos'
-                    if tabla_asignaturas['comentarios'][i] != ' ':
-                        dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
-                    if tabla_asignaturas['grupo'][i] != ' ':
-                        dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
-                    ldum = len(dumtxt)
-                    if ldum < WIDTH_SPACES_FOR_UUID:
-                        dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                    dumtxt += ' uuid=' + tabla_asignaturas.index[i]
-                    lista_asignaturas.append(dumtxt)
+                lista_asignaturas = filtra_asignaturas(tabla_asignaturas)
                 window.Element('_asignatura_elegida_').Update(
                     values=['---'] + lista_asignaturas,
                     disabled=False
@@ -799,28 +871,17 @@ def main(args=None):
             uuid_profesor = values['_profesor_'][-36:]
             uuid_titulacion = values['_titulacion_'][-36:]
             uuid_asignatura = values['_asignatura_elegida_'][-36:]
-            print('* uuid_profesor....: ' + uuid_profesor)
-            print('* uuid_titulacion..: ' + uuid_titulacion)
-            print('* uuid_asignatura..: ' + uuid_asignatura)
             creditos_elegidos = float(
                 values['_creditos_elegidos_']
             )
-            print('* creditos elegidos: ' +
-                  values['_creditos_elegidos_'])
-            #
             titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
-            print('>> titulación: ' + titulacion)
             tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-            print('-> créditos iniciales..: ',
-                  tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
-            print('-> créditos disponibles: ',
-                  tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
-            print('-> aplicamos eleccion...')
             # evitamos restar dos números reales iguales para evitar errores
             # de redondeo
             # ojo: ver sintaxis para evitar problemas de modificación de
             # una columna ('creditos_disponibles') que se ha generado como
             # una copia de otra ('creditos_iniciales')
+            asignacion_es_correcta = True
             if values['_fraccion_todo_']:
                 tabla_asignaturas.loc[uuid_asignatura,
                                       'creditos_disponibles'] = 0
@@ -831,14 +892,19 @@ def main(args=None):
                     tabla_asignaturas.loc[uuid_asignatura,
                                           'creditos_disponibles'] -= \
                         creditos_elegidos
-                else:
-                    raise ValueError('Créditos disponibles insuficiente')
+                    print('¡Créditos disponibles insuficiente!')
+                    input('Press <CR> to continue...')
+                    asignacion_es_correcta = False
             else:
-                raise ValueError('Fracción de asignatura no establecida')
-            print('-> créditos iniciales..: ',
-                  tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
-            print('-> créditos disponibles: ',
-                  tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
+                print('¡Fracción de asignatura no establecida!')
+                input('Press <CR> to continue...')
+                asignacion_es_correcta = False
+            if asignacion_es_correcta:
+                tabla_titulaciones.loc[uuid_titulacion,
+                                       'creditos_disponibles'] = \
+                    tabla_asignaturas['creditos_disponibles'].sum()
+                tabla_profesores.loc[uuid_profesor, 'asignados'] += \
+                    creditos_elegidos
             # prepare new entry for csv_inout
             data_row = [uuid_titulacion, uuid_asignatura,
                         creditos_elegidos, values['_explicacion_']]
@@ -850,11 +916,17 @@ def main(args=None):
                                    index=[uuid_profesor],
                                    columns=csv_inout.columns.tolist())
             csv_inout = pd.concat([csv_inout, csv_row])
+            if csv_inout.shape[0] == 1:
+                csv_inout.index.name = 'uuid_profesor'
             if args.debug:
                 print(csv_inout)
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
             window.Element('_continuar_').Update(disabled=False)
+            export_to_html_csv_inout(csv_inout)
+            export_to_html_titulaciones(tabla_titulaciones)
+            export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+            export_to_html_profesores(tabla_profesores)
         elif event == '_cancelar_':
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
