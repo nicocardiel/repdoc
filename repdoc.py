@@ -11,6 +11,7 @@ WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO = 50
 WIDTH_INPUT_NUMBER = 10
+WIDTH_INPUT_COMMENT = 50
 WIDTH_SPACES_FOR_UUID = 150
 
 
@@ -372,6 +373,15 @@ def define_layout(fontsize):
                             do_not_clear=True, disabled=True,
                             key='_creditos_elegidos_')],
               # ---
+              [sg.Text('Explicación:', size=(WIDTH_TEXT_LABEL, 1),
+                       justification='right',
+                       key='_label_explicacion_'),
+              sg.InputText(default_text=' ',
+                           size=(WIDTH_INPUT_COMMENT, 1),
+                           justification='left',
+                           do_not_clear=True, disabled=True,
+                           key='_explicacion_')],
+              # ---
               [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
                sg.Button('Cancelar', disabled=True, key='_cancelar_')],
               [sg.Text('_' * WIDTH_HLINE)],
@@ -388,7 +398,10 @@ def main(args=None):
 
     parser.add_argument("xlsxfile",
                         help="Excel file with input data",
-                        type=argparse.FileType('rt'))
+                        type=argparse.FileType())
+    parser.add_argument("--csv_inout",
+                        help="CSV input/output filename",
+                        type=argparse.FileType())
     parser.add_argument("--course", required=True,
                         help="Academic course (e.g. 2019-2020)",
                         type=str)
@@ -413,6 +426,7 @@ def main(args=None):
         print('\033[1m\033[31mExecuting: ' + ' '.join(sys.argv) + '\033[0m\n')
 
     # ---
+    # load Excel sheets
 
     # variable para almacenar los UUIDs de titulaciones, asignaturas
     # y profesores
@@ -471,6 +485,33 @@ def main(args=None):
         raise ValueError('UUIDs are not unique when mixing everything!')
 
     # ---
+    # define csv_inout
+    csv_colnames_profesor = ['apellidos', 'nombre', 'categoria']
+    csv_colnames_asignatura = ['curso', 'semestre', 'codigo', 'asignatura',
+                               'area', 'creditos_iniciales', 'comentarios',
+                               'grupo']
+    if args.csv_inout is None:
+        # first degree
+        titulacion = list(bigdict_tablas_asignaturas.keys())[0]
+        # list with the names of the columns of the corresponding dataframe
+        listcol = bigdict_tablas_asignaturas[titulacion].columns.tolist()
+        # initialize empty dataframe with the expected columns
+        csv_inout = pd.DataFrame(
+            data=[],
+            columns=['uuid_titulacion', 'uuid_asignatura',
+                     'creditos_elegidos', 'explicacion'] +
+                    csv_colnames_profesor + csv_colnames_asignatura
+        )
+        csv_inout.index.name = 'uuid_profesor'
+        if args.debug:
+            print('Initialasing csv_inout DataFrame:')
+            print(csv_inout)
+            input('Press <CR> to continue...')
+    else:
+        raise ValueError("This option is still not available")
+
+    # ---
+    # GUI
 
     # set global GUI options
     sg.SetOptions(font=(args.fontname, args.fontsize))
@@ -484,8 +525,7 @@ def main(args=None):
                        args.course).Layout(layout)
 
     # ---
-
-    creditos_max_asignatura = 0.0
+    # define auxiliary functions
 
     def clear_screen_profesor(profesor_disabled=True):
         if profesor_disabled:
@@ -508,8 +548,17 @@ def main(args=None):
             value='0.0',
             disabled=True
         )
+        window.Element('_fraccion_todo_').Update(
+            value=False, disabled=True
+        )
+        window.Element('_fraccion_parte_').Update(
+            value=False, disabled=True
+        )
+        window.Element('_explicacion_').Update(value=' ', disabled=True)
         window.Element('_aplicar_').Update(disabled=True)
         window.Element('_cancelar_').Update(disabled=True)
+
+    creditos_max_asignatura = 0.0
 
     while True:
         event, values = window.Read()
@@ -610,6 +659,9 @@ def main(args=None):
                 window.Element('_creditos_elegidos_').Update(
                     str(0.0)
                 )
+                window.Element('_explicacion_').Update(
+                    value=' ', disabled=True
+                )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
                 uuid_titulacion = values['_titulacion_'][-36:]
@@ -637,6 +689,18 @@ def main(args=None):
                     values=['---'] + lista_asignaturas,
                     disabled=False
                 )
+                window.Element('_fraccion_todo_').Update(
+                    value=False, disabled=True
+                )
+                window.Element('_fraccion_parte_').Update(
+                    value=False, disabled=True
+                )
+                window.Element('_creditos_elegidos_').Update(
+                    str(0.0)
+                )
+                window.Element('_explicacion_').Update(
+                    value=' ', disabled=True
+                )
         elif event == '_asignatura_elegida_':
             asignatura_elegida = values['_asignatura_elegida_']
             if asignatura_elegida == '---':
@@ -649,6 +713,9 @@ def main(args=None):
                 window.Element('_creditos_elegidos_').Update(
                     str(0.0)
                 )
+                window.Element('_explicacion_').Update(
+                    value=' ', disabled=True
+                )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
                 uuid_titulacion = values['_titulacion_'][-36:]
@@ -658,10 +725,10 @@ def main(args=None):
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
                     titulacion].loc[uuid_asignatura]['creditos_disponibles']
                 window.Element('_fraccion_todo_').Update(
-                    disabled=False
+                    value=False, disabled=False
                 )
                 window.Element('_fraccion_parte_').Update(
-                    disabled=False
+                    value=False, disabled=False
                 )
                 window.Element('_creditos_elegidos_').Update(
                     str(round(
@@ -669,6 +736,7 @@ def main(args=None):
                             uuid_asignatura]['creditos_disponibles'],4)
                     )
                 )
+                window.Element('_aplicar_').Update(disabled=True)
         elif event == '_fraccion_todo_':
             window.Element('_fraccion_todo_').Update(
                 value=True
@@ -682,6 +750,9 @@ def main(args=None):
             window.Element('_creditos_elegidos_').Update(
                 value=str(round(creditos_max_asignatura, 4)),
                 disabled=True,
+            )
+            window.Element('_explicacion_').Update(
+                value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         elif event == '_fraccion_parte_':
@@ -719,6 +790,9 @@ def main(args=None):
                                      '0 < valor < ' + str(limite_maximo))
             window.Element('_creditos_elegidos_').Update(
                            str(float(creditos_elegidos))
+            )
+            window.Element('_explicacion_').Update(
+                value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         elif event == '_aplicar_':
@@ -765,28 +839,26 @@ def main(args=None):
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_iniciales'])
             print('-> créditos disponibles: ',
                   tabla_asignaturas.loc[uuid_asignatura]['creditos_disponibles'])
-        elif event == '_cancelar_':
+            # prepare new entry for csv_inout
+            data_row = [uuid_titulacion, uuid_asignatura,
+                        creditos_elegidos, values['_explicacion_']]
+            for item in csv_colnames_profesor:
+                data_row.append(tabla_profesores.loc[uuid_profesor][item])
+            for item in csv_colnames_asignatura:
+                data_row.append(tabla_asignaturas.loc[uuid_asignatura][item])
+            csv_row = pd.DataFrame(data=[data_row],
+                                   index=[uuid_profesor],
+                                   columns=csv_inout.columns.tolist())
+            csv_inout = pd.concat([csv_inout, csv_row])
+            if args.debug:
+                print(csv_inout)
+            clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
             window.Element('_continuar_').Update(disabled=False)
-            window.Element('_titulacion_').Update(
-                values='---',
-                disabled=True
-            )
-            window.Element('_asignatura_elegida_').Update(
-                values='---',
-                disabled=True
-            )
-            window.Element('_fraccion_todo_').Update(
-                value=False, disabled=True
-            )
-            window.Element('_fraccion_parte_').Update(
-                value=False, disabled=True
-            )
-            window.Element('_creditos_elegidos_').Update(
-                value='0.0', disabled=True
-            )
-            window.Element('_aplicar_').Update(disabled=True)
-            window.Element('_cancelar_').Update(disabled=True)
+        elif event == '_cancelar_':
+            clear_screen_asignatura()
+            window.Element('_profesor_').Update(disabled=False)
+            window.Element('_continuar_').Update(disabled=False)
         elif event is None or event == "_salir_":
             cout = ''
             while cout != 'y' and cout != 'n':
