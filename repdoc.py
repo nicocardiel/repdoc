@@ -6,7 +6,8 @@ import sys
 
 
 WIDTH_HLINE = 90
-WIDTH_TEXT_SUMMARY = 25
+WIDTH_TEXT_SUMMARY_LABEL = 25
+WIDTH_TEXT_SUMMARY_CREDITS = 60
 WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO = 50
@@ -259,19 +260,22 @@ def define_layout(fontsize):
     fontname = 'courier ' + str(fontsize)
 
     layout = [[sg.Text('Encargo docente total (créditos):',
-                       size=(WIDTH_TEXT_SUMMARY, 1),
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
                        justification='right'),
                sg.Text('0.0', font=fontname,
+                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
                        key='_summary_total_')],
               [sg.Text('Disponible:',
-                       size=(WIDTH_TEXT_SUMMARY, 1),
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
                        justification='right'),
                sg.Text('0.0', font=fontname,
+                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
                        key='_summary_disponible_')],
               [sg.Text('Disponible para Bec./Col.:',
-                       size=(WIDTH_TEXT_SUMMARY, 1),
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
                        justification='right'),
                sg.Text('0.0', font=fontname,
+                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
                        key='_summary_disponible_beccol_')],
               # ---
               [sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
@@ -454,10 +458,11 @@ def filtra_asignaturas(tabla_asignaturas):
     lista_asignaturas = []
     for i in range(num_asignaturas):
         if tabla_asignaturas['creditos_disponibles'][i] > 0:
-            dumtxt = tabla_asignaturas['asignatura'][i] + ', ' + \
-                     str(
-                         round(tabla_asignaturas['creditos_disponibles'][i], 4)
-                     ) + ' créditos'
+            dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
+            dumtxt += tabla_asignaturas['asignatura'][i] + ', '
+            dumtxt += str(
+                round(tabla_asignaturas['creditos_disponibles'][i], 4)
+            ) + ' créditos'
             if tabla_asignaturas['comentarios'][i] != ' ':
                 dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
             if tabla_asignaturas['grupo'][i] != ' ':
@@ -518,7 +523,8 @@ def main(args=None):
         course=args.course,
         debug=args.debug
     )
-    # incluye columna con créditos disponibles
+    # incluye columnas con créditos iniciales y disponibles
+    tabla_titulaciones['creditos_iniciales'] = 0.0
     tabla_titulaciones['creditos_disponibles'] = 0.0
     dumdumlist += tabla_titulaciones.index.tolist()
 
@@ -537,6 +543,8 @@ def main(args=None):
         bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
         # actualiza número total de créditos disponibles (todas las
         # asignaturas) en tabla de titulaciones
+        tabla_titulaciones.loc[uuid_titulacion, 'creditos_iniciales'] = \
+            dumtable['creditos_iniciales'].sum()
         tabla_titulaciones.loc[uuid_titulacion, 'creditos_disponibles'] = \
             dumtable['creditos_iniciales'].sum()
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
@@ -652,6 +660,62 @@ def main(args=None):
         window.Element('_explicacion_').Update(value=' ', disabled=True)
         window.Element('_aplicar_').Update(disabled=True)
         window.Element('_cancelar_').Update(disabled=True)
+
+    def update_info_creditos():
+        """Update general credit info
+
+        """
+
+        total_iniciales = 0.0
+        total_disponibles = 0.0
+        total_disponibles_beccol = 0.0
+        text_iniciales = ''
+        text_disponibles = ''
+        text_disponibles_beccol = ''
+        cout = '{0:7.3f}'
+        for uuid_titulacion in tabla_titulaciones.index:
+            titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
+            tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
+            if len(text_iniciales) == 0:
+                text_iniciales = '('
+                text_disponibles = '('
+                text_disponibles_beccol = '('
+            else:
+                text_iniciales += ', '
+                text_disponibles += ', '
+                text_disponibles_beccol += ', '
+            creditos_iniciales = tabla_asignaturas['creditos_iniciales'].sum()
+            total_iniciales += creditos_iniciales
+            text_iniciales += cout.format(creditos_iniciales)
+            creditos_disponibles = tabla_asignaturas[
+                'creditos_disponibles'].sum()
+            total_disponibles += creditos_disponibles
+            text_disponibles += cout.format(creditos_disponibles)
+            sumproduct = tabla_asignaturas['creditos_disponibles'] * \
+                         tabla_asignaturas['bec_col']
+            creditos_disponibles_beccol = sumproduct.sum()
+            total_disponibles_beccol += creditos_disponibles_beccol
+            text_disponibles_beccol += \
+                cout.format(creditos_disponibles_beccol)
+        text_iniciales += ')'
+        text_disponibles += ')'
+        text_disponibles_beccol += ')'
+        txt_iniciales = cout.format(total_iniciales) + ' ' +\
+                        text_iniciales
+        txt_disponibles = cout.format(total_disponibles) + ' ' +\
+                          text_disponibles
+        txt_disponibles_beccol = cout.format(total_disponibles_beccol) +\
+                                 ' ' + text_disponibles_beccol
+        window.Element('_summary_total_').Update(
+            value=txt_iniciales)
+        window.Element('_summary_disponible_').Update(
+            value=txt_disponibles)
+        window.Element('_summary_disponible_beccol_').Update(
+            value=txt_disponibles_beccol)
+
+    # update initial info
+    window.Read(timeout=1)  # for next function to work
+    update_info_creditos()
 
     creditos_max_asignatura = 0.0
 
@@ -905,6 +969,13 @@ def main(args=None):
                     tabla_asignaturas['creditos_disponibles'].sum()
                 tabla_profesores.loc[uuid_profesor, 'asignados'] += \
                     creditos_elegidos
+                update_info_creditos()
+                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
+                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
+                diferencia = asignados - encargo
+                window.Element('_encargo_prof_').Update(round(encargo, 4))
+                window.Element('_asignados_prof_').Update(round(asignados, 4))
+                window.Element('_diferencia_prof_').Update(round(diferencia, 4))
             # prepare new entry for csv_inout
             data_row = [uuid_titulacion, uuid_asignatura,
                         creditos_elegidos, values['_explicacion_']]
