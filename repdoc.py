@@ -959,7 +959,8 @@ def main(args=None):
                     tabla_asignaturas.loc[uuid_asignatura,
                                           'creditos_disponibles'] -= \
                         creditos_elegidos
-                    print('¡Créditos disponibles insuficiente!')
+                else:
+                    print('¡Créditos disponibles insuficientes!')
                     input('Press <CR> to continue...')
                     asignacion_es_correcta = False
             else:
@@ -973,8 +974,8 @@ def main(args=None):
                 tabla_profesores.loc[uuid_profesor, 'asignados'] += \
                     creditos_elegidos
                 tabla_profesores.loc[uuid_profesor, 'diferencia'] = \
-                    tabla_profesores.loc[uuid_profesor]['asignados'] - \
-                    tabla_profesores.loc[uuid_profesor]['encargo']
+                    tabla_profesores.loc[uuid_profesor, 'asignados'] - \
+                    tabla_profesores.loc[uuid_profesor, 'encargo']
                 update_info_creditos()
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
                 asignados = tabla_profesores.loc[uuid_profesor]['asignados']
