@@ -570,6 +570,9 @@ def main(args=None):
     tabla_profesores['encargo'] /= 10
     # define columna para almacenar docencia elegida
     tabla_profesores['asignados'] = 0.0
+    # define columna para almacenar diferencia entre encargo y eleccion
+    tabla_profesores['diferencia'] = tabla_profesores['asignados'] - \
+                                     tabla_profesores['encargo']
 
     # comprueba que los UUIDs de titulaciones, asignaturas y profesores
     # son todos distintos
@@ -780,7 +783,7 @@ def main(args=None):
                 uuid_profesor = values['_profesor_'][-36:]
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
                 asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-                diferencia = asignados - encargo
+                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
@@ -969,10 +972,13 @@ def main(args=None):
                     tabla_asignaturas['creditos_disponibles'].sum()
                 tabla_profesores.loc[uuid_profesor, 'asignados'] += \
                     creditos_elegidos
+                tabla_profesores.loc[uuid_profesor, 'diferencia'] = \
+                    tabla_profesores.loc[uuid_profesor]['asignados'] - \
+                    tabla_profesores.loc[uuid_profesor]['encargo']
                 update_info_creditos()
                 encargo = tabla_profesores.loc[uuid_profesor]['encargo']
                 asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-                diferencia = asignados - encargo
+                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
