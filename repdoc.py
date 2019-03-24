@@ -414,6 +414,89 @@ def filtra_titulaciones(tabla_titulaciones):
     return lista_titulaciones
 
 
+def filtra_asignaturas(tabla_asignaturas):
+    """Return list with subjects with available credits.
+
+    """
+
+    num_asignaturas = tabla_asignaturas.shape[0]
+    lista_asignaturas = []
+    for i in range(num_asignaturas):
+        if tabla_asignaturas['creditos_disponibles'][i] > 0:
+            dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
+            dumtxt += tabla_asignaturas['asignatura'][i] + ', '
+            dumtxt += str(
+                round(tabla_asignaturas['creditos_disponibles'][i], 4)
+            ) + ' créditos'
+            if tabla_asignaturas['comentarios'][i] != ' ':
+                dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
+            if tabla_asignaturas['grupo'][i] != ' ':
+                dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+            ldum = len(dumtxt)
+            if ldum < WIDTH_SPACES_FOR_UUID:
+                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+            dumtxt += ' uuid=' + tabla_asignaturas.index[i]
+            lista_asignaturas.append(dumtxt)
+
+    return lista_asignaturas
+
+
+def filtra_seleccion_del_profesor(uuid_profesor, csv_inout):
+    """Return list with subjects already assigned to a teacher.
+
+    """
+
+    output = ['---']
+
+    if uuid_profesor not in csv_inout.index:
+        return output
+
+    seleccion = csv_inout.loc[uuid_profesor].copy()
+    if seleccion.ndim == 1:      # seleccion is a Series
+        dumtxt = '[' + seleccion['curso'] + '] '
+        dumtxt += seleccion['asignatura'] + ', '
+        dumtxt += str(
+            round(seleccion['creditos_elegidos'], 4)
+        ) + ' créditos'
+        if seleccion['comentarios'] != ' ':
+            dumtxt += ', ' + seleccion['comentarios']
+        if seleccion['grupo'] != ' ':
+            dumtxt += ', grupo ' + seleccion['grupo']
+        ldum = len(dumtxt)
+        if ldum < WIDTH_SPACES_FOR_UUID:
+            dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+        dumtxt += ' uuidp=' + uuid_profesor + ', '
+        dumtxt += ' uuidt=' + seleccion['uuid_titulacion']
+        dumtxt += ', '
+        dumtxt += ' uuida=' + seleccion['uuid_asignatura']
+        output.append(dumtxt)
+    elif seleccion.ndim == 2:    # seleccion is a DataFrame
+        num_asignaturas = seleccion.shape[0]
+        for i in range(num_asignaturas):
+            dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
+            dumtxt += seleccion['asignatura'].tolist()[i] + ', '
+            dumtxt += str(
+                round(seleccion['creditos_elegidos'].tolist()[i], 4)
+            ) + ' créditos'
+            if seleccion['comentarios'].tolist()[i] != ' ':
+                dumtxt += ', ' + seleccion['comentarios'].tolist()[i]
+            if seleccion['grupo'].tolist()[i] != ' ':
+                dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
+            ldum = len(dumtxt)
+            if ldum < WIDTH_SPACES_FOR_UUID:
+                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+            dumtxt += ' uuidp=' + uuid_profesor + ', '
+            dumtxt += ' uuidt=' + seleccion['uuid_titulacion'].tolist()[i]
+            dumtxt += ', '
+            dumtxt += ' uuida=' + seleccion['uuid_asignatura'].tolist()[i]
+            output.append(dumtxt)
+    else:
+        raise ValueError('Unexpected dataframe dimension: ' +
+                         str(seleccion.ndim))
+
+    return output
+
+
 def export_to_html_titulaciones(tabla_titulaciones):
     """Export to html tabla_titulaciones
 
@@ -447,33 +530,6 @@ def export_to_html_csv_inout(csv_inout):
     """
 
     csv_inout.to_html('xxx_csv_inout.html')
-
-
-def filtra_asignaturas(tabla_asignaturas):
-    """Return list with subjects with available credits.
-
-    """
-
-    num_asignaturas = tabla_asignaturas.shape[0]
-    lista_asignaturas = []
-    for i in range(num_asignaturas):
-        if tabla_asignaturas['creditos_disponibles'][i] > 0:
-            dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
-            dumtxt += tabla_asignaturas['asignatura'][i] + ', '
-            dumtxt += str(
-                round(tabla_asignaturas['creditos_disponibles'][i], 4)
-            ) + ' créditos'
-            if tabla_asignaturas['comentarios'][i] != ' ':
-                dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
-            if tabla_asignaturas['grupo'][i] != ' ':
-                dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
-            ldum = len(dumtxt)
-            if ldum < WIDTH_SPACES_FOR_UUID:
-                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuid=' + tabla_asignaturas.index[i]
-            lista_asignaturas.append(dumtxt)
-
-    return lista_asignaturas
 
 
 def main(args=None):
@@ -787,19 +843,52 @@ def main(args=None):
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
+                seleccion_del_profesor = filtra_seleccion_del_profesor(
+                    uuid_profesor, csv_inout
+                )
+                if len(seleccion_del_profesor) > 1:
+                    window.Element('_docencia_asignada_').Update(
+                        values=seleccion_del_profesor,
+                        disabled=False
+                    )
+                else:
+                    window.Element('_docencia_asignada_').Update(
+                        values=['---'],
+                        disabled=True
+                    )
                 window.Element('_continuar_').Update(disabled=False)
+        elif event == '_docencia_asignada_':
+            if values['_docencia_asignada_'] == '---':
+                window.Element('_eliminar_').Update(disabled=True)
+            else:
+                window.Element('_eliminar_').Update(disabled=False)
         elif event == '_continuar_':
             uuid_profesor = values['_profesor_'][-36:]
             if uuid_profesor is None:
                 raise ValueError('Unexpected uuid_profesor == None')
             window.Element('_profesor_').Update(disabled=True)
+            window.Element('_docencia_asignada_').Update(
+                values=['---'],
+                disabled=True
+            )
             window.Element('_continuar_').Update(disabled=True)
+            window.Element('_eliminar_').Update(disabled=True)
             lista_titulaciones = filtra_titulaciones(tabla_titulaciones)
             window.Element('_titulacion_').Update(
                 values=['---'] + lista_titulaciones,
                 disabled=False
             )
             window.Element('_cancelar_').Update(disabled=False)
+        elif event == '_eliminar_':
+            print(values['_docencia_asignada_'][-42:])
+            print(values['_docencia_asignada_'][-87:-45])
+            print(values['_docencia_asignada_'][-132:-90])
+            uuid_profesor = 0
+            uuid_titulacion = 0
+            uuid_asignatura = 0
+            print('> uuid_profesor..:', uuid_profesor)
+            print('> uuid_titulacion:', uuid_titulacion)
+            print('> uuid_asignatura:', uuid_asignatura)
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
             if titulacion == '---':
@@ -1000,6 +1089,19 @@ def main(args=None):
                 print(csv_inout)
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
+            seleccion_del_profesor = filtra_seleccion_del_profesor(
+                uuid_profesor, csv_inout
+            )
+            if len(seleccion_del_profesor) > 1:
+                window.Element('_docencia_asignada_').Update(
+                    values=seleccion_del_profesor,
+                    disabled=False
+                )
+            else:
+                window.Element('_docencia_asignada_').Update(
+                    values=['---'],
+                    disabled=True
+                )
             window.Element('_continuar_').Update(disabled=False)
             export_to_html_csv_inout(csv_inout)
             export_to_html_titulaciones(tabla_titulaciones)
