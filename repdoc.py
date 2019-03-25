@@ -523,7 +523,6 @@ def export_to_html_profesores(tabla_profesores):
     tabla_profesores.to_html('xxx_profesores.html')
 
 
-
 def export_to_html_csv_inout(csv_inout):
     """Export to html csv_inout
 
@@ -652,10 +651,6 @@ def main(args=None):
                                'area', 'creditos_iniciales', 'comentarios',
                                'grupo']
     if args.csv_inout is None:
-        # first degree
-        titulacion = list(bigdict_tablas_asignaturas.keys())[0]
-        # list with the names of the columns of the corresponding dataframe
-        listcol = bigdict_tablas_asignaturas[titulacion].columns.tolist()
         # initialize empty dataframe with the expected columns
         csv_inout = pd.DataFrame(
             data=[],
@@ -817,7 +812,8 @@ def main(args=None):
                             if ldum < WIDTH_SPACES_FOR_UUID:
                                 nombre_completo += \
                                     (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                            nombre_completo += ' uuid=' + tabla_profesores.index[i]
+                            nombre_completo += ' uuid=' + \
+                                               tabla_profesores.index[i]
                             if umbral == 0:
                                 num_profesores += 1
                                 lista_profesores.append(nombre_completo)
@@ -890,51 +886,56 @@ def main(args=None):
             uuid_titulacion = tmpdf['uuid_titulacion'].values[0]
             uuid_asignatura = tmpdf['uuid_asignatura'].values[0]
             creditos_a_recuperar = tmpdf['creditos_elegidos'].values[0]
-            devolucion_correcta = True
-            if tabla_profesores.loc[uuid_profesor,
-                                    'asignados'] >= creditos_a_recuperar:
-                tabla_profesores.loc[uuid_profesor, 'asignados'] -= \
-                    creditos_a_recuperar
-            else:
-                print('¡El profesor no tiene créditos suficientes!')
-                input('Press <CR> to continue...')
-                devolucion_correcta = False
-            if devolucion_correcta:
-                titulacion = tabla_titulaciones.loc[uuid_titulacion][
-                    'titulacion']
-                tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-                tabla_asignaturas.loc[uuid_asignatura,
-                                      'creditos_disponibles'] += \
-                    creditos_a_recuperar
-                tabla_titulaciones.loc[uuid_titulacion,
-                                       'creditos_disponibles'] = \
-                    tabla_asignaturas['creditos_disponibles'].sum()
-            # remove row from csv_inout
-            csv_inout = (csv_inout[csv_inout['uuid_csv'] != uuid_csv]).copy()
-            encargo = tabla_profesores.loc[uuid_profesor]['encargo']
-            asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-            diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
-            window.Element('_encargo_prof_').Update(round(encargo, 4))
-            window.Element('_asignados_prof_').Update(round(asignados, 4))
-            window.Element('_diferencia_prof_').Update(round(diferencia, 4))
-            seleccion_del_profesor = filtra_seleccion_del_profesor(
-                uuid_profesor, csv_inout
-            )
-            if len(seleccion_del_profesor) > 1:
-                window.Element('_docencia_asignada_').Update(
-                    values=seleccion_del_profesor,
-                    disabled=False
+            dummy = sg.PopupYesNo('Do you really want to remove this subject?')
+            if dummy == 'Yes':
+                devolucion_correcta = True
+                if tabla_profesores.loc[uuid_profesor,
+                                        'asignados'] >= creditos_a_recuperar:
+                    tabla_profesores.loc[uuid_profesor, 'asignados'] -= \
+                        creditos_a_recuperar
+                else:
+                    print('¡El profesor no tiene créditos suficientes!')
+                    input('Press <CR> to continue...')
+                    devolucion_correcta = False
+                if devolucion_correcta:
+                    titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                        'titulacion']
+                    tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
+                    tabla_asignaturas.loc[uuid_asignatura,
+                                          'creditos_disponibles'] += \
+                        creditos_a_recuperar
+                    tabla_titulaciones.loc[uuid_titulacion,
+                                           'creditos_disponibles'] = \
+                        tabla_asignaturas['creditos_disponibles'].sum()
+                # remove row from csv_inout
+                csv_inout = (
+                    csv_inout[csv_inout['uuid_csv'] != uuid_csv]
+                ).copy()
+                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
+                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
+                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
+                window.Element('_encargo_prof_').Update(round(encargo, 4))
+                window.Element('_asignados_prof_').Update(round(asignados, 4))
+                window.Element('_diferencia_prof_').Update(round(diferencia, 4))
+                seleccion_del_profesor = filtra_seleccion_del_profesor(
+                    uuid_profesor, csv_inout
                 )
-            else:
-                window.Element('_docencia_asignada_').Update(
-                    values=['---'],
-                    disabled=True
-                )
-            window.Element('_eliminar_').Update(disabled=True)
-            export_to_html_csv_inout(csv_inout)
-            export_to_html_titulaciones(tabla_titulaciones)
-            export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-            export_to_html_profesores(tabla_profesores)
+                if len(seleccion_del_profesor) > 1:
+                    window.Element('_docencia_asignada_').Update(
+                        values=seleccion_del_profesor,
+                        disabled=False
+                    )
+                else:
+                    window.Element('_docencia_asignada_').Update(
+                        values=['---'],
+                        disabled=True
+                    )
+                window.Element('_eliminar_').Update(disabled=True)
+                update_info_creditos()
+                export_to_html_csv_inout(csv_inout)
+                export_to_html_titulaciones(tabla_titulaciones)
+                export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+                export_to_html_profesores(tabla_profesores)
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
             if titulacion == '---':
@@ -1177,14 +1178,14 @@ def main(args=None):
                 )
             window.Element('_continuar_').Update(disabled=False)
         elif event is None or event == "_salir_":
-            cout = ''
-            while cout != 'y' and cout != 'n':
-                cout = input('Do you really want to exit (y/n) [y] ? ')
-                if cout == '':
-                    cout = 'y'
-                if cout != 'y' and cout != 'n':
+            coption = ''
+            while coption != 'y' and coption != 'n':
+                coption = input('Do you really want to exit (y/n) [y] ? ')
+                if coption == '':
+                    coption = 'y'
+                if coption != 'y' and coption != 'n':
                     print('Invalid answer. Try again!')
-            if cout == 'y':
+            if coption == 'y':
                 break
 
     window.Close()
