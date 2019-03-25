@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import PySimpleGUI as sg
 import sys
+from uuid import uuid4
 
 
 WIDTH_HLINE = 90
@@ -63,8 +64,8 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
         sheet_name = 'Resumen Encargo'
         skiprows = 4
         usecols = [1, 2]
-        names = ['uuid', 'titulacion']
-        converters = {'uuid': str, 'titulacion': str}
+        names = ['uuid_titulacion', 'titulacion']
+        converters = {'uuid_titulacion': str, 'titulacion': str}
     else:
         print('Course: ' + course)
         raise ValueError('Unexpected course!')
@@ -84,7 +85,7 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid'].notnull()
+    lok = tabla_inicial['uuid_titulacion'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -92,8 +93,8 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
 
     # use uuid as index
     tabla_titulaciones = tabla_inicial.copy()
-    tabla_titulaciones.index = tabla_inicial['uuid']
-    del tabla_titulaciones['uuid']
+    tabla_titulaciones.index = tabla_inicial['uuid_titulacion']
+    del tabla_titulaciones['uuid_titulacion']
 
     # check that uuid's are unique
     if len(tabla_titulaciones.index) != len(set(tabla_titulaciones.index)):
@@ -115,13 +116,14 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
         skiprows = 5
         usecols = range(1, 12)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
-                 'uuid', 'creditos_iniciales', 'comentarios', 'grupo',
-                 'bec_col', 'profesor_anterior'
+                 'uuid_asignatura', 'creditos_iniciales', 'comentarios',
+                 'grupo', 'bec_col', 'profesor_anterior'
                  ]
         converters = {'curso': str, 'semestre': int, 'codigo': int,
-                      'area': str, 'uuid': str, 'creditos_iniciales': float,
-                      'comentarios': str_nonan, 'grupo': str_nonan,
-                      'bec_col': int, 'profesor_anterior': str_nonan
+                      'area': str, 'uuid_asignatura': str,
+                      'creditos_iniciales': float, 'comentarios': str_nonan,
+                      'grupo': str_nonan, 'bec_col': int,
+                      'profesor_anterior': str_nonan
                       }
     else:
         print('Course: ' + course)
@@ -142,7 +144,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid'].notnull()
+    lok = tabla_inicial['uuid_asignatura'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -155,8 +157,8 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     # use uuid as index
     tabla_asignaturas = tabla_inicial.copy()
-    tabla_asignaturas.index = tabla_inicial['uuid']
-    del tabla_asignaturas['uuid']
+    tabla_asignaturas.index = tabla_inicial['uuid_asignatura']
+    del tabla_asignaturas['uuid_asignatura']
 
     # check that uuid's are unique
     if len(tabla_asignaturas.index) != len(set(tabla_asignaturas.index)):
@@ -184,8 +186,9 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
         sheet_name = 'Asignación'
         skiprows = 7
         usecols = [0, 1, 2, 3, 18]
-        names = ['uuid', 'apellidos', 'nombre', 'categoria', 'encargo']
-        converters = {'uuid': str,
+        names = ['uuid_profesor', 'apellidos', 'nombre', 'categoria',
+                 'encargo']
+        converters = {'uuid_profesor': str,
                       'apellidos': str,
                       'nombre': str,
                       'categoria': str,
@@ -209,7 +212,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid'].notnull()
+    lok = tabla_inicial['uuid_profesor'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -217,8 +220,8 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
 
     # use uuid as index
     tabla_profesores = tabla_inicial.copy()
-    tabla_profesores.index = tabla_inicial['uuid']
-    del tabla_profesores['uuid']
+    tabla_profesores.index = tabla_inicial['uuid_profesor']
+    del tabla_profesores['uuid_profesor']
 
     # check that uuid's are unique
     if len(tabla_profesores.index) != len(set(tabla_profesores.index)):
@@ -244,6 +247,9 @@ def display_in_terminal(event, values):
             if values[key][-41:-36] == 'uuid=':
                 output += "'" + values[key][:-41].rstrip() + " ... " + \
                           values[key][-41:] + "'"
+            elif values[key][-45:-36] == 'uuid_csv=':
+                output += "'" + values[key][:-45].rstrip() + " ... " + \
+                          values[key][-45:] + "'"
             else:
                 output += "'" + values[key] + "'"
         else:
@@ -465,10 +471,7 @@ def filtra_seleccion_del_profesor(uuid_profesor, csv_inout):
         ldum = len(dumtxt)
         if ldum < WIDTH_SPACES_FOR_UUID:
             dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-        dumtxt += ' uuidp=' + uuid_profesor + ', '
-        dumtxt += ' uuidt=' + seleccion['uuid_titulacion']
-        dumtxt += ', '
-        dumtxt += ' uuida=' + seleccion['uuid_asignatura']
+        dumtxt += ' uuid_csv=' + seleccion['uuid_csv']
         output.append(dumtxt)
     elif seleccion.ndim == 2:    # seleccion is a DataFrame
         num_asignaturas = seleccion.shape[0]
@@ -485,10 +488,7 @@ def filtra_seleccion_del_profesor(uuid_profesor, csv_inout):
             ldum = len(dumtxt)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuidp=' + uuid_profesor + ', '
-            dumtxt += ' uuidt=' + seleccion['uuid_titulacion'].tolist()[i]
-            dumtxt += ', '
-            dumtxt += ' uuida=' + seleccion['uuid_asignatura'].tolist()[i]
+            dumtxt += ' uuid_csv=' + seleccion['uuid_csv'].tolist()[i]
             output.append(dumtxt)
     else:
         raise ValueError('Unexpected dataframe dimension: ' +
@@ -609,9 +609,9 @@ def main(args=None):
         dumtable = bigdict_tablas_asignaturas[titulacion]
         dumlist += dumtable.index.tolist()
     if len(dumlist) != len(set(dumlist)):
-        for uuid in dumlist:
-            if dumlist.count(uuid) > 1:
-                print(uuid)
+        for dumuuid in dumlist:
+            if dumlist.count(dumuuid) > 1:
+                print(dumuuid)
         raise ValueError('UUIDs are not unique when mixing all the subjects!')
     dumdumlist += dumlist
 
@@ -633,9 +633,9 @@ def main(args=None):
     # comprueba que los UUIDs de titulaciones, asignaturas y profesores
     # son todos distintos
     if len(dumdumlist) != len(set(dumdumlist)):
-        for uuid in dumdumlist:
-            if dumdumlist.count(uuid) > 1:
-                print(uuid)
+        for dumuuid in dumdumlist:
+            if dumdumlist.count(dumuuid) > 1:
+                print(dumuuid)
         raise ValueError('UUIDs are not unique when mixing everything!')
 
     # ---
@@ -661,7 +661,8 @@ def main(args=None):
             data=[],
             columns=['uuid_titulacion', 'uuid_asignatura',
                      'creditos_elegidos', 'explicacion'] +
-                    csv_colnames_profesor + csv_colnames_asignatura
+                    csv_colnames_profesor + csv_colnames_asignatura +
+                    ['uuid_csv']
         )
         csv_inout.index.name = 'uuid_profesor'
         if args.debug:
@@ -880,15 +881,60 @@ def main(args=None):
             )
             window.Element('_cancelar_').Update(disabled=False)
         elif event == '_eliminar_':
-            print(values['_docencia_asignada_'][-42:])
-            print(values['_docencia_asignada_'][-87:-45])
-            print(values['_docencia_asignada_'][-132:-90])
-            uuid_profesor = 0
-            uuid_titulacion = 0
-            uuid_asignatura = 0
-            print('> uuid_profesor..:', uuid_profesor)
-            print('> uuid_titulacion:', uuid_titulacion)
-            print('> uuid_asignatura:', uuid_asignatura)
+            uuid_csv = values['_docencia_asignada_'][-36:]
+            tmpdf = (csv_inout.loc[csv_inout['uuid_csv'] == uuid_csv]).copy()
+            if tmpdf.shape[0] != 1:
+                print(tmpdf)
+                raise ValueError('Something is wrong with tmpdf')
+            uuid_profesor = tmpdf.index[0]
+            uuid_titulacion = tmpdf['uuid_titulacion'].values[0]
+            uuid_asignatura = tmpdf['uuid_asignatura'].values[0]
+            creditos_a_recuperar = tmpdf['creditos_elegidos'].values[0]
+            devolucion_correcta = True
+            if tabla_profesores.loc[uuid_profesor,
+                                    'asignados'] >= creditos_a_recuperar:
+                tabla_profesores.loc[uuid_profesor, 'asignados'] -= \
+                    creditos_a_recuperar
+            else:
+                print('¡El profesor no tiene créditos suficientes!')
+                input('Press <CR> to continue...')
+                devolucion_correcta = False
+            if devolucion_correcta:
+                titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                    'titulacion']
+                tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
+                tabla_asignaturas.loc[uuid_asignatura,
+                                      'creditos_disponibles'] += \
+                    creditos_a_recuperar
+                tabla_titulaciones.loc[uuid_titulacion,
+                                       'creditos_disponibles'] = \
+                    tabla_asignaturas['creditos_disponibles'].sum()
+            # remove row from csv_inout
+            csv_inout = (csv_inout[csv_inout['uuid_csv'] != uuid_csv]).copy()
+            encargo = tabla_profesores.loc[uuid_profesor]['encargo']
+            asignados = tabla_profesores.loc[uuid_profesor]['asignados']
+            diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
+            window.Element('_encargo_prof_').Update(round(encargo, 4))
+            window.Element('_asignados_prof_').Update(round(asignados, 4))
+            window.Element('_diferencia_prof_').Update(round(diferencia, 4))
+            seleccion_del_profesor = filtra_seleccion_del_profesor(
+                uuid_profesor, csv_inout
+            )
+            if len(seleccion_del_profesor) > 1:
+                window.Element('_docencia_asignada_').Update(
+                    values=seleccion_del_profesor,
+                    disabled=False
+                )
+            else:
+                window.Element('_docencia_asignada_').Update(
+                    values=['---'],
+                    disabled=True
+                )
+            window.Element('_eliminar_').Update(disabled=True)
+            export_to_html_csv_inout(csv_inout)
+            export_to_html_titulaciones(tabla_titulaciones)
+            export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+            export_to_html_profesores(tabla_profesores)
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
             if titulacion == '---':
@@ -1079,12 +1125,17 @@ def main(args=None):
                 data_row.append(tabla_profesores.loc[uuid_profesor][item])
             for item in csv_colnames_asignatura:
                 data_row.append(tabla_asignaturas.loc[uuid_asignatura][item])
+            # Nota: uuid_csv tendrá un valor único para cada elección de los
+            # profesores. Esto permite discriminar dentro de una misma
+            # asignatura (i.e., mismo uuid_profesor, uuid_titulacion,
+            # uuid_asignatura) cuando se eligen fracciones de asignatura (es
+            # decir, cuando se subdividen asignaturas por un mismo profesor)
+            data_row.append(str(uuid4()))
             csv_row = pd.DataFrame(data=[data_row],
                                    index=[uuid_profesor],
                                    columns=csv_inout.columns.tolist())
             csv_inout = pd.concat([csv_inout, csv_row])
-            if csv_inout.shape[0] == 1:
-                csv_inout.index.name = 'uuid_profesor'
+            csv_inout.index.name = 'uuid_profesor'
             if args.debug:
                 print(csv_inout)
             clear_screen_asignatura()
@@ -1110,6 +1161,20 @@ def main(args=None):
         elif event == '_cancelar_':
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
+            uuid_profesor = values['_profesor_'][-36:]
+            seleccion_del_profesor = filtra_seleccion_del_profesor(
+                uuid_profesor, csv_inout
+            )
+            if len(seleccion_del_profesor) > 1:
+                window.Element('_docencia_asignada_').Update(
+                    values=seleccion_del_profesor,
+                    disabled=False
+                )
+            else:
+                window.Element('_docencia_asignada_').Update(
+                    values=['---'],
+                    disabled=True
+                )
             window.Element('_continuar_').Update(disabled=False)
         elif event is None or event == "_salir_":
             cout = ''
