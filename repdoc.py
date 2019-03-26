@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import PySimpleGUI as sg
@@ -383,7 +384,7 @@ def define_layout(fontsize):
               [sg.Text('Explicación:', size=(WIDTH_TEXT_LABEL, 1),
                        justification='right',
                        key='_label_explicacion_'),
-               sg.InputText(default_text=' ',
+               sg.InputText(default_text='None',
                             size=(WIDTH_INPUT_COMMENT, 1),
                             justification='left',
                             do_not_clear=True, disabled=True,
@@ -454,7 +455,7 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     # subset of bitacora for the selected teacher
     seleccion = bitacora.loc[
         (bitacora['uuid_prof'] == uuid_prof) &
-        (bitacora['status'] == 'ADDED')
+        (bitacora['date_removed'] == 'None')
     ].copy()
 
     # find how many times the selected teacher appears
@@ -486,7 +487,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
     """
 
-    tabla_titulaciones.to_html('xxx_titulaciones.html')
+    tabla_titulaciones.to_html('repdoc_titulaciones.html')
 
 
 def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
@@ -494,9 +495,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
     """
 
-    for key in bigdict_tablas_asignaturas.keys():
+    for i, key in enumerate(bigdict_tablas_asignaturas.keys()):
         dumtable = bigdict_tablas_asignaturas[key]
-        dumtable.to_html('xxx_' + key + '.html')
+        dumtable.to_html('repdoc_titulacion_{:02d}.html'.format(i + 1))
 
 
 def export_to_html_profesores(tabla_profesores):
@@ -504,7 +505,7 @@ def export_to_html_profesores(tabla_profesores):
 
     """
 
-    tabla_profesores.to_html('xxx_profesores.html')
+    tabla_profesores.to_html('repdoc_profesores.html')
 
 
 def export_to_html_bitacora(bitacora):
@@ -512,9 +513,8 @@ def export_to_html_bitacora(bitacora):
 
     """
 
-    bitacora.to_html('xxx_bitacora.html')
-    bitacora.to_csv('xxx_bitacora.csv')
-    bitacora.to_excel('xxx_bitacora.xlsx', header=True)
+    bitacora.to_html('repdoc_bitacora.html')
+    bitacora.to_excel('repdoc_bitacora.xlsx', header=True)
 
 
 def main(args=None):
@@ -641,7 +641,8 @@ def main(args=None):
         bitacora = pd.DataFrame(
             data=[],
             columns=['uuid_prof', 'uuid_titu', 'uuid_asig',
-                     'status', 'creditos_elegidos', 'explicacion'] +
+                     'date_added', 'date_removed',
+                     'creditos_elegidos', 'explicacion'] +
                     csv_colnames_profesor + csv_colnames_asignatura
         )
         bitacora.index.name = 'uuid_bita'
@@ -660,8 +661,15 @@ def main(args=None):
             input('Press <CR> to continue...')
 
         for uuid_bita in bitacora.index.tolist():
-            status = bitacora.loc[uuid_bita]['status']
-            if status == 'ADDED':
+            # convert NaNs to 'None'
+            non_nan = ['date_removed', 'explicacion']
+            for item in non_nan:
+                itemvalue = str(bitacora.loc[uuid_bita][item])
+                if itemvalue == 'nan' or itemvalue == 'NaN':
+                    bitacora.loc[uuid_bita, item] = 'None'
+            # apply selected subjects
+            status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
+            if status:
                 uuid_prof = bitacora.loc[uuid_bita]['uuid_prof']
                 uuid_titu = bitacora.loc[uuid_bita]['uuid_titu']
                 uuid_asig = bitacora.loc[uuid_bita]['uuid_asig']
@@ -700,7 +708,6 @@ def main(args=None):
                     print('* uuid_titu:', uuid_titu)
                     print('* uuid_asig:', uuid_asig)
                     raise ValueError('Error while processing bitacora!')
-        input('Press <CR> to continue...')
 
     # ---
     # GUI
@@ -745,7 +752,7 @@ def main(args=None):
         window.Element('_fraccion_parte_').Update(
             value=False, disabled=True
         )
-        window.Element('_explicacion_').Update(value=' ', disabled=True)
+        window.Element('_explicacion_').Update(value='None', disabled=True)
         window.Element('_aplicar_').Update(disabled=True)
         window.Element('_cancelar_').Update(disabled=True)
 
@@ -953,8 +960,9 @@ def main(args=None):
                     tabla_titulaciones.loc[
                         uuid_titu, 'creditos_disponibles'
                     ] = tabla_asignaturas['creditos_disponibles'].sum()
-                    # set status to REMOVED
-                    bitacora.loc[uuid_bita, 'status'] = 'REMOVED'
+                    # set date_removed
+                    bitacora.loc[uuid_bita, 'date_removed'] = \
+                        str(datetime.now())
                 # update info for teacher
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
@@ -997,7 +1005,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value=' ', disabled=True
+                    value='None', disabled=True
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
@@ -1020,7 +1028,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value=' ', disabled=True
+                    value='None', disabled=True
                 )
         # ---
         elif event == '_asignatura_elegida_':
@@ -1036,7 +1044,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value=' ', disabled=True
+                    value='None', disabled=True
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
@@ -1075,7 +1083,7 @@ def main(args=None):
                 disabled=True,
             )
             window.Element('_explicacion_').Update(
-                value=' ', disabled=False
+                value='None', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         # ---
@@ -1116,7 +1124,7 @@ def main(args=None):
                            str(float(creditos_elegidos))
             )
             window.Element('_explicacion_').Update(
-                value=' ', disabled=False
+                value='None', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         # ---
@@ -1176,7 +1184,8 @@ def main(args=None):
             # decir, cuando se subdividen asignaturas por un mismo profesor)
             uuid_bita = str(uuid4())
             # prepare new entry for bitacora
-            data_row = [uuid_prof, uuid_titu, uuid_asig, 'ADDED',
+            data_row = [uuid_prof, uuid_titu, uuid_asig,
+                        str(datetime.now()), 'None',
                         creditos_elegidos, values['_explicacion_']]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])
