@@ -8,14 +8,31 @@ from uuid import uuid4
 
 
 WIDTH_HLINE = 90
-WIDTH_TEXT_SUMMARY_LABEL = 25
-WIDTH_TEXT_SUMMARY_CREDITS = 60
+WIDTH_HLINE_SUMMARY = 62
+WIDTH_TEXT_SUMMARY_LABEL = 15
 WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO = 50
 WIDTH_INPUT_NUMBER = 10
 WIDTH_INPUT_COMMENT = 50
 WIDTH_SPACES_FOR_UUID = 150
+
+
+def new_uuid(megalist_uuid):
+    """Return new uuid after checking that there is no collision.
+
+    """
+
+    loop = True
+
+    while loop:
+        newvalue = str(uuid4())
+        newlist = megalist_uuid + [newvalue]
+        if len(newlist) != len(set(newlist)):
+            print('UUID collision with:' + newvalue)
+        else:
+            loop = False
+            return newvalue
 
 
 def str_nonan(s):
@@ -255,7 +272,7 @@ def display_in_terminal(event, values):
         print(output)
 
 
-def define_layout(fontsize):
+def define_layout(fontsize, num_titulaciones):
     """Define GUI layout
 
     """
@@ -263,138 +280,168 @@ def define_layout(fontsize):
     # define monospaced typeface for results
     fontname = 'courier ' + str(fontsize)
 
-    layout = [[sg.Text('Encargo docente total (créditos):',
+    layout = [[sg.Text('Titulación',
                        size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='right'),
-               sg.Text('0.0', font=fontname,
-                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
-                       key='_summary_total_')],
-              [sg.Text('Disponible:',
+                       justification='center'),
+               sg.Text('Créditos iniciales',
                        size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='right'),
-               sg.Text('0.0', font=fontname,
-                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
-                       key='_summary_disponible_')],
-              [sg.Text('Disponible para Bec./Col.:',
+                       justification='center'),
+               sg.Text('Créditos disponibles',
                        size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='right'),
-               sg.Text('0.0', font=fontname,
-                       size=(WIDTH_TEXT_SUMMARY_CREDITS, 1),
-                       key='_summary_disponible_beccol_')],
-              # ---
-              [sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
+                       justification='center'),
+               sg.Text('Créditos Bec./Col.',
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       justification='center')]]
+    for i in range(num_titulaciones):
+        clabel = '_{:02d}_'.format(i + 1)
+        newrow = [sg.Text('undefined',
+                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                          justification='center',
+                          key='_summary_titulacion' + clabel),
+                  sg.Text('0.0', font=fontname,
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                          justification='center',
+                       key='_summary_total' + clabel),
+                  sg.Text('0.0', font=fontname,
+                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                          justification='center',
+                          key='_summary_disponible' + clabel),
+                  sg.Text('0.0', font=fontname,
+                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                          justification='center',
+                          key='_summary_beccol' + clabel)
+                  ]
+        layout += [newrow]
+    #layout += [[sg.Text('-' * WIDTH_HLINE_SUMMARY, font=fontname)]]
+    layout += [[sg.Text('TOTAL', text_color='#aaaaaa',
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       justification='center'),
+               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       justification='center',
+                       key='_summary_total_'),
+               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       justification='center',
+                       key='_summary_disponible_'),
+               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
+                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       justification='center',
+                       key='_summary_beccol_')
+               ]]
+    layout += [[sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
                            default=False,
                            change_submits=True,
                            auto_size_text=True,
                            key='_excluir_asignaturas_beccol_')],
-              # ---
-              [sg.Text('_' * WIDTH_HLINE)],
-              # ---
-              [sg.Checkbox('Excluir docentes RyC y asimilados',
-                           default=False,
-                           change_submits=True,
-                           auto_size_text=True,
-                           key='_excluir_RyC_')],
-              # ---
-              [sg.Text('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_umbral_creditos_'),
-               sg.InputText(default_text='0.0',
-                            size=(WIDTH_INPUT_NUMBER, 1),
-                            justification='left',
-                            do_not_clear=True, disabled=False,
-                            key='_umbral_creditos_'),
-               sg.Button('Establecer umbral', key='_establecer_umbral_'),
-               sg.Text('(0: selecciona todos los profesores)',
-                       text_color='#aaaaaa',
-                       auto_size_text=True)],
-              # ---
-              [sg.Text('_' * WIDTH_HLINE)],
-              # ---
-              [sg.Text('Nº de profesores seleccionados:',
-                       text_color='#aaaaaa', auto_size_text=True),
-               sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
-                       key='_num_prof_seleccionados_')],
-              # ---
-              [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_profesor_'),
-               sg.InputCombo(values=['---'],
-                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                             disabled=True, key='_profesor_')],
-              # ---
-              [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_encargo_prof_'),
-               sg.Text('---', key='_encargo_prof_',
-                       size=(WIDTH_TEXT_LABEL, 1))],
-              # ---
-              [sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_asignados_prof_'),
-               sg.Text('---', key='_asignados_prof_',
-                       size=(WIDTH_TEXT_LABEL, 1))],
-              # ---
-              [sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_diferencia_prof_'),
-               sg.Text('---', key='_diferencia_prof_',
-                       size=(WIDTH_TEXT_LABEL, 1))],
-              # ---
-              [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_docencia_asignada_'),
-               sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                             key='_docencia_asignada_')],
-              # ---
-              [sg.Button('Continuar', disabled=True, key='_continuar_'),
-               sg.Button('Eliminar', disabled=True, key='_eliminar_')],
-              [sg.Text('_' * WIDTH_HLINE)],
-              # ---
-              [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right', key='_label_titulacion_'),
-               sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                             key='_titulacion_')],
-              # ---
-              [sg.Text('Asignatura elegida:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right',
-                       key='_label_asignatura_elegida_'),
-               sg.InputCombo(values=['---'], disabled=True,
-                             size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                             key='_asignatura_elegida_')],
-              # ---
-              [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
-               sg.Checkbox('Todos los créditos',
-                           default=False,
-                           change_submits=True,
-                           auto_size_text=True,
-                           key='_fraccion_todo_',
-                           disabled=True),
-               sg.Checkbox('Solo una parte',
-                           default=False,
-                           change_submits=True,
-                           auto_size_text=True,
-                           key='_fraccion_parte_',
-                           disabled=True),
-               sg.Text('Créditos a elegir:', text_color="#aaaaaa",
-                       auto_size_text=True,
-                       key='_label_creditos_elegidos_'),
-               sg.InputText(default_text='0.0', text_color="#aaaaaa",
-                            size=(WIDTH_INPUT_NUMBER, 1),
-                            justification='left',
-                            do_not_clear=True, disabled=True,
-                            key='_creditos_elegidos_')],
-              # ---
-              [sg.Text('Explicación:', size=(WIDTH_TEXT_LABEL, 1),
-                       justification='right',
-                       key='_label_explicacion_'),
-               sg.InputText(default_text='None',
-                            size=(WIDTH_INPUT_COMMENT, 1),
-                            justification='left',
-                            do_not_clear=True, disabled=True,
-                            key='_explicacion_')],
-              # ---
-              [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
-               sg.Button('Cancelar', disabled=True, key='_cancelar_')],
-              [sg.Text('_' * WIDTH_HLINE)],
-              [sg.Button('Salir', key='_salir_')]
-              ]
+               # ---
+               [sg.Text('_' * WIDTH_HLINE)],
+               # ---
+               [sg.Checkbox('Excluir docentes RyC y asimilados',
+                            default=False,
+                            change_submits=True,
+                            auto_size_text=True,
+                            key='_excluir_RyC_')],
+               # ---
+               [sg.Text('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_umbral_creditos_'),
+                sg.InputText(default_text='0.0',
+                             size=(WIDTH_INPUT_NUMBER, 1),
+                             justification='left',
+                             do_not_clear=True, disabled=False,
+                             key='_umbral_creditos_'),
+                sg.Button('Establecer umbral', key='_establecer_umbral_'),
+                sg.Text('(0: selecciona todos los profesores)',
+                        text_color='#aaaaaa',
+                        auto_size_text=True)],
+               # ---
+               [sg.Text('_' * WIDTH_HLINE)],
+               # ---
+               [sg.Text('Nº de profesores seleccionados:',
+                        text_color='#aaaaaa', auto_size_text=True),
+                sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
+                        key='_num_prof_seleccionados_')],
+               # ---
+               [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_profesor_'),
+                sg.InputCombo(values=['---'],
+                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              disabled=True, key='_profesor_')],
+               # ---
+               [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_encargo_prof_'),
+                sg.Text('---', key='_encargo_prof_',
+                        size=(WIDTH_TEXT_LABEL, 1))],
+               # ---
+               [sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_asignados_prof_'),
+                sg.Text('---', key='_asignados_prof_',
+                        size=(WIDTH_TEXT_LABEL, 1))],
+               # ---
+               [sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_diferencia_prof_'),
+                sg.Text('---', key='_diferencia_prof_',
+                        size=(WIDTH_TEXT_LABEL, 1))],
+               # ---
+               [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_docencia_asignada_'),
+                sg.InputCombo(values=['---'], disabled=True,
+                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              key='_docencia_asignada_')],
+               # ---
+               [sg.Button('Continuar', disabled=True, key='_continuar_'),
+                sg.Button('Eliminar', disabled=True, key='_eliminar_')],
+               [sg.Text('_' * WIDTH_HLINE)],
+               # ---
+               [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right', key='_label_titulacion_'),
+                sg.InputCombo(values=['---'], disabled=True,
+                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              key='_titulacion_')],
+               # ---
+               [sg.Text('Asignatura elegida:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right',
+                        key='_label_asignatura_elegida_'),
+                sg.InputCombo(values=['---'], disabled=True,
+                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              key='_asignatura_elegida_')],
+               # ---
+               [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),
+                sg.Checkbox('Todos los créditos',
+                            default=False,
+                            change_submits=True,
+                            auto_size_text=True,
+                            key='_fraccion_todo_',
+                            disabled=True),
+                sg.Checkbox('Solo una parte',
+                            default=False,
+                            change_submits=True,
+                            auto_size_text=True,
+                            key='_fraccion_parte_',
+                            disabled=True),
+                sg.Text('Créditos a elegir:', text_color="#aaaaaa",
+                        auto_size_text=True,
+                        key='_label_creditos_elegidos_'),
+                sg.InputText(default_text='0.0', text_color="#aaaaaa",
+                             size=(WIDTH_INPUT_NUMBER, 1),
+                             justification='left',
+                             do_not_clear=True, disabled=True,
+                             key='_creditos_elegidos_')],
+               # ---
+               [sg.Text('Explicación:', size=(WIDTH_TEXT_LABEL, 1),
+                        justification='right',
+                        key='_label_explicacion_'),
+                sg.InputText(default_text=' ',
+                             size=(WIDTH_INPUT_COMMENT, 1),
+                             justification='left',
+                             do_not_clear=True, disabled=True,
+                             key='_explicacion_')],
+               # ---
+               [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
+                sg.Button('Cancelar', disabled=True, key='_cancelar_')],
+               [sg.Text('_' * WIDTH_HLINE)],
+               [sg.Button('Salir', key='_salir_')]
+               ]
 
     return layout
 
@@ -556,7 +603,7 @@ def main(args=None):
 
     # variable para almacenar los UUIDs de titulaciones, asignaturas
     # y profesores
-    dumdumlist = []
+    megalist_uuid = []
 
     # titulaciones
     tabla_titulaciones = read_tabla_titulaciones(
@@ -567,7 +614,8 @@ def main(args=None):
     # incluye columnas con créditos iniciales y disponibles
     tabla_titulaciones['creditos_iniciales'] = 0.0
     tabla_titulaciones['creditos_disponibles'] = 0.0
-    dumdumlist += tabla_titulaciones.index.tolist()
+    tabla_titulaciones['creditos_beccol'] = 0.0
+    megalist_uuid += tabla_titulaciones.index.tolist()
 
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
@@ -588,6 +636,10 @@ def main(args=None):
             dumtable['creditos_iniciales'].sum()
         tabla_titulaciones.loc[uuid_titu, 'creditos_disponibles'] = \
             dumtable['creditos_iniciales'].sum()
+        sumproduct = dumtable['creditos_disponibles'] * dumtable['bec_col']
+        tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
+            sumproduct.sum()
+        sumproduct = dumtable['creditos_disponibles'] * dumtable['bec_col']
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
     for titulacion in tabla_titulaciones['titulacion']:
@@ -598,7 +650,7 @@ def main(args=None):
             if dumlist.count(dumuuid) > 1:
                 print(dumuuid)
         raise ValueError('UUIDs are not unique when mixing all the subjects!')
-    dumdumlist += dumlist
+    megalist_uuid += dumlist
 
     # profesores
     tabla_profesores = read_tabla_profesores(
@@ -606,7 +658,7 @@ def main(args=None):
         course=args.course,
         debug=args.debug
     )
-    dumdumlist += tabla_profesores.index.tolist()
+    megalist_uuid += tabla_profesores.index.tolist()
     # transforma el encargo de cada profesor de horas a créditos
     tabla_profesores['encargo'] /= 10
     # define columna para almacenar docencia elegida
@@ -617,9 +669,9 @@ def main(args=None):
 
     # comprueba que los UUIDs de titulaciones, asignaturas y profesores
     # son todos distintos
-    if len(dumdumlist) != len(set(dumdumlist)):
-        for dumuuid in dumdumlist:
-            if dumdumlist.count(dumuuid) > 1:
+    if len(megalist_uuid) != len(set(megalist_uuid)):
+        for dumuuid in megalist_uuid:
+            if megalist_uuid.count(dumuuid) > 1:
                 print(dumuuid)
         raise ValueError('UUIDs are not unique when mixing everything!')
 
@@ -661,12 +713,13 @@ def main(args=None):
             input('Press <CR> to continue...')
 
         for uuid_bita in bitacora.index.tolist():
-            # convert NaNs to 'None'
-            non_nan = ['date_removed', 'explicacion']
-            for item in non_nan:
+            # convert NaNs to something else
+            non_nan = ['date_removed', 'explicacion', 'comentarios']
+            alternative = ['None', ' ', ' ']
+            for item, altnone in zip(non_nan, alternative):
                 itemvalue = str(bitacora.loc[uuid_bita][item])
                 if itemvalue == 'nan' or itemvalue == 'NaN':
-                    bitacora.loc[uuid_bita, item] = 'None'
+                    bitacora.loc[uuid_bita, item] = altnone
             # apply selected subjects
             status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
             if status:
@@ -691,6 +744,10 @@ def main(args=None):
                     tabla_titulaciones.loc[
                         uuid_titu, 'creditos_disponibles'
                     ] = tabla_asignaturas['creditos_disponibles'].sum()
+                    sumproduct = tabla_asignaturas['creditos_disponibles'] * \
+                                 tabla_asignaturas['bec_col']
+                    tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
+                        sumproduct.sum()
                     tabla_profesores.loc[
                         uuid_prof, 'asignados'
                     ] += creditos_elegidos
@@ -716,7 +773,8 @@ def main(args=None):
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
     # define GUI layout
-    layout = define_layout(args.fontsize)
+    num_titulaciones = tabla_titulaciones.shape[0]
+    layout = define_layout(args.fontsize, num_titulaciones)
 
     # define GUI window
     window = sg.Window('Reparto Docente (FTA), Curso ' +
@@ -752,7 +810,7 @@ def main(args=None):
         window.Element('_fraccion_parte_').Update(
             value=False, disabled=True
         )
-        window.Element('_explicacion_').Update(value='None', disabled=True)
+        window.Element('_explicacion_').Update(value=' ', disabled=True)
         window.Element('_aplicar_').Update(disabled=True)
         window.Element('_cancelar_').Update(disabled=True)
 
@@ -764,49 +822,36 @@ def main(args=None):
         total_iniciales = 0.0
         total_disponibles = 0.0
         total_disponibles_beccol = 0.0
-        text_iniciales = ''
-        text_disponibles = ''
-        text_disponibles_beccol = ''
         cout = '{0:7.3f}'
-        for uuid_titu in tabla_titulaciones.index:
+        num_titulaciones = tabla_titulaciones.shape[0]
+        for i in range(num_titulaciones):
+            clabel = '_{:02d}_'.format(i + 1)
+            uuid_titu = tabla_titulaciones.index[i]
             titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
+            window.Element('_summary_titulacion' + clabel).Update(titulacion)
+            #
             tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-            if len(text_iniciales) == 0:
-                text_iniciales = '('
-                text_disponibles = '('
-                text_disponibles_beccol = '('
-            else:
-                text_iniciales += ', '
-                text_disponibles += ', '
-                text_disponibles_beccol += ', '
             creditos_iniciales = tabla_asignaturas['creditos_iniciales'].sum()
+            window.Element('_summary_total' + clabel).Update(
+                cout.format(creditos_iniciales))
             total_iniciales += creditos_iniciales
-            text_iniciales += cout.format(creditos_iniciales)
             creditos_disponibles = tabla_asignaturas[
                 'creditos_disponibles'].sum()
+            window.Element('_summary_disponible' + clabel).Update(
+                cout.format(creditos_disponibles))
             total_disponibles += creditos_disponibles
-            text_disponibles += cout.format(creditos_disponibles)
             sumproduct = tabla_asignaturas['creditos_disponibles'] * \
                          tabla_asignaturas['bec_col']
             creditos_disponibles_beccol = sumproduct.sum()
+            window.Element('_summary_beccol' + clabel).Update(
+                cout.format(creditos_disponibles_beccol))
             total_disponibles_beccol += creditos_disponibles_beccol
-            text_disponibles_beccol += \
-                cout.format(creditos_disponibles_beccol)
-        text_iniciales += ')'
-        text_disponibles += ')'
-        text_disponibles_beccol += ')'
-        txt_iniciales = cout.format(total_iniciales) + ' ' +\
-                        text_iniciales
-        txt_disponibles = cout.format(total_disponibles) + ' ' +\
-                          text_disponibles
-        txt_disponibles_beccol = cout.format(total_disponibles_beccol) +\
-                                 ' ' + text_disponibles_beccol
         window.Element('_summary_total_').Update(
-            value=txt_iniciales)
+            value=cout.format(total_iniciales))
         window.Element('_summary_disponible_').Update(
-            value=txt_disponibles)
-        window.Element('_summary_disponible_beccol_').Update(
-            value=txt_disponibles_beccol)
+            value=cout.format(total_disponibles))
+        window.Element('_summary_beccol_').Update(
+            value=cout.format(total_disponibles_beccol))
 
     # update initial info
     window.Read(timeout=1)  # for next function to work
@@ -960,6 +1005,10 @@ def main(args=None):
                     tabla_titulaciones.loc[
                         uuid_titu, 'creditos_disponibles'
                     ] = tabla_asignaturas['creditos_disponibles'].sum()
+                    sumproduct = tabla_asignaturas['creditos_disponibles'] * \
+                                 tabla_asignaturas['bec_col']
+                    tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
+                        sumproduct.sum()
                     # set date_removed
                     bitacora.loc[uuid_bita, 'date_removed'] = \
                         str(datetime.now())
@@ -1005,7 +1054,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value='None', disabled=True
+                    value=' ', disabled=True
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
@@ -1028,7 +1077,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value='None', disabled=True
+                    value=' ', disabled=True
                 )
         # ---
         elif event == '_asignatura_elegida_':
@@ -1044,7 +1093,7 @@ def main(args=None):
                     str(0.0)
                 )
                 window.Element('_explicacion_').Update(
-                    value='None', disabled=True
+                    value=' ', disabled=True
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
@@ -1083,7 +1132,7 @@ def main(args=None):
                 disabled=True,
             )
             window.Element('_explicacion_').Update(
-                value='None', disabled=False
+                value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         # ---
@@ -1124,7 +1173,7 @@ def main(args=None):
                            str(float(creditos_elegidos))
             )
             window.Element('_explicacion_').Update(
-                value='None', disabled=False
+                value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
         # ---
@@ -1163,6 +1212,10 @@ def main(args=None):
                 tabla_titulaciones.loc[
                     uuid_titu, 'creditos_disponibles'
                 ] = tabla_asignaturas['creditos_disponibles'].sum()
+                sumproduct = tabla_asignaturas['creditos_disponibles'] * \
+                             tabla_asignaturas['bec_col']
+                tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
+                    sumproduct.sum()
                 tabla_profesores.loc[
                     uuid_prof, 'asignados'
                 ] += creditos_elegidos
@@ -1182,7 +1235,8 @@ def main(args=None):
             # asignatura (i.e., mismo uuid_prof, uuid_titu,
             # uuid_asig) cuando se eligen fracciones de asignatura (es
             # decir, cuando se subdividen asignaturas por un mismo profesor)
-            uuid_bita = str(uuid4())
+            uuid_bita = str(new_uuid(megalist_uuid))
+            megalist_uuid += [uuid_bita]
             # prepare new entry for bitacora
             data_row = [uuid_prof, uuid_titu, uuid_asig,
                         str(datetime.now()), 'None',
