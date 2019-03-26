@@ -452,7 +452,10 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     output = ['---']
 
     # subset of bitacora for the selected teacher
-    seleccion = bitacora.loc[bitacora['uuid_prof'] == uuid_prof].copy()
+    seleccion = bitacora.loc[
+        (bitacora['uuid_prof'] == uuid_prof) &
+        (bitacora['status'] == 'ADDED')
+    ].copy()
 
     # find how many times the selected teacher appears
     ntimes = seleccion.shape[0]
@@ -638,7 +641,7 @@ def main(args=None):
         bitacora = pd.DataFrame(
             data=[],
             columns=['uuid_prof', 'uuid_titu', 'uuid_asig',
-                     'accion', 'creditos_elegidos', 'explicacion'] +
+                     'status', 'creditos_elegidos', 'explicacion'] +
                     csv_colnames_profesor + csv_colnames_asignatura
         )
         bitacora.index.name = 'uuid_bita'
@@ -649,20 +652,55 @@ def main(args=None):
         # export to HTML
         export_to_html_bitacora(bitacora)
     else:
-        bitacora = pd.read_csv(args.bitacora, index_col=0)
+        bitacora = pd.read_excel(args.bitacora.name, index_col=0)
         bitacora.index.name = 'uuid_bita'
-        if True:  # args.debug:
+        if args.debug:
             print('Initialising bitacora from previous file:')
             print(bitacora)
             input('Press <CR> to continue...')
 
-        '''
-        for i, uuid_prof in enumerate(bitacora.index.tolist()):
-            uuid_titu = bitacora['uuid_titu'][i]
-            uuid_asig = bitacora['uuid_asig'][i]
-            print(i, uuid_prof, uuid_titu, uuid_asig)
+        for uuid_bita in bitacora.index.tolist():
+            status = bitacora.loc[uuid_bita]['status']
+            if status == 'ADDED':
+                uuid_prof = bitacora.loc[uuid_bita]['uuid_prof']
+                uuid_titu = bitacora.loc[uuid_bita]['uuid_titu']
+                uuid_asig = bitacora.loc[uuid_bita]['uuid_asig']
+                creditos_elegidos = \
+                    bitacora.loc[uuid_bita]['creditos_elegidos']
+                asignacion_es_correcta = True
+                titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
+                tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
+                if tabla_asignaturas.loc[
+                    uuid_asig, 'creditos_disponibles'
+                ] >= creditos_elegidos:
+                    tabla_asignaturas.loc[
+                        uuid_asig, 'creditos_disponibles'
+                    ] -= creditos_elegidos
+                else:
+                    print('¡Créditos disponibles insuficientes!')
+                    asignacion_es_correcta = False
+                if asignacion_es_correcta:
+                    tabla_titulaciones.loc[
+                        uuid_titu, 'creditos_disponibles'
+                    ] = tabla_asignaturas['creditos_disponibles'].sum()
+                    tabla_profesores.loc[
+                        uuid_prof, 'asignados'
+                    ] += creditos_elegidos
+                    tabla_profesores.loc[
+                        uuid_prof, 'diferencia'
+                    ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
+                        tabla_profesores.loc[uuid_prof, 'encargo']
+                    export_to_html_titulaciones(tabla_titulaciones)
+                    export_to_html_tablas_asignaturas(
+                        bigdict_tablas_asignaturas)
+                    export_to_html_profesores(tabla_profesores)
+                else:
+                    print('* uuid_bita:', uuid_bita)
+                    print('* uuid_prof:', uuid_prof)
+                    print('* uuid_titu:', uuid_titu)
+                    print('* uuid_asig:', uuid_asig)
+                    raise ValueError('Error while processing bitacora!')
         input('Press <CR> to continue...')
-        '''
 
     # ---
     # GUI
@@ -880,21 +918,27 @@ def main(args=None):
         # ---
         elif event == '_eliminar_':
             uuid_bita = values['_docencia_asignada_'][-36:]
-            tmpdf = (bitacora.loc[bitacora['uuid_bit'] == uuid_bita]).copy()
-            if tmpdf.shape[0] != 1:
-                print(tmpdf)
+            tmp_series = bitacora.loc[uuid_bita].copy()
+            if tmp_series.ndim != 1:
+                print(tmp_series)
                 raise ValueError('Something is wrong with tmpdf')
-            uuid_prof = tmpdf.index[0]
-            uuid_titu = tmpdf['uuid_titu'].values[0]
-            uuid_asig = tmpdf['uuid_asig'].values[0]
-            creditos_a_recuperar = tmpdf['creditos_elegidos'].values[0]
+            uuid_prof = tmp_series['uuid_prof']
+            uuid_titu = tmp_series['uuid_titu']
+            uuid_asig = tmp_series['uuid_asig']
+            creditos_a_recuperar = tmp_series['creditos_elegidos']
             dummy = sg.PopupYesNo('Do you really want to remove this subject?')
             if dummy == 'Yes':
                 devolucion_correcta = True
-                if tabla_profesores.loc[uuid_prof,
-                                        'asignados'] >= creditos_a_recuperar:
-                    tabla_profesores.loc[uuid_prof, 'asignados'] -= \
-                        creditos_a_recuperar
+                if tabla_profesores.loc[
+                    uuid_prof, 'asignados'
+                ] >= creditos_a_recuperar:
+                    tabla_profesores.loc[
+                        uuid_prof, 'asignados'
+                    ] -= creditos_a_recuperar
+                    tabla_profesores.loc[
+                        uuid_prof, 'diferencia'
+                    ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
+                        tabla_profesores.loc[uuid_prof, 'encargo']
                 else:
                     print('¡El profesor no tiene créditos suficientes!')
                     input('Press <CR> to continue...')
@@ -903,16 +947,15 @@ def main(args=None):
                     titulacion = tabla_titulaciones.loc[uuid_titu][
                         'titulacion']
                     tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-                    tabla_asignaturas.loc[uuid_asig,
-                                          'creditos_disponibles'] += \
-                        creditos_a_recuperar
-                    tabla_titulaciones.loc[uuid_titu,
-                                           'creditos_disponibles'] = \
-                        tabla_asignaturas['creditos_disponibles'].sum()
-                # remove row from bitacora
-                bitacora = (
-                    bitacora[bitacora['uuid_bita'] != uuid_bita]
-                ).copy()
+                    tabla_asignaturas.loc[
+                        uuid_asig, 'creditos_disponibles'
+                    ] += creditos_a_recuperar
+                    tabla_titulaciones.loc[
+                        uuid_titu, 'creditos_disponibles'
+                    ] = tabla_asignaturas['creditos_disponibles'].sum()
+                    # set status to REMOVED
+                    bitacora.loc[uuid_bita, 'status'] = 'REMOVED'
+                # update info for teacher
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
@@ -1081,9 +1124,7 @@ def main(args=None):
             uuid_prof = values['_profesor_'][-36:]
             uuid_titu = values['_titulacion_'][-36:]
             uuid_asig = values['_asignatura_elegida_'][-36:]
-            creditos_elegidos = float(
-                values['_creditos_elegidos_']
-            )
+            creditos_elegidos = float(values['_creditos_elegidos_'])
             titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
             tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
             # evitamos restar dos números reales iguales para evitar errores
@@ -1096,12 +1137,12 @@ def main(args=None):
                 tabla_asignaturas.loc[uuid_asig,
                                       'creditos_disponibles'] = 0
             elif values['_fraccion_parte_']:
-                if tabla_asignaturas.loc[uuid_asig,
-                                         'creditos_disponibles'] > \
-                        creditos_elegidos:
-                    tabla_asignaturas.loc[uuid_asig,
-                                          'creditos_disponibles'] -= \
-                        creditos_elegidos
+                if tabla_asignaturas.loc[
+                    uuid_asig, 'creditos_disponibles'
+                ] > creditos_elegidos:
+                    tabla_asignaturas.loc[
+                        uuid_asig, 'creditos_disponibles'
+                    ] -= creditos_elegidos
                 else:
                     print('¡Créditos disponibles insuficientes!')
                     input('Press <CR> to continue...')
@@ -1111,13 +1152,15 @@ def main(args=None):
                 input('Press <CR> to continue...')
                 asignacion_es_correcta = False
             if asignacion_es_correcta:
-                tabla_titulaciones.loc[uuid_titu,
-                                       'creditos_disponibles'] = \
-                    tabla_asignaturas['creditos_disponibles'].sum()
-                tabla_profesores.loc[uuid_prof, 'asignados'] += \
-                    creditos_elegidos
-                tabla_profesores.loc[uuid_prof, 'diferencia'] = \
-                    tabla_profesores.loc[uuid_prof, 'asignados'] - \
+                tabla_titulaciones.loc[
+                    uuid_titu, 'creditos_disponibles'
+                ] = tabla_asignaturas['creditos_disponibles'].sum()
+                tabla_profesores.loc[
+                    uuid_prof, 'asignados'
+                ] += creditos_elegidos
+                tabla_profesores.loc[
+                    uuid_prof, 'diferencia'
+                ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
                     tabla_profesores.loc[uuid_prof, 'encargo']
                 update_info_creditos()
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
@@ -1133,8 +1176,8 @@ def main(args=None):
             # decir, cuando se subdividen asignaturas por un mismo profesor)
             uuid_bita = str(uuid4())
             # prepare new entry for bitacora
-            data_row = [uuid_prof, uuid_titu, uuid_asig,
-                        'ADD', creditos_elegidos, values['_explicacion_']]
+            data_row = [uuid_prof, uuid_titu, uuid_asig, 'ADDED',
+                        creditos_elegidos, values['_explicacion_']]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])
             for item in csv_colnames_asignatura:
