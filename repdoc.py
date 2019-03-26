@@ -9,7 +9,7 @@ from uuid import uuid4
 
 WIDTH_HLINE = 90
 WIDTH_HLINE_SUMMARY = 62
-WIDTH_TEXT_SUMMARY_LABEL = 15
+WIDTH_TEXT_SUMMARY = 18
 WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO = 50
@@ -278,57 +278,84 @@ def define_layout(fontsize, num_titulaciones):
     """
 
     # define monospaced typeface for results
-    fontname = 'courier ' + str(fontsize)
+    fontname_header = 'courier bold'
+    fontname_no = 'courier'
 
     layout = [[sg.Text('Titulación',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       font=(fontname_header, fontsize),
+                       text_color='#3333ff',
+                       size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
-               sg.Text('Créditos iniciales',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+               sg.Text('iniciales',
+                       font=(fontname_header, fontsize),
+                       text_color='#3333ff',
+                       size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
-               sg.Text('Créditos disponibles',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+               sg.Text('elegidos',
+                       font=(fontname_header, fontsize),
+                       text_color='#3333ff',
+                       size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
-               sg.Text('Créditos Bec./Col.',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+               sg.Text('disponibles',
+                       font=(fontname_header, fontsize),
+                       text_color='#3333ff',
+                       size=(WIDTH_TEXT_SUMMARY, 1),
+                       justification='center'),
+               sg.Text('Bec./Col.',
+                       font=(fontname_header, fontsize),
+                       text_color='#33aa33',
+                       size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center')]]
     for i in range(num_titulaciones):
         clabel = '_{:02d}_'.format(i + 1)
-        newrow = [sg.Text('undefined',
-                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+        newrow = [sg.Text('undefined', font=(fontname_no, fontsize),
+                          size=(WIDTH_TEXT_SUMMARY, 1),
                           justification='center',
                           key='_summary_titulacion' + clabel),
-                  sg.Text('0.0', font=fontname,
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                  sg.Text('0.0', font=(fontname_no, fontsize),
+                          size=(WIDTH_TEXT_SUMMARY, 1),
                           justification='center',
-                       key='_summary_total' + clabel),
-                  sg.Text('0.0', font=fontname,
-                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                          key='_summary_total' + clabel),
+                  sg.Text('0.0', font=(fontname_no, fontsize),
+                       size=(WIDTH_TEXT_SUMMARY, 1),
                           justification='center',
-                          key='_summary_disponible' + clabel),
-                  sg.Text('0.0', font=fontname,
-                          size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
+                       key='_summary_elegidos' + clabel),
+                  sg.Text('0.0', font=(fontname_no, fontsize),
+                          size=(WIDTH_TEXT_SUMMARY, 1),
+                          justification='center',
+                          key='_summary_disponibles' + clabel),
+                  sg.Text('0.0', font=(fontname_no, fontsize),
+                          size=(WIDTH_TEXT_SUMMARY, 1),
                           justification='center',
                           key='_summary_beccol' + clabel)
                   ]
         layout += [newrow]
     #layout += [[sg.Text('-' * WIDTH_HLINE_SUMMARY, font=fontname)]]
-    layout += [[sg.Text('TOTAL', text_color='#aaaaaa',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='center'),
-               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='center',
-                       key='_summary_total_'),
-               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='center',
-                       key='_summary_disponible_'),
-               sg.Text('0.0', font=fontname, text_color='#aaaaaa',
-                       size=(WIDTH_TEXT_SUMMARY_LABEL, 1),
-                       justification='center',
-                       key='_summary_beccol_')
-               ]]
+    layout += [[sg.Text('TOTAL', text_color='#3333ff',
+                        font=(fontname_header, fontsize),
+                        size=(WIDTH_TEXT_SUMMARY, 1),
+                        justification='center'),
+                sg.Text('0.0', font=(fontname_header, fontsize),
+                        text_color='#3333ff',
+                        size=(WIDTH_TEXT_SUMMARY, 1),
+                        justification='center',
+                        key='_summary_total_'),
+                sg.Text('0.0', font=(fontname_header, fontsize),
+                        text_color='#3333ff',
+                        size=(WIDTH_TEXT_SUMMARY, 1),
+                        justification='center',
+                        key='_summary_elegidos_'),
+                sg.Text('0.0', font=(fontname_header, fontsize),
+                        text_color='#3333ff',
+                        size=(WIDTH_TEXT_SUMMARY, 1),
+                        justification='center',
+                        key='_summary_disponibles_'),
+                sg.Text('0.0', font=(fontname_header, fontsize),
+                        text_color='#33aa33',
+                        size=(WIDTH_TEXT_SUMMARY, 1),
+                        justification='center',
+                        key='_summary_beccol_')
+                ]]
     layout += [[sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
                            default=False,
                            change_submits=True,
@@ -821,6 +848,7 @@ def main(args=None):
 
         total_iniciales = 0.0
         total_disponibles = 0.0
+        total_elegidos = 0.0
         total_disponibles_beccol = 0.0
         cout = '{0:7.3f}'
         num_titulaciones = tabla_titulaciones.shape[0]
@@ -837,9 +865,13 @@ def main(args=None):
             total_iniciales += creditos_iniciales
             creditos_disponibles = tabla_asignaturas[
                 'creditos_disponibles'].sum()
-            window.Element('_summary_disponible' + clabel).Update(
+            window.Element('_summary_disponibles' + clabel).Update(
                 cout.format(creditos_disponibles))
             total_disponibles += creditos_disponibles
+            creditos_elegidos = creditos_iniciales - creditos_disponibles
+            window.Element('_summary_elegidos' + clabel).Update(
+                cout.format(creditos_elegidos))
+            total_elegidos += creditos_elegidos
             sumproduct = tabla_asignaturas['creditos_disponibles'] * \
                          tabla_asignaturas['bec_col']
             creditos_disponibles_beccol = sumproduct.sum()
@@ -848,7 +880,9 @@ def main(args=None):
             total_disponibles_beccol += creditos_disponibles_beccol
         window.Element('_summary_total_').Update(
             value=cout.format(total_iniciales))
-        window.Element('_summary_disponible_').Update(
+        window.Element('_summary_elegidos_').Update(
+            value=cout.format(total_elegidos))
+        window.Element('_summary_disponibles_').Update(
             value=cout.format(total_disponibles))
         window.Element('_summary_beccol_').Update(
             value=cout.format(total_disponibles_beccol))
