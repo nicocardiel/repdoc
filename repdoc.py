@@ -64,8 +64,8 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
         sheet_name = 'Resumen Encargo'
         skiprows = 4
         usecols = [1, 2]
-        names = ['uuid_titulacion', 'titulacion']
-        converters = {'uuid_titulacion': str, 'titulacion': str}
+        names = ['uuid_titu', 'titulacion']
+        converters = {'uuid_titu': str, 'titulacion': str}
     else:
         print('Course: ' + course)
         raise ValueError('Unexpected course!')
@@ -85,7 +85,7 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid_titulacion'].notnull()
+    lok = tabla_inicial['uuid_titu'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -93,8 +93,8 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
 
     # use uuid as index
     tabla_titulaciones = tabla_inicial.copy()
-    tabla_titulaciones.index = tabla_inicial['uuid_titulacion']
-    del tabla_titulaciones['uuid_titulacion']
+    tabla_titulaciones.index = tabla_inicial['uuid_titu']
+    del tabla_titulaciones['uuid_titu']
 
     # check that uuid's are unique
     if len(tabla_titulaciones.index) != len(set(tabla_titulaciones.index)):
@@ -116,11 +116,11 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
         skiprows = 5
         usecols = range(1, 12)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
-                 'uuid_asignatura', 'creditos_iniciales', 'comentarios',
+                 'uuid_asig', 'creditos_iniciales', 'comentarios',
                  'grupo', 'bec_col', 'profesor_anterior'
                  ]
         converters = {'curso': str, 'semestre': int, 'codigo': int,
-                      'area': str, 'uuid_asignatura': str,
+                      'area': str, 'uuid_asig': str,
                       'creditos_iniciales': float, 'comentarios': str_nonan,
                       'grupo': str_nonan, 'bec_col': int,
                       'profesor_anterior': str_nonan
@@ -144,7 +144,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid_asignatura'].notnull()
+    lok = tabla_inicial['uuid_asig'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -157,8 +157,8 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     # use uuid as index
     tabla_asignaturas = tabla_inicial.copy()
-    tabla_asignaturas.index = tabla_inicial['uuid_asignatura']
-    del tabla_asignaturas['uuid_asignatura']
+    tabla_asignaturas.index = tabla_inicial['uuid_asig']
+    del tabla_asignaturas['uuid_asig']
 
     # check that uuid's are unique
     if len(tabla_asignaturas.index) != len(set(tabla_asignaturas.index)):
@@ -186,9 +186,9 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
         sheet_name = 'Asignación'
         skiprows = 7
         usecols = [0, 1, 2, 3, 18]
-        names = ['uuid_profesor', 'apellidos', 'nombre', 'categoria',
+        names = ['uuid_prof', 'apellidos', 'nombre', 'categoria',
                  'encargo']
-        converters = {'uuid_profesor': str,
+        converters = {'uuid_prof': str,
                       'apellidos': str,
                       'nombre': str,
                       'categoria': str,
@@ -212,7 +212,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     )
 
     # remove unnecessary rows
-    lok = tabla_inicial['uuid_profesor'].notnull()
+    lok = tabla_inicial['uuid_prof'].notnull()
     tabla_inicial = tabla_inicial[lok]
 
     # reset index values
@@ -220,8 +220,8 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
 
     # use uuid as index
     tabla_profesores = tabla_inicial.copy()
-    tabla_profesores.index = tabla_inicial['uuid_profesor']
-    del tabla_profesores['uuid_profesor']
+    tabla_profesores.index = tabla_inicial['uuid_prof']
+    del tabla_profesores['uuid_prof']
 
     # check that uuid's are unique
     if len(tabla_profesores.index) != len(set(tabla_profesores.index)):
@@ -244,12 +244,9 @@ def display_in_terminal(event, values):
     for key in values:
         output = "    '" + key + "': "
         if isinstance(values[key], str):
-            if values[key][-41:-36] == 'uuid=':
-                output += "'" + values[key][:-41].rstrip() + " ... " + \
-                          values[key][-41:] + "'"
-            elif values[key][-45:-36] == 'uuid_csv=':
-                output += "'" + values[key][:-45].rstrip() + " ... " + \
-                          values[key][-45:] + "'"
+            if values[key][-46:-42] == 'uuid':
+                output += "'" + values[key][:-46].rstrip() + " ... " + \
+                          values[key][-46:] + "'"
             else:
                 output += "'" + values[key] + "'"
         else:
@@ -414,7 +411,7 @@ def filtra_titulaciones(tabla_titulaciones):
             ldum = len(nombre_titulacion)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            nombre_titulacion += ' uuid=' + tabla_titulaciones.index[i]
+            nombre_titulacion += ' uuid_titu=' + tabla_titulaciones.index[i]
             lista_titulaciones.append(nombre_titulacion)
 
     return lista_titulaciones
@@ -441,58 +438,42 @@ def filtra_asignaturas(tabla_asignaturas):
             ldum = len(dumtxt)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuid=' + tabla_asignaturas.index[i]
+            dumtxt += ' uuid_asig=' + tabla_asignaturas.index[i]
             lista_asignaturas.append(dumtxt)
 
     return lista_asignaturas
 
 
-def filtra_seleccion_del_profesor(uuid_profesor, csv_inout):
+def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     """Return list with subjects already assigned to a teacher.
 
     """
 
     output = ['---']
 
-    if uuid_profesor not in csv_inout.index:
+    # subset of bitacora for the selected teacher
+    seleccion = bitacora.loc[bitacora['uuid_prof'] == uuid_prof].copy()
+
+    # find how many times the selected teacher appears
+    ntimes = seleccion.shape[0]
+    if ntimes == 0:
         return output
 
-    seleccion = csv_inout.loc[uuid_profesor].copy()
-    if seleccion.ndim == 1:      # seleccion is a Series
-        dumtxt = '[' + seleccion['curso'] + '] '
-        dumtxt += seleccion['asignatura'] + ', '
+    for i in range(ntimes):
+        dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
+        dumtxt += seleccion['asignatura'].tolist()[i] + ', '
         dumtxt += str(
-            round(seleccion['creditos_elegidos'], 4)
+            round(seleccion['creditos_elegidos'].tolist()[i], 4)
         ) + ' créditos'
-        if seleccion['comentarios'] != ' ':
-            dumtxt += ', ' + seleccion['comentarios']
-        if seleccion['grupo'] != ' ':
-            dumtxt += ', grupo ' + seleccion['grupo']
+        if seleccion['comentarios'].tolist()[i] != ' ':
+            dumtxt += ', ' + seleccion['comentarios'].tolist()[i]
+        if seleccion['grupo'].tolist()[i] != ' ':
+            dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
         ldum = len(dumtxt)
         if ldum < WIDTH_SPACES_FOR_UUID:
             dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-        dumtxt += ' uuid_csv=' + seleccion['uuid_csv']
+        dumtxt += ' uuid_bita=' + seleccion.index.tolist()[i]
         output.append(dumtxt)
-    elif seleccion.ndim == 2:    # seleccion is a DataFrame
-        num_asignaturas = seleccion.shape[0]
-        for i in range(num_asignaturas):
-            dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
-            dumtxt += seleccion['asignatura'].tolist()[i] + ', '
-            dumtxt += str(
-                round(seleccion['creditos_elegidos'].tolist()[i], 4)
-            ) + ' créditos'
-            if seleccion['comentarios'].tolist()[i] != ' ':
-                dumtxt += ', ' + seleccion['comentarios'].tolist()[i]
-            if seleccion['grupo'].tolist()[i] != ' ':
-                dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
-            ldum = len(dumtxt)
-            if ldum < WIDTH_SPACES_FOR_UUID:
-                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuid_csv=' + seleccion['uuid_csv'].tolist()[i]
-            output.append(dumtxt)
-    else:
-        raise ValueError('Unexpected dataframe dimension: ' +
-                         str(seleccion.ndim))
 
     return output
 
@@ -523,12 +504,14 @@ def export_to_html_profesores(tabla_profesores):
     tabla_profesores.to_html('xxx_profesores.html')
 
 
-def export_to_html_csv_inout(csv_inout):
-    """Export to html csv_inout
+def export_to_html_bitacora(bitacora):
+    """Export to html bitacora
 
     """
 
-    csv_inout.to_html('xxx_csv_inout.html')
+    bitacora.to_html('xxx_bitacora.html')
+    bitacora.to_csv('xxx_bitacora.csv')
+    bitacora.to_excel('xxx_bitacora.xlsx', header=True)
 
 
 def main(args=None):
@@ -539,7 +522,7 @@ def main(args=None):
     parser.add_argument("xlsxfile",
                         help="Excel file with input data",
                         type=argparse.FileType())
-    parser.add_argument("--csv_inout",
+    parser.add_argument("--bitacora",
                         help="CSV input/output filename",
                         type=argparse.FileType())
     parser.add_argument("--course", required=True,
@@ -585,8 +568,8 @@ def main(args=None):
 
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
-    for uuid_titulacion in tabla_titulaciones.index:
-        titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
+    for uuid_titu in tabla_titulaciones.index:
+        titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
         dumtable = read_tabla_asignaturas(
                 xlsxfilename=args.xlsxfile.name,
                 course=args.course,
@@ -598,9 +581,9 @@ def main(args=None):
         bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
         # actualiza número total de créditos disponibles (todas las
         # asignaturas) en tabla de titulaciones
-        tabla_titulaciones.loc[uuid_titulacion, 'creditos_iniciales'] = \
+        tabla_titulaciones.loc[uuid_titu, 'creditos_iniciales'] = \
             dumtable['creditos_iniciales'].sum()
-        tabla_titulaciones.loc[uuid_titulacion, 'creditos_disponibles'] = \
+        tabla_titulaciones.loc[uuid_titu, 'creditos_disponibles'] = \
             dumtable['creditos_iniciales'].sum()
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
@@ -645,29 +628,41 @@ def main(args=None):
     export_to_html_profesores(tabla_profesores)
 
     # ---
-    # define csv_inout
+    # define bitacora
     csv_colnames_profesor = ['apellidos', 'nombre', 'categoria']
     csv_colnames_asignatura = ['curso', 'semestre', 'codigo', 'asignatura',
                                'area', 'creditos_iniciales', 'comentarios',
                                'grupo']
-    if args.csv_inout is None:
+    if args.bitacora is None:
         # initialize empty dataframe with the expected columns
-        csv_inout = pd.DataFrame(
+        bitacora = pd.DataFrame(
             data=[],
-            columns=['uuid_titulacion', 'uuid_asignatura',
-                     'creditos_elegidos', 'explicacion'] +
-                    csv_colnames_profesor + csv_colnames_asignatura +
-                    ['uuid_csv']
+            columns=['uuid_prof', 'uuid_titu', 'uuid_asig',
+                     'accion', 'creditos_elegidos', 'explicacion'] +
+                    csv_colnames_profesor + csv_colnames_asignatura
         )
-        csv_inout.index.name = 'uuid_profesor'
+        bitacora.index.name = 'uuid_bita'
         if args.debug:
-            print('Initialasing csv_inout DataFrame:')
-            print(csv_inout)
+            print('Initialasing bitacora DataFrame:')
+            print(bitacora)
             input('Press <CR> to continue...')
         # export to HTML
-        export_to_html_csv_inout(csv_inout)
+        export_to_html_bitacora(bitacora)
     else:
-        raise ValueError("This option is still not available")
+        bitacora = pd.read_csv(args.bitacora, index_col=0)
+        bitacora.index.name = 'uuid_bita'
+        if True:  # args.debug:
+            print('Initialising bitacora from previous file:')
+            print(bitacora)
+            input('Press <CR> to continue...')
+
+        '''
+        for i, uuid_prof in enumerate(bitacora.index.tolist()):
+            uuid_titu = bitacora['uuid_titu'][i]
+            uuid_asig = bitacora['uuid_asig'][i]
+            print(i, uuid_prof, uuid_titu, uuid_asig)
+        input('Press <CR> to continue...')
+        '''
 
     # ---
     # GUI
@@ -728,8 +723,8 @@ def main(args=None):
         text_disponibles = ''
         text_disponibles_beccol = ''
         cout = '{0:7.3f}'
-        for uuid_titulacion in tabla_titulaciones.index:
-            titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
+        for uuid_titu in tabla_titulaciones.index:
+            titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
             tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
             if len(text_iniciales) == 0:
                 text_iniciales = '('
@@ -777,12 +772,15 @@ def main(args=None):
     while True:
         event, values = window.Read()
         display_in_terminal(event, values)
+        # ---
         if event == '_excluir_asignaturas_beccol_':
             clear_screen_profesor()
             clear_screen_asignatura()
+        # ---
         elif event == '_excluir_RyC_':
             clear_screen_asignatura()
             clear_screen_profesor()
+        # ---
         elif event == '_establecer_umbral_':
             lista_profesores = ['---']
             umbral_is_float = True
@@ -812,7 +810,7 @@ def main(args=None):
                             if ldum < WIDTH_SPACES_FOR_UUID:
                                 nombre_completo += \
                                     (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                            nombre_completo += ' uuid=' + \
+                            nombre_completo += ' uuid_prof=' + \
                                                tabla_profesores.index[i]
                             if umbral == 0:
                                 num_profesores += 1
@@ -829,19 +827,20 @@ def main(args=None):
                 disabled=False
             )
             clear_screen_asignatura()
+        # ---
         elif event == '_profesor_':
             if values['_profesor_'] == '---':
                 clear_screen_profesor(profesor_disabled=False)
             else:
-                uuid_profesor = values['_profesor_'][-36:]
-                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
-                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
+                uuid_prof = values['_profesor_'][-36:]
+                encargo = tabla_profesores.loc[uuid_prof]['encargo']
+                asignados = tabla_profesores.loc[uuid_prof]['asignados']
+                diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
                 seleccion_del_profesor = filtra_seleccion_del_profesor(
-                    uuid_profesor, csv_inout
+                    uuid_prof, bitacora
                 )
                 if len(seleccion_del_profesor) > 1:
                     window.Element('_docencia_asignada_').Update(
@@ -854,15 +853,17 @@ def main(args=None):
                         disabled=True
                     )
                 window.Element('_continuar_').Update(disabled=False)
+        # ---
         elif event == '_docencia_asignada_':
             if values['_docencia_asignada_'] == '---':
                 window.Element('_eliminar_').Update(disabled=True)
             else:
                 window.Element('_eliminar_').Update(disabled=False)
+        # ---
         elif event == '_continuar_':
-            uuid_profesor = values['_profesor_'][-36:]
-            if uuid_profesor is None:
-                raise ValueError('Unexpected uuid_profesor == None')
+            uuid_prof = values['_profesor_'][-36:]
+            if uuid_prof is None:
+                raise ValueError('Unexpected uuid_prof == None')
             window.Element('_profesor_').Update(disabled=True)
             window.Element('_docencia_asignada_').Update(
                 values=['---'],
@@ -876,49 +877,50 @@ def main(args=None):
                 disabled=False
             )
             window.Element('_cancelar_').Update(disabled=False)
+        # ---
         elif event == '_eliminar_':
-            uuid_csv = values['_docencia_asignada_'][-36:]
-            tmpdf = (csv_inout.loc[csv_inout['uuid_csv'] == uuid_csv]).copy()
+            uuid_bita = values['_docencia_asignada_'][-36:]
+            tmpdf = (bitacora.loc[bitacora['uuid_bit'] == uuid_bita]).copy()
             if tmpdf.shape[0] != 1:
                 print(tmpdf)
                 raise ValueError('Something is wrong with tmpdf')
-            uuid_profesor = tmpdf.index[0]
-            uuid_titulacion = tmpdf['uuid_titulacion'].values[0]
-            uuid_asignatura = tmpdf['uuid_asignatura'].values[0]
+            uuid_prof = tmpdf.index[0]
+            uuid_titu = tmpdf['uuid_titu'].values[0]
+            uuid_asig = tmpdf['uuid_asig'].values[0]
             creditos_a_recuperar = tmpdf['creditos_elegidos'].values[0]
             dummy = sg.PopupYesNo('Do you really want to remove this subject?')
             if dummy == 'Yes':
                 devolucion_correcta = True
-                if tabla_profesores.loc[uuid_profesor,
+                if tabla_profesores.loc[uuid_prof,
                                         'asignados'] >= creditos_a_recuperar:
-                    tabla_profesores.loc[uuid_profesor, 'asignados'] -= \
+                    tabla_profesores.loc[uuid_prof, 'asignados'] -= \
                         creditos_a_recuperar
                 else:
                     print('¡El profesor no tiene créditos suficientes!')
                     input('Press <CR> to continue...')
                     devolucion_correcta = False
                 if devolucion_correcta:
-                    titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                    titulacion = tabla_titulaciones.loc[uuid_titu][
                         'titulacion']
                     tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-                    tabla_asignaturas.loc[uuid_asignatura,
+                    tabla_asignaturas.loc[uuid_asig,
                                           'creditos_disponibles'] += \
                         creditos_a_recuperar
-                    tabla_titulaciones.loc[uuid_titulacion,
+                    tabla_titulaciones.loc[uuid_titu,
                                            'creditos_disponibles'] = \
                         tabla_asignaturas['creditos_disponibles'].sum()
-                # remove row from csv_inout
-                csv_inout = (
-                    csv_inout[csv_inout['uuid_csv'] != uuid_csv]
+                # remove row from bitacora
+                bitacora = (
+                    bitacora[bitacora['uuid_bita'] != uuid_bita]
                 ).copy()
-                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
-                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
+                encargo = tabla_profesores.loc[uuid_prof]['encargo']
+                asignados = tabla_profesores.loc[uuid_prof]['asignados']
+                diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
                 seleccion_del_profesor = filtra_seleccion_del_profesor(
-                    uuid_profesor, csv_inout
+                    uuid_prof, bitacora
                 )
                 if len(seleccion_del_profesor) > 1:
                     window.Element('_docencia_asignada_').Update(
@@ -932,10 +934,11 @@ def main(args=None):
                     )
                 window.Element('_eliminar_').Update(disabled=True)
                 update_info_creditos()
-                export_to_html_csv_inout(csv_inout)
+                export_to_html_bitacora(bitacora)
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
                 export_to_html_profesores(tabla_profesores)
+        # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
             if titulacion == '---':
@@ -955,8 +958,8 @@ def main(args=None):
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
-                uuid_titulacion = values['_titulacion_'][-36:]
-                titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                uuid_titu = values['_titulacion_'][-36:]
+                titulacion = tabla_titulaciones.loc[uuid_titu][
                     'titulacion']
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
                 lista_asignaturas = filtra_asignaturas(tabla_asignaturas)
@@ -976,6 +979,7 @@ def main(args=None):
                 window.Element('_explicacion_').Update(
                     value=' ', disabled=True
                 )
+        # ---
         elif event == '_asignatura_elegida_':
             asignatura_elegida = values['_asignatura_elegida_']
             if asignatura_elegida == '---':
@@ -993,12 +997,12 @@ def main(args=None):
                 )
                 window.Element('_aplicar_').Update(disabled=True)
             else:
-                uuid_titulacion = values['_titulacion_'][-36:]
-                uuid_asignatura = values['_asignatura_elegida_'][-36:]
-                titulacion = tabla_titulaciones.loc[uuid_titulacion][
+                uuid_titu = values['_titulacion_'][-36:]
+                uuid_asig = values['_asignatura_elegida_'][-36:]
+                titulacion = tabla_titulaciones.loc[uuid_titu][
                     'titulacion']
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
-                    titulacion].loc[uuid_asignatura]['creditos_disponibles']
+                    titulacion].loc[uuid_asig]['creditos_disponibles']
                 window.Element('_fraccion_todo_').Update(
                     value=False, disabled=False
                 )
@@ -1008,10 +1012,11 @@ def main(args=None):
                 window.Element('_creditos_elegidos_').Update(
                     str(round(
                         bigdict_tablas_asignaturas[titulacion].loc[
-                            uuid_asignatura]['creditos_disponibles'],4)
+                            uuid_asig]['creditos_disponibles'],4)
                     )
                 )
                 window.Element('_aplicar_').Update(disabled=True)
+        # ---
         elif event == '_fraccion_todo_':
             window.Element('_fraccion_todo_').Update(
                 value=True
@@ -1030,6 +1035,7 @@ def main(args=None):
                 value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
+        # ---
         elif event == '_fraccion_parte_':
             window.Element('_fraccion_todo_').Update(
                 value=False
@@ -1070,14 +1076,15 @@ def main(args=None):
                 value=' ', disabled=False
             )
             window.Element('_aplicar_').Update(disabled=False)
+        # ---
         elif event == '_aplicar_':
-            uuid_profesor = values['_profesor_'][-36:]
-            uuid_titulacion = values['_titulacion_'][-36:]
-            uuid_asignatura = values['_asignatura_elegida_'][-36:]
+            uuid_prof = values['_profesor_'][-36:]
+            uuid_titu = values['_titulacion_'][-36:]
+            uuid_asig = values['_asignatura_elegida_'][-36:]
             creditos_elegidos = float(
                 values['_creditos_elegidos_']
             )
-            titulacion = tabla_titulaciones.loc[uuid_titulacion]['titulacion']
+            titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
             tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
             # evitamos restar dos números reales iguales para evitar errores
             # de redondeo
@@ -1086,13 +1093,13 @@ def main(args=None):
             # una copia de otra ('creditos_iniciales')
             asignacion_es_correcta = True
             if values['_fraccion_todo_']:
-                tabla_asignaturas.loc[uuid_asignatura,
+                tabla_asignaturas.loc[uuid_asig,
                                       'creditos_disponibles'] = 0
             elif values['_fraccion_parte_']:
-                if tabla_asignaturas.loc[uuid_asignatura,
+                if tabla_asignaturas.loc[uuid_asig,
                                          'creditos_disponibles'] > \
                         creditos_elegidos:
-                    tabla_asignaturas.loc[uuid_asignatura,
+                    tabla_asignaturas.loc[uuid_asig,
                                           'creditos_disponibles'] -= \
                         creditos_elegidos
                 else:
@@ -1104,45 +1111,45 @@ def main(args=None):
                 input('Press <CR> to continue...')
                 asignacion_es_correcta = False
             if asignacion_es_correcta:
-                tabla_titulaciones.loc[uuid_titulacion,
+                tabla_titulaciones.loc[uuid_titu,
                                        'creditos_disponibles'] = \
                     tabla_asignaturas['creditos_disponibles'].sum()
-                tabla_profesores.loc[uuid_profesor, 'asignados'] += \
+                tabla_profesores.loc[uuid_prof, 'asignados'] += \
                     creditos_elegidos
-                tabla_profesores.loc[uuid_profesor, 'diferencia'] = \
-                    tabla_profesores.loc[uuid_profesor, 'asignados'] - \
-                    tabla_profesores.loc[uuid_profesor, 'encargo']
+                tabla_profesores.loc[uuid_prof, 'diferencia'] = \
+                    tabla_profesores.loc[uuid_prof, 'asignados'] - \
+                    tabla_profesores.loc[uuid_prof, 'encargo']
                 update_info_creditos()
-                encargo = tabla_profesores.loc[uuid_profesor]['encargo']
-                asignados = tabla_profesores.loc[uuid_profesor]['asignados']
-                diferencia = tabla_profesores.loc[uuid_profesor]['diferencia']
+                encargo = tabla_profesores.loc[uuid_prof]['encargo']
+                asignados = tabla_profesores.loc[uuid_prof]['asignados']
+                diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(round(diferencia, 4))
-            # prepare new entry for csv_inout
-            data_row = [uuid_titulacion, uuid_asignatura,
-                        creditos_elegidos, values['_explicacion_']]
-            for item in csv_colnames_profesor:
-                data_row.append(tabla_profesores.loc[uuid_profesor][item])
-            for item in csv_colnames_asignatura:
-                data_row.append(tabla_asignaturas.loc[uuid_asignatura][item])
-            # Nota: uuid_csv tendrá un valor único para cada elección de los
+            # Nota: uuid_bita tendrá un valor único para cada elección de los
             # profesores. Esto permite discriminar dentro de una misma
-            # asignatura (i.e., mismo uuid_profesor, uuid_titulacion,
-            # uuid_asignatura) cuando se eligen fracciones de asignatura (es
+            # asignatura (i.e., mismo uuid_prof, uuid_titu,
+            # uuid_asig) cuando se eligen fracciones de asignatura (es
             # decir, cuando se subdividen asignaturas por un mismo profesor)
-            data_row.append(str(uuid4()))
-            csv_row = pd.DataFrame(data=[data_row],
-                                   index=[uuid_profesor],
-                                   columns=csv_inout.columns.tolist())
-            csv_inout = pd.concat([csv_inout, csv_row])
-            csv_inout.index.name = 'uuid_profesor'
+            uuid_bita = str(uuid4())
+            # prepare new entry for bitacora
+            data_row = [uuid_prof, uuid_titu, uuid_asig,
+                        'ADD', creditos_elegidos, values['_explicacion_']]
+            for item in csv_colnames_profesor:
+                data_row.append(tabla_profesores.loc[uuid_prof][item])
+            for item in csv_colnames_asignatura:
+                data_row.append(tabla_asignaturas.loc[uuid_asig][item])
+            new_entry = pd.DataFrame(data=[data_row],
+                                     index=[uuid_bita],
+                                     columns=bitacora.columns.tolist())
+            bitacora = pd.concat([bitacora, new_entry])
+            bitacora.index.name = 'uuid_bita'
             if args.debug:
-                print(csv_inout)
+                print(bitacora)
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
             seleccion_del_profesor = filtra_seleccion_del_profesor(
-                uuid_profesor, csv_inout
+                uuid_prof, bitacora
             )
             if len(seleccion_del_profesor) > 1:
                 window.Element('_docencia_asignada_').Update(
@@ -1155,16 +1162,17 @@ def main(args=None):
                     disabled=True
                 )
             window.Element('_continuar_').Update(disabled=False)
-            export_to_html_csv_inout(csv_inout)
+            export_to_html_bitacora(bitacora)
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
             export_to_html_profesores(tabla_profesores)
+        # ---
         elif event == '_cancelar_':
             clear_screen_asignatura()
             window.Element('_profesor_').Update(disabled=False)
-            uuid_profesor = values['_profesor_'][-36:]
+            uuid_prof = values['_profesor_'][-36:]
             seleccion_del_profesor = filtra_seleccion_del_profesor(
-                uuid_profesor, csv_inout
+                uuid_prof, bitacora
             )
             if len(seleccion_del_profesor) > 1:
                 window.Element('_docencia_asignada_').Update(
@@ -1177,6 +1185,7 @@ def main(args=None):
                     disabled=True
                 )
             window.Element('_continuar_').Update(disabled=False)
+        # ---
         elif event is None or event == "_salir_":
             coption = ''
             while coption != 'y' and coption != 'n':
