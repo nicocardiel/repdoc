@@ -1,5 +1,5 @@
 syntax: glob
 .idea
 .gitignore~
-
+__pycache__
 
