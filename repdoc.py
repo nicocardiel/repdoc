@@ -356,7 +356,8 @@ def define_layout(fontsize, num_titulaciones):
                         justification='center',
                         key='_summary_beccol_')
                 ]]
-    layout += [[sg.Checkbox('Excluir asignaturas para becarios/colaboradores',
+    layout += [[sg.Checkbox('Excluir elección de asignaturas para '
+                            'Becarios/Colaboradores',
                            default=False,
                            change_submits=True,
                            auto_size_text=True,
@@ -369,7 +370,7 @@ def define_layout(fontsize, num_titulaciones):
                             change_submits=True,
                             auto_size_text=True,
                             key='_excluir_RyC_'),
-                sg.Checkbox('Excluir Colaboradores',
+                sg.Checkbox('Excluir Becarios/Colaboradores',
                             default=False,
                             change_submits=True,
                             auto_size_text=True,
@@ -497,7 +498,8 @@ def filtra_titulaciones(tabla_titulaciones):
     return lista_titulaciones
 
 
-def filtra_asignaturas(tabla_asignaturas):
+def filtra_asignaturas(tabla_asignaturas,
+                       excluir_asignaturas_beccol=False):
     """Return list with subjects with available credits.
 
     """
@@ -505,21 +507,29 @@ def filtra_asignaturas(tabla_asignaturas):
     num_asignaturas = tabla_asignaturas.shape[0]
     lista_asignaturas = []
     for i in range(num_asignaturas):
-        if tabla_asignaturas['creditos_disponibles'][i] > 0:
-            dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
-            dumtxt += tabla_asignaturas['asignatura'][i] + ', '
-            dumtxt += str(
-                round(tabla_asignaturas['creditos_disponibles'][i], 4)
-            ) + ' créditos'
-            if tabla_asignaturas['comentarios'][i] != ' ':
-                dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
-            if tabla_asignaturas['grupo'][i] != ' ':
-                dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
-            ldum = len(dumtxt)
-            if ldum < WIDTH_SPACES_FOR_UUID:
-                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuid_asig=' + tabla_asignaturas.index[i]
-            lista_asignaturas.append(dumtxt)
+        if excluir_asignaturas_beccol:
+            if tabla_asignaturas['bec_col'][i] == 1:
+                incluir_asignatura = False
+            else:
+                incluir_asignatura = True
+        else:
+            incluir_asignatura = True
+        if incluir_asignatura:
+            if tabla_asignaturas['creditos_disponibles'][i] > 0:
+                dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
+                dumtxt += tabla_asignaturas['asignatura'][i] + ', '
+                dumtxt += str(
+                    round(tabla_asignaturas['creditos_disponibles'][i], 4)
+                ) + ' créditos'
+                if tabla_asignaturas['comentarios'][i] != ' ':
+                    dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
+                if tabla_asignaturas['grupo'][i] != ' ':
+                    dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+                ldum = len(dumtxt)
+                if ldum < WIDTH_SPACES_FOR_UUID:
+                    dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                dumtxt += ' uuid_asig=' + tabla_asignaturas.index[i]
+                lista_asignaturas.append(dumtxt)
 
     return lista_asignaturas
 
@@ -1113,7 +1123,10 @@ def main(args=None):
                 titulacion = tabla_titulaciones.loc[uuid_titu][
                     'titulacion']
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
-                lista_asignaturas = filtra_asignaturas(tabla_asignaturas)
+                lista_asignaturas = filtra_asignaturas(
+                    tabla_asignaturas,
+                    values['_excluir_asignaturas_beccol_']
+                )
                 window.Element('_asignatura_elegida_').Update(
                     values=['---'] + lista_asignaturas,
                     disabled=False
