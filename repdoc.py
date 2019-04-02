@@ -132,16 +132,16 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     if course == '2019-2020':
         skiprows = 5
-        usecols = range(1, 12)
+        usecols = range(1, 13)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
                  'uuid_asig', 'creditos_iniciales', 'comentarios',
-                 'grupo', 'bec_col', 'profesor_anterior'
+                 'grupo', 'bec_col', 'profesor_anterior', 'antiguedad'
                  ]
         converters = {'curso': str, 'semestre': int, 'codigo': int,
                       'area': str, 'uuid_asig': str,
                       'creditos_iniciales': float, 'comentarios': str_nonan,
                       'grupo': str_nonan, 'bec_col': int,
-                      'profesor_anterior': str_nonan
+                      'profesor_anterior': str_nonan, 'antiguedad': int
                       }
     else:
         print('Course: ' + course)
@@ -368,7 +368,12 @@ def define_layout(fontsize, num_titulaciones):
                             default=False,
                             change_submits=True,
                             auto_size_text=True,
-                            key='_excluir_RyC_')],
+                            key='_excluir_RyC_'),
+                sg.Checkbox('Excluir Colaboradores',
+                            default=False,
+                            change_submits=True,
+                            auto_size_text=True,
+                            key='_excluir_colaboradores_')],
                # ---
                [sg.Text('Nº umbral de créditos:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_umbral_creditos_'),
@@ -813,6 +818,7 @@ def main(args=None):
     def clear_screen_profesor(profesor_disabled=True):
         if profesor_disabled:
             window.Element('_profesor_').Update(values='---', disabled=True)
+            window.Element('_num_prof_seleccionados_').Update('0')
         window.Element('_encargo_prof_').Update('---')
         window.Element('_asignados_prof_').Update('---')
         window.Element('_diferencia_prof_').Update('---')
@@ -905,6 +911,10 @@ def main(args=None):
             clear_screen_asignatura()
             clear_screen_profesor()
         # ---
+        elif event == '_excluir_colaboradores_':
+            clear_screen_asignatura()
+            clear_screen_profesor()
+        # ---
         elif event == '_establecer_umbral_':
             lista_profesores = ['---']
             umbral_is_float = True
@@ -925,8 +935,15 @@ def main(args=None):
                         str(float(umbral))
                     )
                     for i in range(tabla_profesores.shape[0]):
-                        if not 'RyC' in tabla_profesores['categoria'][i] or \
-                            not values['_excluir_RyC_']:
+                        incluir_profesor = True
+                        if values['_excluir_RyC_']:
+                            if 'RyC' in tabla_profesores['categoria'][i]:
+                                incluir_profesor = False
+                        if values['_excluir_colaboradores_']:
+                            if tabla_profesores['categoria'][i] == \
+                                'Colaborador':
+                                incluir_profesor = False
+                        if incluir_profesor:
                             nombre_completo = tabla_profesores['nombre'][i] +\
                                               ' ' +\
                                               tabla_profesores['apellidos'][i]
