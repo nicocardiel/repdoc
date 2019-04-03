@@ -622,50 +622,100 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
     # tabla_profesores.to_html('repdoc_profesores.html')
     f = open('repdoc_profesores.html', 'wt')
-    f.write(html_heading('Resumen tabla de profesores'))
-    cout = '<table border="1">\n' + \
-           '<thead>\n' + \
-           '<tr style="text-align: left;">\n' + \
-           '<th>Apellidos</th>\n' + \
-           '<th>Nombre</th>\n' + \
-           '<th>Categoría</th>\n' + \
-           '<th>Encargo docente</th>\n' + \
-           '<th>Créditos asignados</th>\n' + \
-           '<th>Diferencia</th>\n' + \
-           '</tr>\n' + \
-           '</thead>\n' + \
-           '<tbody>\n'
-    f.write(cout)
+    f.write('''
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Resumen tabla de profesores</title>
+  
+  <style>
+  
+  #tabla_profesores {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+  }
+  
+  #tabla_profesores td, #tabla_profesores th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #tabla_profesores tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #tabla_profesores tr:hover {
+    background-color: #ddd;
+  }
+  
+  #tabla_profesores th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  </style>
+</head>
+
+<body>
+''')
+
+    f.write('''
+<table id="tabla_profesores">
+
+<thead>
+<tr style="text-align: left;">
+<th>Apellidos</th>
+<th>Nombre</th>
+<th>Categoría</th>
+<th>Encargo docente</th>
+<th>Créditos asignados</th>
+<th>Diferencia</th>
+</tr>
+</thead>
+
+<tbody>
+
+''')
+    cred = '{0:9.4f}'
     for uuid_prof in tabla_profesores.index:
-        cred = '{0:9.4f}'
-        cout = '<tr>\n' + \
-               '<td>' + \
-               '<a href="repdoc_asignacion.html#' + uuid_prof + '">' + \
-               tabla_profesores.loc[uuid_prof]['apellidos'] + \
-               '</a>' + \
-               '</td>\n' + \
-               '<td>' + \
-               '<a href="repdoc_asignacion.html#' + uuid_prof + '">' + \
-               tabla_profesores.loc[uuid_prof]['nombre'] + \
-               '</a>' + \
-               '</td>\n' + \
-               '<td>' + \
-               tabla_profesores.loc[uuid_prof]['categoria'] + \
-               '</td>\n' + \
-               '<td style="text-align: right;">' + \
-               cred.format(tabla_profesores.loc[uuid_prof]['encargo']) + \
-               '</td>\n' + \
-               '<td style="text-align: right;">' + \
-               cred.format(tabla_profesores.loc[uuid_prof]['asignados']) + \
-               '</td>\n' + \
-               '<td style="text-align: right;">' + \
-               cred.format(tabla_profesores.loc[uuid_prof]['diferencia']) + \
-               '</td>\n' + \
-               '</tr>\n'
-        f.write(cout)
-    cout = '</tbody>\n' + \
-           '</table>\n'
-    f.write(cout)
+        f.write('\n<tr>\n<td><a href="repdoc_asignacion.html#')
+        f.write(uuid_prof)
+        f.write('">')
+        f.write(tabla_profesores.loc[uuid_prof]['apellidos'])
+        f.write('</a></td>\n')
+        f.write('<td><a href="repdoc_asignacion.html#')
+        f.write(uuid_prof)
+        f.write('">')
+        f.write(tabla_profesores.loc[uuid_prof]['nombre'])
+        f.write('</a></td>\n')
+        f.write('<td>' +
+                tabla_profesores.loc[uuid_prof]['categoria'] +
+                '</td>\n')
+        #
+        creditos = tabla_profesores.loc[uuid_prof]['encargo']
+        f.write('<td style="text-align: right;">' +
+                cred.format(creditos) + '</td>\n')
+        #
+        creditos = tabla_profesores.loc[uuid_prof]['asignados']
+        f.write('<td style="text-align: right;">' +
+                cred.format(creditos) + '</td>\n')
+        #
+        creditos = tabla_profesores.loc[uuid_prof]['diferencia']
+        if creditos == 0:
+            color = '#000'
+        elif creditos < 0:
+            color = '#a00'
+        else:
+            color = '#0a0'
+        f.write('<td style="text-align: right; color:' + color + ';">' +
+                cred.format(creditos) + '</td>\n</tr>\n')
+    f.write('\n</tbody>\n\n</table>\n\n')
     f.write(html_footer())
     f.close()
 
