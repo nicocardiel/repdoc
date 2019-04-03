@@ -570,6 +570,33 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     return output
 
 
+def html_heading(page_title):
+    """Return header for HTML file
+
+    """
+
+    cout = '<!DOCTYPE html>\n\n' + \
+           '<html lang="en">\n\n' + \
+           '<head>\n' + \
+           '  <meta charset="utf-8">\n' + \
+           '  <title>' + page_title + '</title>\n' + \
+           '</head>\n\n' + \
+           '<body>\n' \
+
+    return cout
+
+
+def html_footer():
+    """Return footer for HTML file
+
+    """
+
+    cout = '</body>\n\n' + \
+           '</html>\n'
+
+    return cout
+
+
 def export_to_html_titulaciones(tabla_titulaciones):
     """Export to html tabla_titulaciones
 
@@ -596,10 +623,14 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     tabla_profesores.to_html('repdoc_profesores.html')
 
     if bitacora is not None:
+        f = open('repdoc_asignacion.html', 'wt')
+        f.write(html_heading('Asignación de la docencia'))
+        f.write(html_footer())
         for uuid_prof in tabla_profesores.index:
-            print('*** Profesor...:' +
-                  tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
-                  tabla_profesores.loc[uuid_prof]['apellidos'])
+            f.write('<h2 id="' + uuid_prof + '">' +
+                    tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
+                    tabla_profesores.loc[uuid_prof]['apellidos'] +
+                    '</h2>\n')
             # subset of bitacora for the selected teacher
             seleccion = bitacora.loc[
                 (bitacora['uuid_prof'] == uuid_prof) &
@@ -608,7 +639,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             # find how many times the selected teacher appears
             ntimes = seleccion.shape[0]
             if ntimes == 0:
-                print('--> No tiene docencia asignada')
+                f.write('No tiene docencia asignada\n')
             else:
                 for i in range(ntimes):
                     dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
@@ -618,7 +649,8 @@ def export_to_html_profesores(tabla_profesores, bitacora):
                     ) + ' créditos'
                     if seleccion['grupo'].tolist()[i] != ' ':
                         dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
-                    print('--> ' + dumtxt)
+                    f.write(dumtxt + '\n')
+        f.close()
 
 
 def export_to_html_bitacora(bitacora):
