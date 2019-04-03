@@ -575,7 +575,114 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
     """
 
-    tabla_titulaciones.to_html('repdoc_titulaciones.html')
+    f = open('repdoc_titulaciones.html', 'wt')
+    f.write('''
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Tabla de titulaciones</title>
+
+  <style>
+
+  #tabla_titulaciones {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+  }
+
+  #tabla_titulaciones td, #tabla_titulaciones th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  #tabla_titulaciones tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  #tabla_titulaciones tr:hover {
+    background-color: #ddd;
+  }
+
+  #tabla_titulaciones th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #AF4CAF;
+    color: white;
+  }
+
+  </style>
+</head>
+
+<body>
+
+''')
+
+    f.write('''
+<table id="tabla_titulaciones">
+
+<thead>
+<tr style="text-align: left;">
+<th>Titulación</th>
+<th>Créditos iniciales</th>
+<th>Créditos elegidos</th>
+<th>Créditos disponibles</th>
+<th>Créditos para Bec./Col.</th>
+</tr>
+</thead>
+
+<tbody>
+
+''')
+
+    for uuid_titu in tabla_titulaciones.index:
+        f.write('\n<tr>\n')
+        f.write('<td>{}</td>\n'.format(
+            tabla_titulaciones.loc[uuid_titu]['titulacion']
+        ))
+        creditos = tabla_titulaciones.loc[uuid_titu]['creditos_iniciales']
+        f.write('<td style="text-align: right;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        creditos = tabla_titulaciones.loc[uuid_titu]['creditos_elegidos']
+        f.write('<td style="text-align: right;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        creditos = tabla_titulaciones.loc[uuid_titu]['creditos_disponibles']
+        f.write('<td style="text-align: right;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        creditos = tabla_titulaciones.loc[uuid_titu]['creditos_beccol']
+        f.write('<td style="text-align: right;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        f.write('</tr>\n')
+
+    f.write('\n</tbody>\n\n')
+    #
+    f.write('<tfoot>\n\n')
+    f.write('<tr>\n')
+    f.write('<td colspan="1" style="text-align: right;">SUMA</td>\n')
+    creditos = tabla_titulaciones['creditos_iniciales'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #AF4CAF; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    creditos = tabla_titulaciones['creditos_elegidos'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #AF4CAF; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    creditos = tabla_titulaciones['creditos_disponibles'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #AF4CAF; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    creditos = tabla_titulaciones['creditos_beccol'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #AF4CAF; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+
+    f.write('\n</tfoot>\n\n')
+    #
+    f.write('\n</table>\n\n')
+    f.write('</body>\n\n</html>\n')
+    f.close()
 
 
 def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
@@ -628,6 +735,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 </head>
 
 <body>
+
 ''')
 
         f.write('''
@@ -768,6 +876,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 </head>
 
 <body>
+
 ''')
 
     f.write('''
@@ -906,6 +1015,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 </head>
 
 <body>
+
 ''')
 
         for uuid_prof in tabla_profesores.index:
