@@ -620,12 +620,58 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
     """
 
-    tabla_profesores.to_html('repdoc_profesores.html')
+    # tabla_profesores.to_html('repdoc_profesores.html')
+    f = open('repdoc_profesores.html', 'wt')
+    f.write(html_heading('Resumen tabla de profesores'))
+    cout = '<table border="1">\n' + \
+           '<thead>\n' + \
+           '<tr style="text-align: left;">\n' + \
+           '<th>Apellidos</th>\n' + \
+           '<th>Nombre</th>\n' + \
+           '<th>Categoría</th>\n' + \
+           '<th>Encargo docente</th>\n' + \
+           '<th>Créditos asignados</th>\n' + \
+           '<th>Diferencia</th>\n' + \
+           '</tr>\n' + \
+           '</thead>\n' + \
+           '<tbody>\n'
+    f.write(cout)
+    for uuid_prof in tabla_profesores.index:
+        cred = '{0:9.4f}'
+        cout = '<tr>\n' + \
+               '<td>' + \
+               '<a href="repdoc_asignacion.html#' + uuid_prof + '">' + \
+               tabla_profesores.loc[uuid_prof]['apellidos'] + \
+               '</a>' + \
+               '</td>\n' + \
+               '<td>' + \
+               '<a href="repdoc_asignacion.html#' + uuid_prof + '">' + \
+               tabla_profesores.loc[uuid_prof]['nombre'] + \
+               '</a>' + \
+               '</td>\n' + \
+               '<td>' + \
+               tabla_profesores.loc[uuid_prof]['categoria'] + \
+               '</td>\n' + \
+               '<td style="text-align: right;">' + \
+               cred.format(tabla_profesores.loc[uuid_prof]['encargo']) + \
+               '</td>\n' + \
+               '<td style="text-align: right;">' + \
+               cred.format(tabla_profesores.loc[uuid_prof]['asignados']) + \
+               '</td>\n' + \
+               '<td style="text-align: right;">' + \
+               cred.format(tabla_profesores.loc[uuid_prof]['diferencia']) + \
+               '</td>\n' + \
+               '</tr>\n'
+        f.write(cout)
+    cout = '</tbody>\n' + \
+           '</table>\n'
+    f.write(cout)
+    f.write(html_footer())
+    f.close()
 
     if bitacora is not None:
         f = open('repdoc_asignacion.html', 'wt')
         f.write(html_heading('Asignación de la docencia'))
-        f.write(html_footer())
         for uuid_prof in tabla_profesores.index:
             f.write('<h2 id="' + uuid_prof + '">' +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
@@ -650,6 +696,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
                     if seleccion['grupo'].tolist()[i] != ' ':
                         dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
                     f.write(dumtxt + '\n')
+        f.write(html_footer())
         f.close()
 
 
