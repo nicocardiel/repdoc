@@ -593,6 +593,8 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
     """
 
+    # tabla de profesores
+
     # tabla_profesores.to_html('repdoc_profesores.html')
     f = open('repdoc_profesores.html', 'wt')
     f.write('''
@@ -688,8 +690,29 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             color = '#0a0'
         f.write('<td style="text-align: right; color:' + color + ';">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n</tr>\n')
-    f.write('\n</tbody>\n\n</table>\n\n</body>\n\n</html>\n')
+    f.write('\n</tbody>\n\n')
+    #
+    f.write('<tfoot>\n\n')
+    f.write('<tr>\n')
+    f.write('<td colspan="3" style="text-align: right;">SUMA</td>')
+    creditos = tabla_profesores['encargo'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #4CAF50; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    creditos = tabla_profesores['asignados'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #4CAF50; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    creditos = tabla_profesores['diferencia'].sum()
+    f.write('<td style="text-align: right; font-weight: bold; ' +
+            'background-color: #4CAF50; color: white;">' +
+            '{0:9.4f}'.format(creditos) + '</td>\n')
+    f.write('</tr>\n')
+    #
+    f.write('\n</tfoot>\n\n</table>\n\n</body>\n\n</html>\n')
     f.close()
+
+    # tabla de asignación por profesor
 
     if bitacora is not None:
         f = open('repdoc_asignacion.html', 'wt')
@@ -813,10 +836,10 @@ def export_to_html_profesores(tabla_profesores, bitacora):
                     f.write('\n<td>{}</td>\n'.format(
                         seleccion['curso'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
+                    f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['semestre'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
+                    f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['codigo'].tolist()[i]
 
                     ))
@@ -826,19 +849,32 @@ def export_to_html_profesores(tabla_profesores, bitacora):
                     f.write('<td>{}</td>\n'.format(
                         seleccion['area'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
+                    f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['creditos_iniciales'].tolist()[i]
                     ))
                     f.write('<td>{}</td>\n'.format(
                             seleccion['comentarios'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
+                    f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['grupo'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
+                    f.write('<td style="text-align: right;">' +
+                            '{0:9.4f}</td>\n'.format(
                         seleccion['creditos_elegidos'].tolist()[i]
                     ))
-                f.write('\n</tbody>\n\n</table>\n\n')
+                f.write('\n</tbody>\n\n')
+                #
+                f.write('<tfoot>\n\n')
+                f.write('<tr>\n')
+                f.write('<td colspan="8" style="text-align: right;">SUMA</td>')
+                creditos = seleccion['creditos_elegidos'].sum()
+                f.write('<td style="text-align: right; font-weight: bold; ' +
+                        'background-color: #4C50AF; color: white;">' +
+                        '{0:9.4f}'.format(creditos) + '</td>\n')
+                f.write('</tr>\n')
+                #
+                f.write('\n<tfoot>\n\n')
+                f.write('</table>\n\n')
 
             f.write('<hr class="sep"></div>\n\n')
 
