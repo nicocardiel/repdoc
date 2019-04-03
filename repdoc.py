@@ -570,33 +570,6 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     return output
 
 
-def html_heading(page_title):
-    """Return header for HTML file
-
-    """
-
-    cout = '<!DOCTYPE html>\n\n' + \
-           '<html lang="en">\n\n' + \
-           '<head>\n' + \
-           '  <meta charset="utf-8">\n' + \
-           '  <title>' + page_title + '</title>\n' + \
-           '</head>\n\n' + \
-           '<body>\n' \
-
-    return cout
-
-
-def html_footer():
-    """Return footer for HTML file
-
-    """
-
-    cout = '</body>\n\n' + \
-           '</html>\n'
-
-    return cout
-
-
 def export_to_html_titulaciones(tabla_titulaciones):
     """Export to html tabla_titulaciones
 
@@ -682,7 +655,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 <tbody>
 
 ''')
-    cred = '{0:9.4f}'
+
     for uuid_prof in tabla_profesores.index:
         f.write('\n<tr>\n<td><a href="repdoc_asignacion.html#')
         f.write(uuid_prof)
@@ -700,11 +673,11 @@ def export_to_html_profesores(tabla_profesores, bitacora):
         #
         creditos = tabla_profesores.loc[uuid_prof]['encargo']
         f.write('<td style="text-align: right;">' +
-                cred.format(creditos) + '</td>\n')
+                '{0:9.4f}'.format(creditos) + '</td>\n')
         #
         creditos = tabla_profesores.loc[uuid_prof]['asignados']
         f.write('<td style="text-align: right;">' +
-                cred.format(creditos) + '</td>\n')
+                '{0:9.4f}'.format(creditos) + '</td>\n')
         #
         creditos = tabla_profesores.loc[uuid_prof]['diferencia']
         if creditos == 0:
@@ -714,19 +687,97 @@ def export_to_html_profesores(tabla_profesores, bitacora):
         else:
             color = '#0a0'
         f.write('<td style="text-align: right; color:' + color + ';">' +
-                cred.format(creditos) + '</td>\n</tr>\n')
-    f.write('\n</tbody>\n\n</table>\n\n')
-    f.write(html_footer())
+                '{0:9.4f}'.format(creditos) + '</td>\n</tr>\n')
+    f.write('\n</tbody>\n\n</table>\n\n</body>\n\n</html>\n')
     f.close()
 
     if bitacora is not None:
         f = open('repdoc_asignacion.html', 'wt')
-        f.write(html_heading('Asignación de la docencia'))
+        f.write('''
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Asignación de la docencia</title>
+  
+  <style>
+  
+  #tabla_asignacion {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #tabla_asignacion td, #tabla_asignacion th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #tabla_asignacion tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #tabla_asignacion tr:hover {
+    background-color: #ddd;
+  }
+  
+  #tabla_asignacion th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4C50AF;
+    color: white;
+  }
+  
+  pre {
+    display: inline;
+    margin: 0;
+  }
+  
+  @media print  
+  {
+    div{
+        page-break-inside: avoid;
+    }
+  }
+  
+  /* Large rounded green border */
+  hr.sep {
+    border: 3px solid #4C50AF;
+  }
+
+  </style>
+</head>
+
+<body>
+''')
+
         for uuid_prof in tabla_profesores.index:
-            f.write('<h2 id="' + uuid_prof + '">' +
+            f.write('<div><h2 id="' + uuid_prof + '">' +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
                     tabla_profesores.loc[uuid_prof]['apellidos'] +
                     '</h2>\n')
+            creditos = tabla_profesores.loc[uuid_prof]['encargo']
+            f.write('<font face="Courier">')
+            f.write('<strong>Encargo docente...: </strong><pre>')
+            f.write('{0:9.4f}</pre></font><br>\n'.format(creditos))
+            creditos = tabla_profesores.loc[uuid_prof]['asignados']
+            f.write('<font face="Courier">')
+            f.write('<strong>Créditos asignados: </strong><pre>')
+            f.write('{0:9.4f}</pre></font><br>\n'.format(creditos))
+            creditos = tabla_profesores.loc[uuid_prof]['diferencia']
+            if creditos == 0:
+                color = '#000'
+            elif creditos < 0:
+                color = '#a00'
+            else:
+                color = '#0a0'
+            f.write('<font face="Courier">')
+            f.write('<strong>Diferencia........: </strong><pre>')
+            f.write('<font color="' + color + '">')
+            f.write('{0:9.4f}</font></pre></font><br><br>\n'.format(creditos))
             # subset of bitacora for the selected teacher
             seleccion = bitacora.loc[
                 (bitacora['uuid_prof'] == uuid_prof) &
@@ -737,16 +788,61 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             if ntimes == 0:
                 f.write('No tiene docencia asignada\n')
             else:
+                f.write('''
+<table id="tabla_asignacion">
+
+<thead>
+<tr style="text-align: left;">
+<th>Curso</th>
+<th>Semestre</th>
+<th>Código</th>
+<th>Asignatura</th>
+<th>Área</th>
+<th>Créditos iniciales</th>
+<th>Comentarios</th>
+<th>Grupo</th>
+<th>Créditos elegidos</th>
+</tr>
+</thead>
+
+<tbody>
+
+''')
                 for i in range(ntimes):
-                    dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
-                    dumtxt += seleccion['asignatura'].tolist()[i] + ', '
-                    dumtxt += str(
-                        round(seleccion['creditos_elegidos'].tolist()[i], 4)
-                    ) + ' créditos'
-                    if seleccion['grupo'].tolist()[i] != ' ':
-                        dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
-                    f.write(dumtxt + '\n')
-        f.write(html_footer())
+                    f.write('\n<tr>')
+                    f.write('\n<td>{}</td>\n'.format(
+                        seleccion['curso'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['semestre'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['codigo'].tolist()[i]
+
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['asignatura'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['area'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['creditos_iniciales'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                            seleccion['comentarios'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['grupo'].tolist()[i]
+                    ))
+                    f.write('<td>{}</td>\n'.format(
+                        seleccion['creditos_elegidos'].tolist()[i]
+                    ))
+                f.write('\n</tbody>\n\n</table>\n\n')
+
+            f.write('<hr class="sep"></div>\n\n')
+
+        f.write('</body>\n\n</html>\n')
         f.close()
 
 
