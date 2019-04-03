@@ -31,7 +31,6 @@ def new_uuid(megalist_uuid):
         if len(newlist) != len(set(newlist)):
             print('UUID collision with:' + newvalue)
         else:
-            loop = False
             return newvalue
 
 
@@ -589,12 +588,37 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         dumtable.to_html('repdoc_titulacion_{:02d}.html'.format(i + 1))
 
 
-def export_to_html_profesores(tabla_profesores):
+def export_to_html_profesores(tabla_profesores, bitacora):
     """Export to html tabla_profesores
 
     """
 
     tabla_profesores.to_html('repdoc_profesores.html')
+
+    if bitacora is not None:
+        for uuid_prof in tabla_profesores.index:
+            print('*** Profesor...:' +
+                  tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
+                  tabla_profesores.loc[uuid_prof]['apellidos'])
+            # subset of bitacora for the selected teacher
+            seleccion = bitacora.loc[
+                (bitacora['uuid_prof'] == uuid_prof) &
+                (bitacora['date_removed'] == 'None')
+                ].copy()
+            # find how many times the selected teacher appears
+            ntimes = seleccion.shape[0]
+            if ntimes == 0:
+                print('--> No tiene docencia asignada')
+            else:
+                for i in range(ntimes):
+                    dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
+                    dumtxt += seleccion['asignatura'].tolist()[i] + ', '
+                    dumtxt += str(
+                        round(seleccion['creditos_elegidos'].tolist()[i], 4)
+                    ) + ' créditos'
+                    if seleccion['grupo'].tolist()[i] != ' ':
+                        dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
+                    print('--> ' + dumtxt)
 
 
 def export_to_html_bitacora(bitacora):
@@ -723,7 +747,7 @@ def main(args=None):
 
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-    export_to_html_profesores(tabla_profesores)
+    export_to_html_profesores(tabla_profesores, bitacora=None)
 
     # ---
     # define bitacora
@@ -804,16 +828,16 @@ def main(args=None):
                         uuid_prof, 'diferencia'
                     ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
                         tabla_profesores.loc[uuid_prof, 'encargo']
-                    export_to_html_titulaciones(tabla_titulaciones)
-                    export_to_html_tablas_asignaturas(
-                        bigdict_tablas_asignaturas)
-                    export_to_html_profesores(tabla_profesores)
                 else:
                     print('* uuid_bita:', uuid_bita)
                     print('* uuid_prof:', uuid_prof)
                     print('* uuid_titu:', uuid_titu)
                     print('* uuid_asig:', uuid_asig)
                     raise ValueError('Error while processing bitacora!')
+
+        export_to_html_titulaciones(tabla_titulaciones)
+        export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+        export_to_html_profesores(tabla_profesores, bitacora)
 
     # ---
     # GUI
@@ -1111,7 +1135,7 @@ def main(args=None):
                 export_to_html_bitacora(bitacora)
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-                export_to_html_profesores(tabla_profesores)
+                export_to_html_profesores(tabla_profesores, bitacora)
         # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
@@ -1356,7 +1380,7 @@ def main(args=None):
             export_to_html_bitacora(bitacora)
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-            export_to_html_profesores(tabla_profesores)
+            export_to_html_profesores(tabla_profesores, bitacora)
         # ---
         elif event == '_cancelar_':
             clear_screen_asignatura()
