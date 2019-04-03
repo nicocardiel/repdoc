@@ -584,8 +584,138 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
     """
 
     for i, key in enumerate(bigdict_tablas_asignaturas.keys()):
-        dumtable = bigdict_tablas_asignaturas[key]
-        dumtable.to_html('repdoc_titulacion_{:02d}.html'.format(i + 1))
+        tabla_asignaturas = bigdict_tablas_asignaturas[key]
+        #
+        f = open('repdoc_titulacion_{:02d}.html'.format(i + 1), 'wt')
+        f.write('''
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Tabla de asignaturas</title>
+
+  <style>
+
+  #tabla_asignaturas {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+  }
+
+  #tabla_asignaturas td, #tabla_asignaturas th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+
+  #tabla_asignaturas tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  #tabla_asignaturas tr:hover {
+    background-color: #ddd;
+  }
+
+  #tabla_asignaturas th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #AF4C50;
+    color: white;
+  }
+
+  </style>
+</head>
+
+<body>
+''')
+
+        f.write('''
+<table id="tabla_asignaturas">
+
+<thead>
+<tr style="text-align: left;">
+<th>Curso</th>
+<th>Semestre</th>
+<th>Código</th>
+<th>Asignatura</th>
+<th>Área</th>
+<th>Créditos iniciales</th>
+<th>Comentarios</th>
+<th>Grupo</th>
+<th>Bec./Col.</th>
+<th>Profesor anterior</th>
+<th>Antigüedad</th>
+<th>Créditos disponibles</th>
+</tr>
+</thead>
+
+<tbody>
+
+''')
+        for uuid_asig in tabla_asignaturas.index:
+            creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
+            if creditos > 0:
+                f.write('\n<tr>\n')
+            else:
+                f.write('\n<tr style="background: #555;">\n')
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['curso']
+            ))
+            f.write('<td style="text-align: center;">{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['semestre']
+            ))
+            f.write('<td style="text-align: center;">{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['codigo']
+            ))
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['asignatura']
+            ))
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['area']
+            ))
+            creditos = tabla_asignaturas.loc[uuid_asig]['creditos_iniciales']
+            f.write('<td style="text-align: right;">' +
+                    '{0:9.4f}'.format(creditos) + '</td>\n')
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['comentarios']
+            ))
+            f.write('<td style="text-align: center;">{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['grupo']
+            ))
+            f.write('<td style="text-align: center;">{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['bec_col']
+            ))
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['profesor_anterior']
+            ))
+            f.write('<td style="text-align: center;">{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['antiguedad']
+            ))
+            creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
+            f.write('<td style="text-align: right;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+            f.write('</tr>\n')
+
+        f.write('\n</tbody>\n\n')
+        #
+        f.write('<tfoot>\n\n')
+        f.write('<tr>\n')
+        f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
+        creditos = tabla_asignaturas['creditos_iniciales'].sum()
+        f.write('<td style="text-align: right; font-weight: bold; ' +
+                'background-color: #AF4C50; color: white;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
+        creditos = tabla_asignaturas['creditos_disponibles'].sum()
+        f.write('<td style="text-align: right; font-weight: bold; ' +
+                'background-color: #AF4C50; color: white;">' +
+                '{0:9.4f}'.format(creditos) + '</td>\n')
+        f.write('\n</tfoot>\n\n')
+        #
+        f.write('\n</table>\n\n')
+        f.write('</body>\n\n</html>\n')
+        f.close()
 
 
 def export_to_html_profesores(tabla_profesores, bitacora):
@@ -659,7 +789,8 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 ''')
 
     for uuid_prof in tabla_profesores.index:
-        f.write('\n<tr>\n<td><a href="repdoc_asignacion.html#')
+        f.write('\n<tr>\n')
+        f.write('<td><a href="repdoc_asignacion.html#')
         f.write(uuid_prof)
         f.write('">')
         f.write(tabla_profesores.loc[uuid_prof]['apellidos'])
@@ -1042,8 +1173,8 @@ def main(args=None):
 
         for uuid_bita in bitacora.index.tolist():
             # convert NaNs to something else
-            non_nan = ['date_removed', 'explicacion', 'comentarios']
-            alternative = ['None', ' ', ' ']
+            non_nan = ['date_removed', 'explicacion', 'comentarios', 'grupo']
+            alternative = ['None', ' ', ' ', ' ']
             for item, altnone in zip(non_nan, alternative):
                 itemvalue = str(bitacora.loc[uuid_bita][item])
                 if itemvalue == 'nan' or itemvalue == 'NaN':
