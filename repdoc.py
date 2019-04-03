@@ -598,7 +598,7 @@ def export_to_html_profesores(tabla_profesores):
 
 
 def export_to_html_bitacora(bitacora):
-    """Export to html bitacora
+    """Export bitacora to html and xlsx files
 
     """
 
@@ -655,6 +655,7 @@ def main(args=None):
     )
     # incluye columnas con créditos iniciales y disponibles
     tabla_titulaciones['creditos_iniciales'] = 0.0
+    tabla_titulaciones['creditos_elegidos'] = 0.0
     tabla_titulaciones['creditos_disponibles'] = 0.0
     tabla_titulaciones['creditos_beccol'] = 0.0
     megalist_uuid += tabla_titulaciones.index.tolist()
@@ -790,6 +791,12 @@ def main(args=None):
                                  tabla_asignaturas['bec_col']
                     tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
                         sumproduct.sum()
+                    tabla_titulaciones.loc[
+                        uuid_titu, 'creditos_elegidos'
+                    ] = tabla_titulaciones.loc[uuid_titu,
+                                               'creditos_iniciales'] - \
+                          tabla_titulaciones.loc[uuid_titu,
+                                                 'creditos_disponibles']
                     tabla_profesores.loc[
                         uuid_prof, 'asignados'
                     ] += creditos_elegidos
@@ -1068,6 +1075,12 @@ def main(args=None):
                     ] = tabla_asignaturas['creditos_disponibles'].sum()
                     sumproduct = tabla_asignaturas['creditos_disponibles'] * \
                                  tabla_asignaturas['bec_col']
+                    tabla_titulaciones.loc[
+                        uuid_titu, 'creditos_elegidos'
+                    ] = tabla_titulaciones.loc[uuid_titu,
+                                               'creditos_iniciales'] - \
+                          tabla_titulaciones.loc[uuid_titu,
+                                                 'creditos_disponibles']
                     tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
                         sumproduct.sum()
                     # set date_removed
@@ -1278,6 +1291,14 @@ def main(args=None):
                 ] = tabla_asignaturas['creditos_disponibles'].sum()
                 sumproduct = tabla_asignaturas['creditos_disponibles'] * \
                              tabla_asignaturas['bec_col']
+                tabla_titulaciones.loc[
+                    uuid_titu, 'creditos_elegidos'
+                ] = tabla_titulaciones.loc[
+                                        uuid_titu, 'creditos_iniciales'
+                                    ] - \
+                      tabla_titulaciones.loc[
+                          uuid_titu, 'creditos_disponibles'
+                      ]
                 tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
                     sumproduct.sum()
                 tabla_profesores.loc[
