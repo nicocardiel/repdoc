@@ -17,6 +17,11 @@ WIDTH_INPUT_NUMBER = 10
 WIDTH_INPUT_COMMENT = 50
 WIDTH_SPACES_FOR_UUID = 150
 
+COLOR_TITULACIONES = '#AF4CAF'
+COLOR_ASIGNATURAS = '#AF4C50'
+COLOR_PROFESORES = '#4CAF50'
+COLOR_NO_DISPONIBLE = '#555'
+
 
 def new_uuid(megalist_uuid):
     """Return new uuid after checking that there is no collision.
@@ -609,7 +614,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #AF4CAF;
+    background-color: ''' + COLOR_TITULACIONES + ''';
     color: white;
   }
 
@@ -638,10 +643,16 @@ def export_to_html_titulaciones(tabla_titulaciones):
 ''')
 
     for i, uuid_titu in enumerate(tabla_titulaciones.index):
-        f.write('\n<tr>\n')
-        f.write(
-            '<td><a href="repdoc_titulacion_{0:02d}.html">{1}</a></td>\n'.format(
-                i + 1, tabla_titulaciones.loc[uuid_titu]['titulacion']
+        creditos = tabla_titulaciones.loc[uuid_titu]['creditos_disponibles']
+        if creditos > 0:
+            f.write('\n<tr>\n')
+        else:
+            f.write(
+                '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
+            )
+        f.write('<td><a href="repdoc_titulacion_{0:02d}.html">'.format(i + 1))
+        f.write('{}</a></td>\n'.format(
+                tabla_titulaciones.loc[uuid_titu]['titulacion']
         ))
         creditos = tabla_titulaciones.loc[uuid_titu]['creditos_iniciales']
         f.write('<td style="text-align: right;">' +
@@ -664,19 +675,19 @@ def export_to_html_titulaciones(tabla_titulaciones):
     f.write('<td colspan="1" style="text-align: right;">SUMA</td>\n')
     creditos = tabla_titulaciones['creditos_iniciales'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #AF4CAF; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_elegidos'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #AF4CAF; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_disponibles'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #AF4CAF; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_beccol'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #AF4CAF; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
 
     f.write('\n</tfoot>\n\n')
@@ -728,7 +739,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #AF4C50;
+    background-color: ''' + COLOR_ASIGNATURAS + ''';
     color: white;
   }
 
@@ -767,7 +778,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
             if creditos > 0:
                 f.write('\n<tr>\n')
             else:
-                f.write('\n<tr style="background: #555;">\n')
+                f.write(
+                    '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
+                )
             f.write('<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['curso']
             ))
@@ -813,12 +826,14 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_iniciales'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
-                'background-color: #AF4C50; color: white;">' +
+                'background-color: ' + COLOR_ASIGNATURAS +
+                '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
         f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_disponibles'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
-                'background-color: #AF4C50; color: white;">' +
+                'background-color: ' + COLOR_ASIGNATURAS +
+                '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
         f.write('\n</tfoot>\n\n')
         #
@@ -869,7 +884,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #4CAF50;
+    background-color: ''' + COLOR_PROFESORES + ''';
     color: white;
   }
   
@@ -938,15 +953,15 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     f.write('<td colspan="3" style="text-align: right;">SUMA</td>')
     creditos = tabla_profesores['encargo'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #4CAF50; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_profesores['asignados'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #4CAF50; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_profesores['diferencia'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: #4CAF50; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     f.write('</tr>\n')
     #
