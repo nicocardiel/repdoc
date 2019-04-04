@@ -783,7 +783,26 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 <tbody>
 
 ''')
+
+        def insert_separator():
+            for idum in range(2):
+                f.write('\n<tr style="background: ' +
+                        COLOR_ASIGNATURAS +
+                        '; height: 2px; padding-top: 0px; ' +
+                        'padding-bottom: 0px;">')
+                f.write('<td colspan="13" style="height: 2px; ' +
+                        'padding-top: 0px; padding-bottom: 0px;">' +
+                        '</td></tr>\n')
+
+        ultima_asignatura = None
         for uuid_asig in tabla_asignaturas.index:
+            nueva_asignatura = tabla_asignaturas.loc[uuid_asig]['asignatura']
+            if ultima_asignatura is None:
+                ultima_asignatura = nueva_asignatura
+            else:
+                if nueva_asignatura != ultima_asignatura:
+                    insert_separator()
+                    ultima_asignatura = nueva_asignatura
             creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
             if creditos > 0:
                 f.write('\n<tr>\n')
@@ -800,9 +819,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
             f.write('<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['codigo']
             ))
-            f.write('<td>{}</td>\n'.format(
-                tabla_asignaturas.loc[uuid_asig]['asignatura']
-            ))
+            f.write('<td>{}</td>\n'.format(nueva_asignatura))
             f.write('<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['area']
             ))
@@ -832,6 +849,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                 '{0:9.4f}'.format(creditos) + '</td>\n')
             f.write('</tr>\n')
 
+        insert_separator()
         f.write('\n</tbody>\n\n')
         #
         f.write('<tfoot>\n\n')
