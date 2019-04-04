@@ -596,10 +596,14 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 <head>
   <meta charset="utf-8">
-  <title>Tabla de titulaciones</title>
+  <title>FTA, 2019-2020</title>
 
   <style>
 
+  p, h1, h2, h3 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
   #tabla_titulaciones {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
@@ -631,6 +635,18 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 <body>
 
+''')
+
+    f.write('''
+<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<p></p>
+<p>Enlace a tabla resumen de 
+<a href="repdoc_profesores.html">Profesores</a></p>
+<p></p>
+<p>Enlace a tabla de 
+<a href="repdoc_asignacion.html">asignación de asignaturas</a></p>
+<p></p>
+<h2>Tabla resumen de titulaciones</h2>
 ''')
 
     f.write('''
@@ -722,10 +738,14 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 <head>
   <meta charset="utf-8">
-  <title>Tabla de asignaturas</title>
+  <title>''' + key + '''</title>
 
   <style>
 
+  p, h1, h2, h3 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
   #tabla_asignaturas {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
@@ -760,6 +780,11 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 ''')
 
         f.write('''
+<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h2>Listado de asignaturas: {}</h2>
+'''.format(key))
+
+        f.write('''
 <table id="tabla_asignaturas">
 
 <thead>
@@ -775,7 +800,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 <th>Bec./Col.</th>
 <th>Profesor anterior</th>
 <th>Antigüedad</th>
-<th>Nuevo profesor</th>
+<th>Profesor próximo curso</th>
 <th>Créditos disponibles</th>
 </tr>
 </thead>
@@ -890,9 +915,13 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
-  <title>Resumen tabla de profesores</title>
+  <title>Profesores</title>
   
   <style>
+  
+  p, h1, h2, h3 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
   
   #tabla_profesores {
     font-family: Arial, Helvetica, sans-serif;
@@ -925,6 +954,11 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <body>
 
+''')
+
+    f.write('''
+<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h2>Listado de profesores</h2>
 ''')
 
     f.write('''
@@ -1013,9 +1047,13 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
-  <title>Asignación de la docencia</title>
+  <title>Asignación</title>
   
   <style>
+  
+  p, h1, h2, h3 {
+    font-family: Arial, Helvetica, sans-serif;
+  }
   
   #tabla_asignacion {
     font-family: Arial, Helvetica, sans-serif;
@@ -1068,11 +1106,16 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 ''')
 
+        f.write('''
+<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h2>Asignación de asignaturas por profesor</h2>
+''')
+
         for uuid_prof in tabla_profesores.index:
-            f.write('<div><h2 id="' + uuid_prof + '">' +
+            f.write('<div><h3 id="' + uuid_prof + '">' +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
                     tabla_profesores.loc[uuid_prof]['apellidos'] +
-                    '</h2>\n')
+                    '</h3>\n')
             creditos = tabla_profesores.loc[uuid_prof]['encargo']
             f.write('<font face="Courier">')
             f.write('<strong>Encargo docente...: </strong><pre>')
@@ -1100,7 +1143,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             # find how many times the selected teacher appears
             ntimes = seleccion.shape[0]
             if ntimes == 0:
-                f.write('No tiene docencia asignada\n')
+                f.write('<p>No tiene docencia asignada</p>\n')
             else:
                 f.write('''
 <table id="tabla_asignacion">
