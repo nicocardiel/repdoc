@@ -575,6 +575,14 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
     return output
 
 
+def date_last_update():
+    """Return current date
+
+    """
+
+    return '\n\n<br><br>Last update: ' + str(datetime.now()) + '\n\n'
+
+
 def export_to_html_titulaciones(tabla_titulaciones):
     """Export to html tabla_titulaciones
 
@@ -693,6 +701,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
     f.write('\n</tfoot>\n\n')
     #
     f.write('\n</table>\n\n')
+    f.write(date_last_update())
     f.write('</body>\n\n</html>\n')
     f.close()
 
@@ -838,6 +847,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         f.write('\n</tfoot>\n\n')
         #
         f.write('\n</table>\n\n')
+        f.write(date_last_update())
         f.write('</body>\n\n</html>\n')
         f.close()
 
@@ -965,7 +975,9 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             '{0:9.4f}'.format(creditos) + '</td>\n')
     f.write('</tr>\n')
     #
-    f.write('\n</tfoot>\n\n</table>\n\n</body>\n\n</html>\n')
+    f.write('\n</tfoot>\n\n</table>\n\n')
+    f.write(date_last_update())
+    f.write('</body>\n\n</html>\n')
     f.close()
 
     # tabla de asignación por profesor
@@ -1135,6 +1147,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
             f.write('<hr class="sep"></div>\n\n')
 
+        f.write(date_last_update())
         f.write('</body>\n\n</html>\n')
         f.close()
 
