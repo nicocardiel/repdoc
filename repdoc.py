@@ -596,7 +596,6 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Tabla de titulaciones</title>
 
   <style>
@@ -723,7 +722,6 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Tabla de asignaturas</title>
 
   <style>
@@ -874,7 +872,6 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Resumen tabla de profesores</title>
   
   <style>
@@ -998,7 +995,6 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
-  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Asignación de la docencia</title>
   
   <style>
