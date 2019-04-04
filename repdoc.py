@@ -1441,13 +1441,6 @@ def main(args=None):
         raise ValueError('UUIDs are not unique when mixing everything!')
 
     # ---
-    # export to HTML files
-
-    export_to_html_titulaciones(tabla_titulaciones)
-    export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-    export_to_html_profesores(tabla_profesores, bitacora=None)
-
-    # ---
     # define bitacora
     csv_colnames_profesor = ['apellidos', 'nombre', 'categoria']
     csv_colnames_asignatura = ['curso', 'semestre', 'codigo', 'asignatura',
@@ -1546,9 +1539,12 @@ def main(args=None):
                     print('* uuid_asig:', uuid_asig)
                     raise ValueError('Error while processing bitacora!')
 
-        export_to_html_titulaciones(tabla_titulaciones)
-        export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-        export_to_html_profesores(tabla_profesores, bitacora)
+    # ---
+    # export to HTML files
+
+    export_to_html_titulaciones(tabla_titulaciones)
+    export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+    export_to_html_profesores(tabla_profesores, bitacora)
 
     # ---
     # GUI
