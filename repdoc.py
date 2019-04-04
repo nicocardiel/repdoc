@@ -596,6 +596,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 <head>
   <meta charset="utf-8">
+  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Tabla de titulaciones</title>
 
   <style>
@@ -722,6 +723,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 <head>
   <meta charset="utf-8">
+  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Tabla de asignaturas</title>
 
   <style>
@@ -775,6 +777,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 <th>Bec./Col.</th>
 <th>Profesor anterior</th>
 <th>Antigüedad</th>
+<th>Nuevo profesor</th>
 <th>Créditos disponibles</th>
 </tr>
 </thead>
@@ -823,6 +826,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
             f.write('<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['antiguedad']
             ))
+            f.write('<td>{}</td>\n'.format(
+                tabla_asignaturas.loc[uuid_asig]['nuevo_profesor']
+            ))
             creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
             f.write('<td style="text-align: right;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
@@ -838,7 +844,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                 'background-color: ' + COLOR_ASIGNATURAS +
                 '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
-        f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
+        f.write('<td colspan="6" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_disponibles'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
                 'background-color: ' + COLOR_ASIGNATURAS +
@@ -868,6 +874,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
+  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Resumen tabla de profesores</title>
   
   <style>
@@ -991,6 +998,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 
 <head>
   <meta charset="utf-8">
+  <script type="text/javascript" src="http://livejs.com/live.js"></script>
   <title>Asignación de la docencia</title>
   
   <style>
@@ -1225,6 +1233,8 @@ def main(args=None):
                 sheet_name=titulacion,
                 debug=args.debug
             )
+        # incluye columna con nuevo profesor
+        dumtable['nuevo_profesor'] = ' '
         # incluye columna con créditos disponibles
         dumtable['creditos_disponibles'] = dumtable['creditos_iniciales']
         bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
@@ -1237,7 +1247,6 @@ def main(args=None):
         sumproduct = dumtable['creditos_disponibles'] * dumtable['bec_col']
         tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
             sumproduct.sum()
-        sumproduct = dumtable['creditos_disponibles'] * dumtable['bec_col']
     # comprueba que los UUIDs son únicos al mezclar todas las asignaturas
     dumlist = []
     for titulacion in tabla_titulaciones['titulacion']:
@@ -1335,6 +1344,19 @@ def main(args=None):
                     tabla_asignaturas.loc[
                         uuid_asig, 'creditos_disponibles'
                     ] -= creditos_elegidos
+                    nuevo_profesor = \
+                        tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
+                        tabla_profesores.loc[uuid_prof]['apellidos']
+                    if bool(
+                        tabla_asignaturas.loc[
+                            uuid_asig, 'nuevo_profesor'
+                        ].strip()
+                    ):
+                        tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] += \
+                            ' + ' + nuevo_profesor
+                    else:
+                        tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] = \
+                            nuevo_profesor
                 else:
                     print('¡Créditos disponibles insuficientes!')
                     asignacion_es_correcta = False
@@ -1625,6 +1647,11 @@ def main(args=None):
                     tabla_asignaturas.loc[
                         uuid_asig, 'creditos_disponibles'
                     ] += creditos_a_recuperar
+                    nuevo_profesor = \
+                        tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
+                        tabla_profesores.loc[uuid_prof]['apellidos']
+                    tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] += \
+                        ' - ' + nuevo_profesor
                     tabla_titulaciones.loc[
                         uuid_titu, 'creditos_disponibles'
                     ] = tabla_asignaturas['creditos_disponibles'].sum()
@@ -1841,6 +1868,19 @@ def main(args=None):
                 input('Press <CR> to continue...')
                 asignacion_es_correcta = False
             if asignacion_es_correcta:
+                nuevo_profesor = \
+                    tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
+                    tabla_profesores.loc[uuid_prof]['apellidos']
+                if bool(
+                        tabla_asignaturas.loc[
+                            uuid_asig, 'nuevo_profesor'
+                        ].strip()
+                ):
+                    tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] += \
+                        ' + ' + nuevo_profesor
+                else:
+                    tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] = \
+                        nuevo_profesor
                 tabla_titulaciones.loc[
                     uuid_titu, 'creditos_disponibles'
                 ] = tabla_asignaturas['creditos_disponibles'].sum()
