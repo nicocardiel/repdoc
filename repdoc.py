@@ -637,10 +637,11 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 ''')
 
-    for uuid_titu in tabla_titulaciones.index:
+    for i, uuid_titu in enumerate(tabla_titulaciones.index):
         f.write('\n<tr>\n')
-        f.write('<td>{}</td>\n'.format(
-            tabla_titulaciones.loc[uuid_titu]['titulacion']
+        f.write(
+            '<td><a href="repdoc_titulacion_{0:02d}.html">{1}</a></td>\n'.format(
+                i + 1, tabla_titulaciones.loc[uuid_titu]['titulacion']
         ))
         creditos = tabla_titulaciones.loc[uuid_titu]['creditos_iniciales']
         f.write('<td style="text-align: right;">' +
