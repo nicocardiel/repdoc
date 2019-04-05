@@ -18,6 +18,7 @@ from .new_uuid import new_uuid
 from .read_tabla_asignaturas import read_tabla_asignaturas
 from .read_tabla_profesores import read_tabla_profesores
 from .read_tabla_titulaciones import read_tabla_titulaciones
+from .rsync_html_files import rsync_html_files
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
@@ -157,6 +158,7 @@ def main(args=None):
             input('Press <CR> to continue...')
         # export to HTML
         export_to_html_bitacora(bitacora)
+        rsync_html_files(args.course)
     else:
         bitacora = pd.read_excel(args.bitacora.name, index_col=0)
         bitacora.index.name = 'uuid_bita'
@@ -240,6 +242,7 @@ def main(args=None):
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora)
+    rsync_html_files(args.course)
 
     # ---
     # GUI
@@ -547,6 +550,7 @@ def main(args=None):
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
                 export_to_html_profesores(tabla_profesores, bitacora)
+                rsync_html_files(args.course)
         # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
@@ -807,6 +811,7 @@ def main(args=None):
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
             export_to_html_profesores(tabla_profesores, bitacora)
+            rsync_html_files(args.course)
         # ---
         elif event == '_cancelar_':
             clear_screen_asignatura()
