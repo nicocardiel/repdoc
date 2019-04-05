@@ -1,0 +1,28 @@
+import numpy as np
+
+
+def fill_cell_with_previous_value(s):
+    """Return list removing NaN with previous value in the list
+
+    """
+
+    ll = len(s)
+    result = []
+    i = 0
+    last = None
+    while i < ll:
+        if type(s[i]) is str:
+            last = s[i]
+            result.append(last)
+        else:
+            if np.isnan(s[i]):
+                if last is None:
+                    raise ValueError('Unexpected error')
+                else:
+                    result.append(last)
+            else:
+                last = s[i]
+                result.append(last)
+        i += 1
+
+    return result
