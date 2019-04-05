@@ -46,6 +46,9 @@ def export_to_html_profesores(tabla_profesores, bitacora):
   }
   
   #tabla_profesores th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;

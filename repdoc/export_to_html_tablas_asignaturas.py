@@ -47,6 +47,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
   }
 
   #tabla_asignaturas th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;

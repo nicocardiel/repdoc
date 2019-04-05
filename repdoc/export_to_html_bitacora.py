@@ -48,6 +48,9 @@ def export_to_html_bitacora(bitacora):
   }
 
   #tabla_bitacora th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
@@ -94,7 +97,7 @@ def export_to_html_bitacora(bitacora):
             f.write(
                 '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
             )
-        f.write('<th>{}</th>\n'.format(uuid_bita))
+        f.write('<td>{}</td>\n'.format(uuid_bita))
         for colname in bitacora.columns.tolist():
             f.write('<td>{}</td>\n'.format(
                 bitacora.loc[uuid_bita][colname]
