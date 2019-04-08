@@ -31,12 +31,15 @@ def main(args=None):
     parser.add_argument("xlsxfile",
                         help="Excel file with input data",
                         type=argparse.FileType())
-    parser.add_argument("--bitacora",
-                        help="CSV input/output filename",
-                        type=argparse.FileType())
     parser.add_argument("--course", required=True,
                         help="Academic course (e.g. 2019-2020)",
                         type=str)
+    parser.add_argument("--bitacora",
+                        help="CSV input/output filename",
+                        type=argparse.FileType())
+    parser.add_argument('--web',
+                        help="rsync HTML files in web server",
+                        action="store_true")
     parser.add_argument("--fontname",
                         help="font name for GUI",
                         default='Helvetica',
@@ -158,7 +161,8 @@ def main(args=None):
             input('Press <CR> to continue...')
         # export to HTML
         export_to_html_bitacora(bitacora)
-        rsync_html_files(args.course)
+        if args.web:
+            rsync_html_files(args.course)
     else:
         bitacora = pd.read_excel(args.bitacora.name, index_col=0)
         bitacora.index.name = 'uuid_bita'
@@ -242,7 +246,8 @@ def main(args=None):
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora)
-    rsync_html_files(args.course)
+    if args.web:
+        rsync_html_files(args.course)
 
     # ---
     # GUI
@@ -550,7 +555,8 @@ def main(args=None):
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
                 export_to_html_profesores(tabla_profesores, bitacora)
-                rsync_html_files(args.course)
+                if args.web:
+                    rsync_html_files(args.course)
         # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
@@ -811,7 +817,8 @@ def main(args=None):
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
             export_to_html_profesores(tabla_profesores, bitacora)
-            rsync_html_files(args.course)
+            if args.web:
+                rsync_html_files(args.course)
         # ---
         elif event == '_cancelar_':
             clear_screen_asignatura()
