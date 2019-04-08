@@ -6,4 +6,8 @@ def date_last_update():
 
     """
 
-    return '\n\n<br><br>Last update: ' + str(datetime.now()) + '\n\n'
+    now = datetime.now()
+    return '\n\n<br><br>Last update: ' + \
+           '{:4d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}'.format(
+               now.year, now.month, now.day, now.hour, now.minute, now.second
+           ) + '\n\n'
