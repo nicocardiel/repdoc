@@ -9,7 +9,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     if course == '2019-2020':
         sheet_name = 'Asignación'
         skiprows = 7
-        usecols = [0, 1, 2, 3, 18]
+        usecols = [0, 1, 2, 3, 19]
         names = ['uuid_prof', 'apellidos', 'nombre', 'categoria',
                  'encargo']
         converters = {'uuid_prof': str,
