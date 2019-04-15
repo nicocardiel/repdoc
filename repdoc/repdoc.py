@@ -273,7 +273,7 @@ def main(args=None):
         window.Element('_encargo_prof_').Update('---')
         window.Element('_asignados_prof_').Update('---')
         window.Element('_diferencia_prof_').Update('---')
-        window.Element('_docencia_asignada_').Update('---')
+        window.Element('_docencia_asignada_').Update('---', disabled=True)
         window.Element('_titulacion_').Update('---')
         window.Element('_continuar_').Update(disabled=True)
         window.Element('_eliminar_').Update(disabled=True)
@@ -366,50 +366,50 @@ def main(args=None):
             clear_screen_asignatura()
             clear_screen_profesor()
         # ---
-        elif event == '_establecer_umbral_':
+        elif event == '_ronda_':
+            clear_screen_asignatura()
+            clear_screen_profesor()
+        # ---
+        elif event == '_establecer_ronda_':
             lista_profesores = ['---']
-            umbral_is_float = True
-            umbral = 0.0  # avoid warning
             num_profesores = 0
             try:
-                umbral = float(values['_umbral_creditos_'])
+                ronda = int(values['_ronda_'])
             except ValueError:
-                sg.Popup('ERROR', 'Número inválido')
-                umbral_is_float = False
-            if umbral_is_float:
-                if umbral < 0:
-                    sg.Popup('ERROR',
-                             '¡El umbral ha de ser mayor o igual que cero!')
-                    window.Element('_umbral_creditos_').Update('0.0')
+                sg.Popup('ERROR', 'Número de ronda inválido')
+                ronda = None
+            if ronda is not None:
+                if ronda == 0:
+                    umbral = 0.0
                 else:
-                    window.Element('_umbral_creditos_').Update(
-                        str(float(umbral))
-                    )
-                    for i in range(tabla_profesores.shape[0]):
-                        incluir_profesor = True
-                        if values['_excluir_RyC_']:
-                            if 'RyC' in tabla_profesores['categoria'][i]:
-                                incluir_profesor = False
-                        if values['_excluir_colaboradores_']:
-                            if tabla_profesores['categoria'][i] == \
-                                'Colaborador':
-                                incluir_profesor = False
-                        if incluir_profesor:
-                            nombre_completo = tabla_profesores['nombre'][i] +\
-                                              ' ' +\
-                                              tabla_profesores['apellidos'][i]
-                            ldum = len(nombre_completo)
-                            if ldum < WIDTH_SPACES_FOR_UUID:
-                                nombre_completo += \
-                                    (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                            nombre_completo += ' uuid_prof=' + \
-                                               tabla_profesores.index[i]
-                            if umbral == 0:
-                                num_profesores += 1
-                                lista_profesores.append(nombre_completo)
-                            elif tabla_profesores['asignados'][i] < umbral:
-                                num_profesores += 1
-                                lista_profesores.append(nombre_completo)
+                    umbral = (float(ronda) + 0.5) * 4.5
+                print('--> ronda............:', ronda)
+                print('--> umbral (créditos):', umbral)
+                for i in range(tabla_profesores.shape[0]):
+                    incluir_profesor = True
+                    if values['_excluir_RyC_']:
+                        if 'RyC' in tabla_profesores['categoria'][i]:
+                            incluir_profesor = False
+                    if values['_excluir_colaboradores_']:
+                        if tabla_profesores['categoria'][i] == \
+                            'Colaborador':
+                            incluir_profesor = False
+                    if incluir_profesor:
+                        nombre_completo = tabla_profesores['nombre'][i] +\
+                                          ' ' +\
+                                          tabla_profesores['apellidos'][i]
+                        ldum = len(nombre_completo)
+                        if ldum < WIDTH_SPACES_FOR_UUID:
+                            nombre_completo += \
+                                (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                        nombre_completo += ' uuid_prof=' + \
+                                           tabla_profesores.index[i]
+                        if umbral == 0:
+                            num_profesores += 1
+                            lista_profesores.append(nombre_completo)
+                        elif tabla_profesores['asignados'][i] < umbral:
+                            num_profesores += 1
+                            lista_profesores.append(nombre_completo)
             clear_screen_profesor()
             window.Element('_num_prof_seleccionados_').Update(
                 str(num_profesores)

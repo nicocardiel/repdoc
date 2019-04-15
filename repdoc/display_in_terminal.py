@@ -3,7 +3,7 @@ def display_in_terminal(event, values):
 
     """
 
-    print("\nEvent: '" + event + "'")
+    print("\nEvent: '" + str(event) + "'")
     for key in values:
         output = "    '" + key + "': "
         if isinstance(values[key], str):
