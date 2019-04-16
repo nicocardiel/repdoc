@@ -1,12 +1,13 @@
 import PySimpleGUI as sg
 
 
-WIDTH_HLINE = 90
+WIDTH_HLINE = 110
 WIDTH_HLINE_SUMMARY = 62
 WIDTH_TEXT_SUMMARY = 18
 WIDTH_TEXT_LABEL = 18
 WIDTH_TEXT_UUID = 30
-WIDTH_INPUT_COMBO = 50
+WIDTH_INPUT_COMBO_CORTO = 50
+WIDTH_INPUT_COMBO = 75
 WIDTH_INPUT_NUMBER = 10
 WIDTH_INPUT_COMMENT = 50
 WIDTH_SPACES_FOR_UUID = 150
@@ -144,8 +145,12 @@ def define_gui_layout(fontsize, num_titulaciones):
                [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_profesor_'),
                 sg.InputCombo(values=['---'],
-                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
-                              disabled=True, key='_profesor_')],
+                              size=(WIDTH_INPUT_COMBO_CORTO, 1),
+                              enable_events=True,
+                              disabled=True, key='_profesor_'),
+                sg.Text('Próxima ronda:',
+                        key='_label_ronda_profesor_'),
+                sg.Text('---', key='_ronda_profesor_')],
                # ---
                [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_encargo_prof_'),
@@ -176,7 +181,8 @@ def define_gui_layout(fontsize, num_titulaciones):
                [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_titulacion_'),
                 sg.InputCombo(values=['---'], disabled=True,
-                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              size=(WIDTH_INPUT_COMBO_CORTO, 1),
+                              enable_events=True,
                               key='_titulacion_')],
                # ---
                [sg.Text('Asignatura elegida:', size=(WIDTH_TEXT_LABEL, 1),

@@ -22,6 +22,8 @@ from .rsync_html_files import rsync_html_files
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
+CREDITOS_ASIGNATURA = 4.5
+
 
 def main(args=None):
 
@@ -270,6 +272,7 @@ def main(args=None):
         if profesor_disabled:
             window.Element('_profesor_').Update(values='---', disabled=True)
             window.Element('_num_prof_seleccionados_').Update('0')
+            window.Element('_ronda_profesor_').Update('---')
         window.Element('_encargo_prof_').Update('---')
         window.Element('_asignados_prof_').Update('---')
         window.Element('_diferencia_prof_').Update('---')
@@ -382,7 +385,7 @@ def main(args=None):
                 if ronda == 0:
                     umbral = 0.0
                 else:
-                    umbral = (float(ronda) + 0.5) * 4.5
+                    umbral = (float(ronda - 1) + 0.5) * CREDITOS_ASIGNATURA
                 print('--> ronda............:', ronda)
                 print('--> umbral (créditos):', umbral)
                 for i in range(tabla_profesores.shape[0]):
@@ -428,6 +431,10 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                window.Element('_ronda_profesor_').Update(ronda_profesor)
+                if ronda_profesor > int(values['_ronda_']):
+                    sg.PopupOK('Se ha superado la ronda actual')
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
@@ -482,7 +489,7 @@ def main(args=None):
             uuid_titu = tmp_series['uuid_titu']
             uuid_asig = tmp_series['uuid_asig']
             creditos_a_recuperar = tmp_series['creditos_elegidos']
-            dummy = sg.PopupYesNo('Do you really want to remove this subject?')
+            dummy = sg.PopupYesNo('¿Seguro que quiere eliminar esta selección')
             if dummy == 'Yes':
                 devolucion_correcta = True
                 if tabla_profesores.loc[
@@ -531,6 +538,10 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                window.Element('_ronda_profesor_').Update(ronda_profesor)
+                if ronda_profesor > int(values['_ronda_']):
+                    sg.PopupOK('Se ha superado la ronda actual')
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
@@ -770,6 +781,10 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                window.Element('_ronda_profesor_').Update(ronda_profesor)
+                if ronda_profesor > int(values['_ronda_']):
+                    sg.PopupOK('Se ha superado la ronda actual')
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
