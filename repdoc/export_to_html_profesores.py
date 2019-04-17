@@ -1,6 +1,11 @@
 from .date_last_update import date_last_update
 
-from .define_gui_layout import COLOR_PROFESORES
+from .define_gui_layout import COLOR_PROFESORES_HEAD
+from .define_gui_layout import COLOR_PROFESORES_EVEN
+from .define_gui_layout import COLOR_PROFESORES_ODD
+from .define_gui_layout import COLOR_ASIGNACION_HEAD
+from .define_gui_layout import COLOR_ASIGNACION_EVEN
+from .define_gui_layout import COLOR_ASIGNACION_ODD
 
 
 def export_to_html_profesores(tabla_profesores, bitacora):
@@ -33,12 +38,16 @@ def export_to_html_profesores(tabla_profesores, bitacora):
   }
   
   #tabla_profesores td, #tabla_profesores th {
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
     padding: 8px;
   }
   
   #tabla_profesores tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: ''' + COLOR_PROFESORES_EVEN + ''';
+  }
+  
+  #tabla_profesores tr:nth-child(odd) {
+    background-color: ''' + COLOR_PROFESORES_ODD + ''';
   }
   
   #tabla_profesores tr:hover {
@@ -52,7 +61,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: ''' + COLOR_PROFESORES + ''';
+    background-color: ''' + COLOR_PROFESORES_HEAD + ''';
     color: white;
   }
   
@@ -126,15 +135,18 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     f.write('<td colspan="3" style="text-align: right;">SUMA</td>')
     creditos = tabla_profesores['encargo'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_profesores['asignados'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_profesores['diferencia'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_PROFESORES + '; color: white;">' +
+            'background-color: ' + COLOR_PROFESORES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     f.write('</tr>\n')
     #
@@ -169,12 +181,16 @@ def export_to_html_profesores(tabla_profesores, bitacora):
   }
   
   #tabla_asignacion td, #tabla_asignacion th {
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
     padding: 8px;
   }
   
   #tabla_asignacion tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: ''' + COLOR_ASIGNACION_EVEN + ''';
+  }
+  
+  #tabla_asignacion tr:nth-child(odd) {
+    background-color: ''' + COLOR_ASIGNACION_ODD + ''';
   }
   
   #tabla_asignacion tr:hover {
@@ -185,7 +201,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #4C50AF;
+    background-color: ''' + COLOR_ASIGNACION_HEAD + ''';
     color: white;
   }
   
@@ -203,7 +219,7 @@ def export_to_html_profesores(tabla_profesores, bitacora):
   
   /* Large rounded green border */
   hr.sep {
-    border: 3px solid #4C50AF;
+    border: 3px solid ''' + COLOR_ASIGNACION_HEAD + ''';
   }
 
   </style>
@@ -310,7 +326,8 @@ def export_to_html_profesores(tabla_profesores, bitacora):
                 f.write('<td colspan="8" style="text-align: right;">SUMA</td>')
                 creditos = seleccion['creditos_elegidos'].sum()
                 f.write('<td style="text-align: right; font-weight: bold; ' +
-                        'background-color: #4C50AF; color: white;">' +
+                        'background-color: ' + COLOR_ASIGNACION_HEAD +
+                        '; color: white;">' +
                         '{0:9.4f}'.format(creditos) + '</td>\n')
                 f.write('</tr>\n')
                 #

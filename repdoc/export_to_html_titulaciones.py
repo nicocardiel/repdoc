@@ -1,7 +1,9 @@
 from .date_last_update import date_last_update
 
 from .define_gui_layout import COLOR_NO_DISPONIBLE
-from .define_gui_layout import COLOR_TITULACIONES
+from .define_gui_layout import COLOR_TITULACIONES_HEAD
+from .define_gui_layout import COLOR_TITULACIONES_EVEN
+from .define_gui_layout import COLOR_TITULACIONES_ODD
 
 
 def export_to_html_titulaciones(tabla_titulaciones):
@@ -31,12 +33,15 @@ def export_to_html_titulaciones(tabla_titulaciones):
   }
 
   #tabla_titulaciones td, #tabla_titulaciones th {
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
     padding: 8px;
   }
 
   #tabla_titulaciones tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: ''' + COLOR_TITULACIONES_EVEN + ''';
+  }
+  #tabla_titulaciones tr:nth-child(odd) {
+    background-color: ''' + COLOR_TITULACIONES_ODD + ''';
   }
 
   #tabla_titulaciones tr:hover {
@@ -47,7 +52,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: ''' + COLOR_TITULACIONES + ''';
+    background-color: ''' + COLOR_TITULACIONES_HEAD + ''';
     color: white;
   }
 
@@ -124,19 +129,23 @@ del reparto docente</p>
     f.write('<td colspan="1" style="text-align: right;">SUMA</td>\n')
     creditos = tabla_titulaciones['creditos_iniciales'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_elegidos'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_disponibles'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
     creditos = tabla_titulaciones['creditos_beccol'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
-            'background-color: ' + COLOR_TITULACIONES + '; color: white;">' +
+            'background-color: ' + COLOR_TITULACIONES_HEAD +
+            '; color: white;">' +
             '{0:9.4f}'.format(creditos) + '</td>\n')
 
     f.write('\n</tfoot>\n\n')

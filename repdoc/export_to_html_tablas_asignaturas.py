@@ -1,6 +1,8 @@
 from .date_last_update import date_last_update
 
-from .define_gui_layout import COLOR_ASIGNATURAS
+from .define_gui_layout import COLOR_ASIGNATURAS_HEAD
+from .define_gui_layout import COLOR_ASIGNATURAS_EVEN
+from .define_gui_layout import COLOR_ASIGNATURAS_ODD
 from .define_gui_layout import COLOR_NO_DISPONIBLE
 
 
@@ -34,12 +36,16 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
   }
 
   #tabla_asignaturas td, #tabla_asignaturas th {
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
     padding: 8px;
   }
 
   #tabla_asignaturas tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: ''' + COLOR_ASIGNATURAS_EVEN + ''';
+  }
+
+  #tabla_asignaturas tr:nth-child(odd) {
+    background-color: ''' + COLOR_ASIGNATURAS_ODD + ''';
   }
 
   #tabla_asignaturas tr:hover {
@@ -53,7 +59,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: ''' + COLOR_ASIGNATURAS + ''';
+    background-color: ''' + COLOR_ASIGNATURAS_HEAD + ''';
     color: white;
   }
 
@@ -97,7 +103,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         def insert_separator():
             for idum in range(2):
                 f.write('\n<tr style="background: ' +
-                        COLOR_ASIGNATURAS +
+                        COLOR_ASIGNATURAS_HEAD +
                         '; height: 2px; padding-top: 0px; ' +
                         'padding-bottom: 0px;">')
                 f.write('<td colspan="13" style="height: 2px; ' +
@@ -168,13 +174,13 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_iniciales'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
-                'background-color: ' + COLOR_ASIGNATURAS +
+                'background-color: ' + COLOR_ASIGNATURAS_HEAD +
                 '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
         f.write('<td colspan="6" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_disponibles'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
-                'background-color: ' + COLOR_ASIGNATURAS +
+                'background-color: ' + COLOR_ASIGNATURAS_HEAD +
                 '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
         f.write('\n</tfoot>\n\n')

@@ -1,6 +1,8 @@
 from .date_last_update import date_last_update
 
-from .define_gui_layout import COLOR_BITACORA
+from .define_gui_layout import COLOR_BITACORA_HEAD
+from .define_gui_layout import COLOR_BITACORA_EVEN
+from .define_gui_layout import COLOR_BITACORA_ODD
 from .define_gui_layout import COLOR_NO_DISPONIBLE
 
 
@@ -35,12 +37,16 @@ def export_to_html_bitacora(bitacora):
   }
 
   #tabla_bitacora td, #tabla_bitacora th {
-    border: 1px solid #ddd;
+    border: 1px solid #fff;
     padding: 8px;
   }
 
   #tabla_bitacora tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: ''' + COLOR_BITACORA_EVEN + ''';
+  }
+
+  #tabla_bitacora tr:nth-child(odd) {
+    background-color: ''' + COLOR_BITACORA_ODD + ''';
   }
 
   #tabla_bitacora tr:hover {
@@ -54,7 +60,7 @@ def export_to_html_bitacora(bitacora):
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: ''' + COLOR_BITACORA + ''';
+    background-color: ''' + COLOR_BITACORA_HEAD + ''';
     color: white;
   }
 
