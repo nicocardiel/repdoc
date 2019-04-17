@@ -1,16 +1,16 @@
 import argparse
-from datetime import datetime
 import pandas as pd
 import PySimpleGUI as sg
 import sys
 
+from .date_last_update import datetime_short
 from .define_gui_layout import define_gui_layout
+from .display_in_terminal import display_in_terminal
 from .export_to_html_bitacora import export_to_html_bitacora
 from .export_to_html_profesores import export_to_html_profesores
 from .export_to_html_tablas_asignaturas import \
     export_to_html_tablas_asignaturas
 from .export_to_html_titulaciones import export_to_html_titulaciones
-from .display_in_terminal import display_in_terminal
 from .filtra_asignaturas import filtra_asignaturas
 from .filtra_seleccion_del_profesor import filtra_seleccion_del_profesor
 from .filtra_titulaciones import filtra_titulaciones
@@ -533,7 +533,7 @@ def main(args=None):
                         sumproduct.sum()
                     # set date_removed
                     bitacora.loc[uuid_bita, 'date_removed'] = \
-                        str(datetime.now())
+                        datetime_short()
                 # update info for teacher
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
@@ -799,7 +799,7 @@ def main(args=None):
             megalist_uuid += [uuid_bita]
             # prepare new entry for bitacora
             data_row = [uuid_prof, uuid_titu, uuid_asig,
-                        str(datetime.now()), 'None',
+                        datetime_short(), 'None',
                         creditos_elegidos, values['_explicacion_']]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])
