@@ -17,6 +17,9 @@ def date_last_update():
 
     """
 
-    return '\n\n<br><br>Last update: ' + datetime_short() + \
-           '\n<br>Created with repdoc v. ' + version + \
-           ', (c) N. Cardiel\n\n'
+    return '\n\n<hr color="#aaa"><p style="color: #aaa; font-family: ' \
+           'Times;">Last update: ' + \
+           datetime_short() + \
+           '\n&nbsp; &mdash; &nbsp; Created with RepDoc version ' + \
+           version + '\n&nbsp; &mdash; &nbsp; ' + \
+           'Copyright &copy; 2019 Universidad Complutense de Madrid</p>\n\n'
