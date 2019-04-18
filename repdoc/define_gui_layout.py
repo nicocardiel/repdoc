@@ -154,14 +154,15 @@ def define_gui_layout(fontsize, num_titulaciones):
                 sg.Text('(0: selecciona todos los profesores)',
                         text_color='#aaaaaa',
                         auto_size_text=True),
-                sg.Button('Establecer ronda', key='_establecer_ronda_')],
-               # ---
-               [sg.Text('_' * WIDTH_HLINE)],
-               # ---
-               [sg.Text('Nº de profesores seleccionados:',
+                sg.Button('Establecer ronda', key='_establecer_ronda_'),
+                sg.Text('      Nº de profesores seleccionados:',
                         text_color='#aaaaaa', auto_size_text=True),
                 sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
-                        key='_num_prof_seleccionados_')],
+                        justification='left',
+                        key='_num_prof_seleccionados_')
+                ],
+               # ---
+               [sg.Text('_' * WIDTH_HLINE)],
                # ---
                [sg.Text('Profesor/a:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_profesor_'),
@@ -245,9 +246,10 @@ def define_gui_layout(fontsize, num_titulaciones):
                              key='_explicacion_')],
                # ---
                [sg.Button('Aplicar', disabled=True, key='_aplicar_'),
-                sg.Button('Cancelar', disabled=True, key='_cancelar_')],
-               [sg.Text('_' * WIDTH_HLINE)],
-               [sg.Button('Salir', key='_salir_')]
+                sg.Button('Cancelar', disabled=True, key='_cancelar_'),
+                sg.Text(' ', size=(76, 1)),
+                sg.Button('Salir', key='_salir_')
+                ]
                ]
 
     return layout

@@ -19,6 +19,7 @@ from .read_tabla_asignaturas import read_tabla_asignaturas
 from .read_tabla_profesores import read_tabla_profesores
 from .read_tabla_titulaciones import read_tabla_titulaciones
 from .rsync_html_files import rsync_html_files
+from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
@@ -61,6 +62,9 @@ def main(args=None):
 
     if args.echo:
         print('\033[1m\033[31mExecuting: ' + ' '.join(sys.argv) + '\033[0m\n')
+
+    print('Welcome con RepDoc version ' + version)
+    print('Copyright ' + '\u00a9' + ' 2019 Universidad Complutense de Madrid')
 
     # ---
     # load Excel sheets
