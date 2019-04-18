@@ -126,7 +126,7 @@ del reparto docente</p>
     #
     f.write('<tfoot>\n\n')
     f.write('<tr>\n')
-    f.write('<td colspan="1" style="text-align: right;">SUMA</td>\n')
+    f.write('<td colspan="1" style="text-align: right;">TOTAL</td>\n')
     creditos = tabla_titulaciones['creditos_iniciales'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
             'background-color: ' + COLOR_TITULACIONES_HEAD +

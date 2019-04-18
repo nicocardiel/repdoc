@@ -12,9 +12,9 @@ WIDTH_INPUT_NUMBER = 10
 WIDTH_INPUT_COMMENT = 50
 WIDTH_SPACES_FOR_UUID = 150
 
-COLOR_ASIGNACION_HEAD = '#5C1B68'
-COLOR_ASIGNACION_EVEN = '#EECFF3'
-COLOR_ASIGNACION_ODD = '#FAF0FC'
+COLOR_ASIGNACION_HEAD = '#3A4B53'
+COLOR_ASIGNACION_EVEN = '#DFE5E8'
+COLOR_ASIGNACION_ODD = '#F5F7F8'
 COLOR_ASIGNATURAS_HEAD = '#A71614'
 COLOR_ASIGNATURAS_EVEN = '#FCD9D6'
 COLOR_ASIGNATURAS_ODD = '#FEF4F3'
@@ -41,27 +41,32 @@ def define_gui_layout(fontsize, num_titulaciones):
 
     layout = [[sg.Text('Titulación',
                        font=(fontname_header, fontsize),
-                       text_color='#3333ff',
+                       text_color='#ffffff',
+                       background_color=COLOR_TITULACIONES_HEAD,
                        size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
                sg.Text('iniciales',
                        font=(fontname_header, fontsize),
-                       text_color='#3333ff',
+                       text_color='#ffffff',
+                       background_color=COLOR_TITULACIONES_HEAD,
                        size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
                sg.Text('elegidos',
                        font=(fontname_header, fontsize),
-                       text_color='#3333ff',
+                       text_color='#ffffff',
+                       background_color=COLOR_TITULACIONES_HEAD,
                        size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
                sg.Text('disponibles',
                        font=(fontname_header, fontsize),
-                       text_color='#3333ff',
+                       text_color='#ffffff',
+                       background_color=COLOR_TITULACIONES_HEAD,
                        size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center'),
                sg.Text('Bec./Col.',
                        font=(fontname_header, fontsize),
-                       text_color='#33aa33',
+                       text_color='#ffffff',
+                       background_color=COLOR_TITULACIONES_HEAD,
                        size=(WIDTH_TEXT_SUMMARY, 1),
                        justification='center')]]
 
@@ -90,40 +95,45 @@ def define_gui_layout(fontsize, num_titulaciones):
                   ]
         layout += [newrow]
 
-    layout += [[sg.Text('TOTAL', text_color='#3333ff',
+    layout += [[sg.Text('TOTAL',
                         font=(fontname_header, fontsize),
                         size=(WIDTH_TEXT_SUMMARY, 1),
                         justification='center'),
                 sg.Text('0.0', font=(fontname_header, fontsize),
-                        text_color='#3333ff',
+                        text_color='#ffffff',
+                        background_color=COLOR_TITULACIONES_HEAD,
                         size=(WIDTH_TEXT_SUMMARY, 1),
                         justification='center',
                         key='_summary_total_'),
                 sg.Text('0.0', font=(fontname_header, fontsize),
-                        text_color='#3333ff',
+                        text_color='#ffffff',
+                        background_color=COLOR_TITULACIONES_HEAD,
                         size=(WIDTH_TEXT_SUMMARY, 1),
                         justification='center',
                         key='_summary_elegidos_'),
                 sg.Text('0.0', font=(fontname_header, fontsize),
-                        text_color='#3333ff',
+                        text_color='#ffffff',
+                        background_color=COLOR_TITULACIONES_HEAD,
                         size=(WIDTH_TEXT_SUMMARY, 1),
                         justification='center',
                         key='_summary_disponibles_'),
                 sg.Text('0.0', font=(fontname_header, fontsize),
-                        text_color='#33aa33',
+                        text_color='#ffffff',
+                        background_color=COLOR_TITULACIONES_HEAD,
                         size=(WIDTH_TEXT_SUMMARY, 1),
                         justification='center',
                         key='_summary_beccol_')
                 ]]
+    # ---
+    layout += [[sg.Text('_' * WIDTH_HLINE)]]
+    # ---
 
-    layout += [[sg.Checkbox('Excluir elección de asignaturas para '
-                            'Becarios/Colaboradores',
+    layout += [[sg.Checkbox('Excluir elección de asignaturas elegiles '
+                            'por Becarios/Colaboradores',
                             default=False,
                             change_submits=True,
                             auto_size_text=True,
                             key='_excluir_asignaturas_beccol_')],
-               # ---
-               [sg.Text('_' * WIDTH_HLINE)],
                # ---
                [sg.Checkbox('Excluir docentes RyC y asimilados',
                             default=False,

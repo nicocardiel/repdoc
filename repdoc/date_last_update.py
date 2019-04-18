@@ -17,9 +17,11 @@ def date_last_update():
 
     """
 
-    return '\n\n<hr color="#aaa"><p style="color: #aaa; font-family: ' \
-           'Times;">Last update: ' + \
-           datetime_short() + \
-           '\n&nbsp; &mdash; &nbsp; Created with RepDoc version ' + \
-           version + '\n&nbsp; &mdash; &nbsp; ' + \
-           'Copyright &copy; 2019 Universidad Complutense de Madrid</p>\n\n'
+    return '''\n\n
+<br><br>
+<p style="color: #999; font-family: Times; background-color: #ddd; 
+text-align: center;">
+Last update: ''' + datetime_short() + '''\n
+&nbsp; &mdash; &nbsp; Created with RepDoc version ''' + version + '''
+\n&nbsp; &mdash; &nbsp; 
+Copyright &copy; 2019 Universidad Complutense de Madrid</p>\n\n'''

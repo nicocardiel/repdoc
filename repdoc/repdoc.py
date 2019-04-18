@@ -347,6 +347,12 @@ def main(args=None):
         window.Element('_summary_beccol_').Update(
             value=cout.format(total_disponibles_beccol))
 
+    def comprueba_ronda_profesor(ronda_profesor):
+        ronda_actual = int(values['_ronda_'])
+        if ronda_actual != 0:
+            if ronda_profesor > ronda_actual:
+                sg.PopupOK('Se ha superado la ronda actual')
+
     # update initial info
     window.Read(timeout=1)  # for next function to work
     update_info_creditos()
@@ -433,8 +439,7 @@ def main(args=None):
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
-                if ronda_profesor > int(values['_ronda_']):
-                    sg.PopupOK('Se ha superado la ronda actual')
+                comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
@@ -540,8 +545,7 @@ def main(args=None):
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
-                if ronda_profesor > int(values['_ronda_']):
-                    sg.PopupOK('Se ha superado la ronda actual')
+                comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
@@ -783,8 +787,7 @@ def main(args=None):
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
                 ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
-                if ronda_profesor > int(values['_ronda_']):
-                    sg.PopupOK('Se ha superado la ronda actual')
+                comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
                 window.Element('_asignados_prof_').Update(round(asignados, 4))
                 window.Element('_diferencia_prof_').Update(
