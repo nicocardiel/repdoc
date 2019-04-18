@@ -302,7 +302,7 @@ def main(args=None):
             value=False, disabled=True
         )
         window.Element('_explicacion_').Update(value=' ', disabled=True)
-        window.Element('_aplicar_').Update(disabled=True)
+        window.Element('_confirmar_').Update(disabled=True)
         window.Element('_cancelar_').Update(disabled=True)
 
     def update_info_creditos():
@@ -594,7 +594,7 @@ def main(args=None):
                 window.Element('_explicacion_').Update(
                     value=' ', disabled=True
                 )
-                window.Element('_aplicar_').Update(disabled=True)
+                window.Element('_confirmar_').Update(disabled=True)
             else:
                 uuid_titu = values['_titulacion_'][-36:]
                 titulacion = tabla_titulaciones.loc[uuid_titu][
@@ -636,7 +636,7 @@ def main(args=None):
                 window.Element('_explicacion_').Update(
                     value=' ', disabled=True
                 )
-                window.Element('_aplicar_').Update(disabled=True)
+                window.Element('_confirmar_').Update(disabled=True)
             else:
                 uuid_titu = values['_titulacion_'][-36:]
                 uuid_asig = values['_asignatura_elegida_'][-36:]
@@ -656,7 +656,7 @@ def main(args=None):
                             uuid_asig]['creditos_disponibles'], 4)
                     )
                 )
-                window.Element('_aplicar_').Update(disabled=True)
+                window.Element('_confirmar_').Update(disabled=True)
         # ---
         elif event == '_fraccion_todo_':
             window.Element('_fraccion_todo_').Update(
@@ -675,7 +675,7 @@ def main(args=None):
             window.Element('_explicacion_').Update(
                 value=' ', disabled=False
             )
-            window.Element('_aplicar_').Update(disabled=False)
+            window.Element('_confirmar_').Update(disabled=False)
         # ---
         elif event == '_fraccion_parte_':
             window.Element('_fraccion_todo_').Update(
@@ -716,9 +716,9 @@ def main(args=None):
             window.Element('_explicacion_').Update(
                 value=' ', disabled=False
             )
-            window.Element('_aplicar_').Update(disabled=False)
+            window.Element('_confirmar_').Update(disabled=False)
         # ---
-        elif event == '_aplicar_':
+        elif event == '_confirmar_':
             uuid_prof = values['_profesor_'][-36:]
             uuid_titu = values['_titulacion_'][-36:]
             uuid_asig = values['_asignatura_elegida_'][-36:]
