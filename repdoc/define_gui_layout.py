@@ -10,7 +10,7 @@ WIDTH_INPUT_COMBO_CORTO = 50
 WIDTH_INPUT_COMBO = 75
 WIDTH_INPUT_NUMBER = 10
 WIDTH_INPUT_COMMENT = 50
-WIDTH_SPACES_FOR_UUID = 150
+WIDTH_SPACES_FOR_UUID = 200
 
 COLOR_ASIGNACION_HEAD = '#3A4B53'
 COLOR_ASIGNACION_EVEN = '#DFE5E8'
@@ -170,24 +170,19 @@ def define_gui_layout(fontsize, num_titulaciones):
                               size=(WIDTH_INPUT_COMBO_CORTO, 1),
                               enable_events=True,
                               disabled=True, key='_profesor_'),
-                sg.Text('Próxima ronda:',
+                sg.Text('    Próxima ronda:',
                         key='_label_ronda_profesor_'),
                 sg.Text('---', key='_ronda_profesor_')],
                # ---
                [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_encargo_prof_'),
-                sg.Text('---', key='_encargo_prof_',
-                        size=(WIDTH_TEXT_LABEL, 1))],
-               # ---
-               [sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
+                sg.Text('---', key='_encargo_prof_', justification='left'),
+                sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_asignados_prof_'),
-                sg.Text('---', key='_asignados_prof_',
-                        size=(WIDTH_TEXT_LABEL, 1))],
-               # ---
-               [sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
+                sg.Text('---', key='_asignados_prof_', justification='left'),
+                sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_diferencia_prof_'),
-                sg.Text('---', key='_diferencia_prof_',
-                        size=(WIDTH_TEXT_LABEL, 1))],
+                sg.Text('---', key='_diferencia_prof_', justification='left')],
                # ---
                [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right',
