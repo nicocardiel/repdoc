@@ -85,10 +85,10 @@ del reparto docente</p>
 <thead>
 <tr style="text-align: left;">
 <th>Titulación</th>
-<th>Créditos iniciales</th>
-<th>Créditos elegidos</th>
-<th>Créditos disponibles</th>
-<th>Créditos para Bec./Col.</th>
+<th style="text-align: center;">Créditos iniciales</th>
+<th style="text-align: center;">Créditos elegidos</th>
+<th style="text-align: center;">Créditos disponibles</th>
+<th style="text-align: center;">Créditos para Bec./Col.</th>
 </tr>
 </thead>
 
