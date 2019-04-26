@@ -1,16 +1,17 @@
 from .date_last_update import date_last_update
 
-from .define_gui_layout import COLOR_PROFESORES_HEAD
-from .define_gui_layout import COLOR_PROFESORES_EVEN
-from .define_gui_layout import COLOR_PROFESORES_ODD
 from .define_gui_layout import COLOR_ASIGNACION_HEAD
 from .define_gui_layout import COLOR_ASIGNACION_EVEN
 from .define_gui_layout import COLOR_ASIGNACION_ODD
+from .define_gui_layout import COLOR_NO_DISPONIBLE
+from .define_gui_layout import COLOR_PROFESORES_HEAD
+from .define_gui_layout import COLOR_PROFESORES_EVEN
+from .define_gui_layout import COLOR_PROFESORES_ODD
 
 from .creditos_asignatura import CREDITOS_ASIGNATURA
 
 
-def export_to_html_profesores(tabla_profesores, bitacora):
+def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
     """Export to html tabla_profesores
 
     """
@@ -79,6 +80,8 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 <h2>Listado de profesores</h2>
 ''')
 
+    f.write('<p>Ronda actual: {0:d}</p>\n'.format(ronda_actual))
+
     f.write('''
 <table id="tabla_profesores">
 
@@ -99,7 +102,25 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 ''')
 
     for uuid_prof in tabla_profesores.index:
-        f.write('\n<tr>\n')
+        creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
+        creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
+        creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+        ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
+        categoria = tabla_profesores.loc[uuid_prof]['categoria']
+        #
+        if creditos_encargo == 0:
+            f.write('\n<tr style="background: ' + COLOR_NO_DISPONIBLE +
+                    ';">\n')
+        else:
+            if ronda_actual == 0:
+                f.write('\n<tr>\n')
+            else:
+                if (categoria == 'Colaborador') or (ronda > ronda_actual):
+                    f.write('\n<tr style="background: ' + COLOR_NO_DISPONIBLE +
+                            ';">\n')
+                else:
+                    f.write('\n<tr>\n')
+        #
         f.write('<td><a href="repdoc_asignacion.html#')
         f.write(uuid_prof)
         f.write('">')
@@ -110,19 +131,14 @@ def export_to_html_profesores(tabla_profesores, bitacora):
         f.write('">')
         f.write(tabla_profesores.loc[uuid_prof]['nombre'])
         f.write('</a></td>\n')
-        f.write('<td>' +
-                tabla_profesores.loc[uuid_prof]['categoria'] +
-                '</td>\n')
+        f.write('<td>' + categoria + '</td>\n')
         #
-        creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         f.write('<td style="text-align: right;">' +
                 '{0:9.4f}'.format(creditos_encargo) + '</td>\n')
         #
-        creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
         f.write('<td style="text-align: right;">' +
                 '{0:9.4f}'.format(creditos_asignados) + '</td>\n')
         #
-        creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
         if creditos_diferencia == 0:
             color = '#000'
         elif creditos_diferencia < 0:
@@ -132,9 +148,14 @@ def export_to_html_profesores(tabla_profesores, bitacora):
         f.write('<td style="text-align: right; color:' + color + ';">' +
                 '{0:9.4f}'.format(creditos_diferencia) + '</td>\n')
         #
-        ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
-        f.write('<td style="text-align: right;">' + '{0:d}'.format(ronda) +
-                '</td>\n')
+        if creditos_encargo == 0:
+            f.write('<td style="text-align: center;"> &mdash; </td>\n')
+        else:
+            if categoria == 'Colaborador':
+                f.write('<td style="text-align: center;"> &mdash; </td>\n')
+            else:
+                f.write('<td style="text-align: center;">' + '{0:d}'.format(
+                    ronda) + '</td>\n')
         f.write('</tr>\n')
     f.write('\n</tbody>\n\n')
     #
@@ -142,16 +163,16 @@ def export_to_html_profesores(tabla_profesores, bitacora):
     f.write('<tr>\n')
     f.write('<td colspan="3" style="text-align: right;">SUMA</td>')
     creditos_encargo = tabla_profesores['encargo'].sum()
+    creditos_asignados = tabla_profesores['asignados'].sum()
+    creditos_diferencia = tabla_profesores['diferencia'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
             'background-color: ' + COLOR_PROFESORES_HEAD +
             '; color: white;">' +
             '{0:9.4f}'.format(creditos_encargo) + '</td>\n')
-    creditos_asignados = tabla_profesores['asignados'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
             'background-color: ' + COLOR_PROFESORES_HEAD +
             '; color: white;">' +
             '{0:9.4f}'.format(creditos_asignados) + '</td>\n')
-    creditos_diferencia = tabla_profesores['diferencia'].sum()
     f.write('<td style="text-align: right; font-weight: bold; ' +
             'background-color: ' + COLOR_PROFESORES_HEAD +
             '; color: white;">' +
@@ -243,22 +264,24 @@ def export_to_html_profesores(tabla_profesores, bitacora):
 ''')
 
         for uuid_prof in tabla_profesores.index:
+            creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
+            creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
+            creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+            ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
+            #
             f.write('<div><h3 id="' + uuid_prof + '">' +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
                     tabla_profesores.loc[uuid_prof]['apellidos'] +
                     '</h3>\n')
             #
-            creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
             f.write('<font face="Courier">')
             f.write('<strong>Encargo docente...: </strong><pre>')
             f.write('{0:9.4f}</pre></font><br>\n'.format(creditos_encargo))
             #
-            creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
             f.write('<font face="Courier">')
             f.write('<strong>Créditos asignados: </strong><pre>')
             f.write('{0:9.4f}</pre></font><br>\n'.format(creditos_asignados))
             #
-            creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
             if creditos_diferencia == 0:
                 color = '#000'
             elif creditos_diferencia < 0:
@@ -271,7 +294,6 @@ def export_to_html_profesores(tabla_profesores, bitacora):
             f.write('{0:9.4f}</font></pre></font><br>\n'.format(
                 creditos_diferencia))
             #
-            ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
             f.write('<font face="Courier">')
             f.write('<strong>Siguiente ronda...: </strong><pre>')
             f.write('{0:4d}</pre></font><br><br>\n'.format(ronda))

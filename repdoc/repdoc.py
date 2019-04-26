@@ -251,7 +251,7 @@ def main(args=None):
 
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-    export_to_html_profesores(tabla_profesores, bitacora)
+    export_to_html_profesores(tabla_profesores, bitacora, 0)
     if args.web:
         rsync_html_files(args.course)
 
@@ -423,6 +423,9 @@ def main(args=None):
                         elif tabla_profesores['asignados'][i] < umbral:
                             num_profesores += 1
                             lista_profesores.append(nombre_completo)
+                export_to_html_profesores(tabla_profesores, bitacora, ronda)
+                if args.web:
+                    rsync_html_files(args.course)
             clear_screen_profesor()
             window.Element('_num_prof_seleccionados_').Update(
                 str(num_profesores)
@@ -573,7 +576,9 @@ def main(args=None):
                 export_to_html_bitacora(bitacora)
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-                export_to_html_profesores(tabla_profesores, bitacora)
+                ronda_actual = int(values['_ronda_'])
+                export_to_html_profesores(tabla_profesores, bitacora,
+                                          ronda_actual)
                 if args.web:
                     rsync_html_files(args.course)
         # ---
@@ -838,7 +843,9 @@ def main(args=None):
             export_to_html_bitacora(bitacora)
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-            export_to_html_profesores(tabla_profesores, bitacora)
+            ronda_actual = int(values['_ronda_'])
+            export_to_html_profesores(tabla_profesores, bitacora,
+                                      ronda_actual)
             if args.web:
                 rsync_html_files(args.course)
         # ---
