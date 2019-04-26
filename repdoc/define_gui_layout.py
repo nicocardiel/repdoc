@@ -138,7 +138,7 @@ def define_gui_layout(fontsize, num_titulaciones):
     # ---
 
     layout += [[sg.Checkbox('Excluir elección de asignaturas elegibles '
-                            'por Becarios/Colaboradores',
+                            'por becarios/colaboradores',
                             default=False,
                             change_submits=True,
                             auto_size_text=True,
@@ -149,7 +149,7 @@ def define_gui_layout(fontsize, num_titulaciones):
                             change_submits=True,
                             auto_size_text=True,
                             key='_excluir_RyC_'),
-                sg.Checkbox('Excluir Becarios/Colaboradores',
+                sg.Checkbox('Excluir becarios/colaboradores',
                             default=False,
                             change_submits=True,
                             auto_size_text=True,

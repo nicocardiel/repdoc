@@ -23,7 +23,7 @@ from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
-CREDITOS_ASIGNATURA = 4.5
+from .creditos_asignatura import CREDITOS_ASIGNATURA
 
 
 def main(args=None):
