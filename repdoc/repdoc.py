@@ -19,6 +19,7 @@ from .read_tabla_asignaturas import read_tabla_asignaturas
 from .read_tabla_profesores import read_tabla_profesores
 from .read_tabla_titulaciones import read_tabla_titulaciones
 from .rsync_html_files import rsync_html_files
+from .update_ronda_profesor import update_ronda_profesor
 from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
@@ -136,6 +137,17 @@ def main(args=None):
     # define columna para almacenar diferencia entre encargo y eleccion
     tabla_profesores['diferencia'] = \
         tabla_profesores['asignados'] - tabla_profesores['encargo']
+    tabla_profesores['ronda'] = 0  # force column to be integer
+    for uuid_prof in tabla_profesores.index:
+        categoria = tabla_profesores.loc[uuid_prof]['categoria']
+        creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
+        if (categoria == 'Colaborador') or (creditos_encargo == 0):
+            tabla_profesores.loc[uuid_prof, 'ronda'] = 99
+        else:
+            if 'RyC' in categoria:
+                tabla_profesores.loc[uuid_prof, 'ronda'] = 3
+            else:
+                tabla_profesores.loc[uuid_prof, 'ronda'] = 1
 
     # comprueba que los UUIDs de titulaciones, asignaturas y profesores
     # son todos distintos
@@ -239,6 +251,7 @@ def main(args=None):
                         uuid_prof, 'diferencia'
                     ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
                         tabla_profesores.loc[uuid_prof, 'encargo']
+                    update_ronda_profesor(tabla_profesores, uuid_prof)
                 else:
                     print('* uuid_bita:', uuid_bita)
                     print('* uuid_prof:', uuid_prof)
@@ -444,7 +457,7 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
-                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                ronda_profesor = tabla_profesores.loc[uuid_prof]['ronda']
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
                 comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
@@ -514,6 +527,7 @@ def main(args=None):
                         uuid_prof, 'diferencia'
                     ] = tabla_profesores.loc[uuid_prof, 'asignados'] - \
                         tabla_profesores.loc[uuid_prof, 'encargo']
+                    update_ronda_profesor(tabla_profesores, uuid_prof)
                 else:
                     print('¡El profesor no tiene créditos suficientes!')
                     input('Press <CR> to continue...')
@@ -550,7 +564,7 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
-                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                ronda_profesor = tabla_profesores.loc[uuid_prof]['ronda']
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
                 comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))
@@ -794,7 +808,8 @@ def main(args=None):
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
                 diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
-                ronda_profesor = int(asignados/CREDITOS_ASIGNATURA + 0.5) + 1
+                update_ronda_profesor(tabla_profesores, uuid_prof)
+                ronda_profesor = tabla_profesores.loc[uuid_prof]['ronda']
                 window.Element('_ronda_profesor_').Update(ronda_profesor)
                 comprueba_ronda_profesor(ronda_profesor)
                 window.Element('_encargo_prof_').Update(round(encargo, 4))

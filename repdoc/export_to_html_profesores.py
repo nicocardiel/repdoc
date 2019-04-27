@@ -105,7 +105,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
         creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
-        ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
+        ronda = tabla_profesores.loc[uuid_prof]['ronda']
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         #
         if creditos_encargo == 0:
@@ -154,7 +154,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
             if categoria == 'Colaborador':
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
             else:
-                f.write('<td style="text-align: center;">' + '{0:d}'.format(
+                f.write('<td style="text-align: center;">' + '{:d}'.format(
                     ronda) + '</td>\n')
         f.write('</tr>\n')
     f.write('\n</tbody>\n\n')
@@ -267,7 +267,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
             creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
             creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
             creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
-            ronda = int(creditos_asignados / CREDITOS_ASIGNATURA + 0.5) + 1
+            ronda = tabla_profesores.loc[uuid_prof]['ronda']
             #
             f.write('<div><h3 id="' + uuid_prof + '">' +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
