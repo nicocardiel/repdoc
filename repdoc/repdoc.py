@@ -24,7 +24,7 @@ from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
-from .creditos_asignatura import CREDITOS_ASIGNATURA
+from .definitions import CREDITOS_ASIGNATURA
 
 
 def main(args=None):

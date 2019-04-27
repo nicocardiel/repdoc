@@ -8,7 +8,7 @@ from .define_gui_layout import COLOR_PROFESORES_HEAD
 from .define_gui_layout import COLOR_PROFESORES_EVEN
 from .define_gui_layout import COLOR_PROFESORES_ODD
 
-from .creditos_asignatura import CREDITOS_ASIGNATURA
+from .definitions import CREDITOS_ASIGNATURA
 
 
 def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
