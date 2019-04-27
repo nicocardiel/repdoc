@@ -1,5 +1,5 @@
-from .creditos_asignatura import CREDITOS_ASIGNATURA
-from .creditos_asignatura import PRIMERA_RONDA_RYC
+from .definitions import CREDITOS_ASIGNATURA
+from .definitions import PRIMERA_RONDA_RYC
 
 
 def update_ronda_profesor(tabla_profesores, uuid_prof):
