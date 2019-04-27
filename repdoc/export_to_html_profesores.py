@@ -8,7 +8,7 @@ from .define_gui_layout import COLOR_PROFESORES_HEAD
 from .define_gui_layout import COLOR_PROFESORES_EVEN
 from .define_gui_layout import COLOR_PROFESORES_ODD
 
-from .definitions import CREDITOS_ASIGNATURA
+from .definitions import FLAG_RONDA_NO_ELIGE
 
 
 def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
@@ -148,14 +148,11 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         f.write('<td style="text-align: right; color:' + color + ';">' +
                 '{0:9.4f}'.format(creditos_diferencia) + '</td>\n')
         #
-        if creditos_encargo == 0:
+        if ronda == FLAG_RONDA_NO_ELIGE:
             f.write('<td style="text-align: center;"> &mdash; </td>\n')
         else:
-            if categoria == 'Colaborador':
-                f.write('<td style="text-align: center;"> &mdash; </td>\n')
-            else:
-                f.write('<td style="text-align: center;">' + '{:d}'.format(
-                    ronda) + '</td>\n')
+            f.write('<td style="text-align: center;">' + '{:d}'.format(ronda) +
+                    '</td>\n')
         f.write('</tr>\n')
     f.write('\n</tbody>\n\n')
     #

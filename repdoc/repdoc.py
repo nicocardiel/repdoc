@@ -25,6 +25,7 @@ from .version import version
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
 from .definitions import CREDITOS_ASIGNATURA
+from .definitions import FLAG_RONDA_NO_ELIGE
 
 
 def main(args=None):
@@ -142,7 +143,7 @@ def main(args=None):
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         if (categoria == 'Colaborador') or (creditos_encargo == 0):
-            tabla_profesores.loc[uuid_prof, 'ronda'] = 99
+            tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
         else:
             if 'RyC' in categoria:
                 tabla_profesores.loc[uuid_prof, 'ronda'] = 3
@@ -405,6 +406,10 @@ def main(args=None):
                 sg.Popup('ERROR', 'Número de ronda inválido')
                 ronda = None
             if ronda is not None:
+                if ronda >= FLAG_RONDA_NO_ELIGE:
+                    sg.Popup('ERROR', 'Número de ronda inválido')
+                    ronda = None
+            if ronda is not None:
                 if ronda == 0:
                     umbral = 0.0
                 else:
@@ -417,8 +422,7 @@ def main(args=None):
                         if 'RyC' in tabla_profesores['categoria'][i]:
                             incluir_profesor = False
                     if values['_excluir_colaboradores_']:
-                        if tabla_profesores['categoria'][i] == \
-                            'Colaborador':
+                        if tabla_profesores['categoria'][i] == 'Colaborador':
                             incluir_profesor = False
                     if incluir_profesor:
                         nombre_completo = tabla_profesores['nombre'][i] +\
@@ -430,10 +434,10 @@ def main(args=None):
                                 (WIDTH_SPACES_FOR_UUID - ldum) * ' '
                         nombre_completo += ' uuid_prof=' + \
                                            tabla_profesores.index[i]
-                        if umbral == 0:
+                        if ronda == 0:
                             num_profesores += 1
                             lista_profesores.append(nombre_completo)
-                        elif tabla_profesores['asignados'][i] < umbral:
+                        elif tabla_profesores['ronda'][i] <= ronda:
                             num_profesores += 1
                             lista_profesores.append(nombre_completo)
                 export_to_html_profesores(tabla_profesores, bitacora, ronda)
