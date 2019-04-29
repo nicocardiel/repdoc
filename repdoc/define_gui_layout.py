@@ -1,5 +1,7 @@
 import PySimpleGUI as sg
 
+from .definitions import FLAG_RONDA_NO_ELIGE
+
 
 WIDTH_HLINE = 110
 WIDTH_HLINE_SUMMARY = 62
@@ -149,7 +151,7 @@ def define_gui_layout(fontsize, num_titulaciones):
                         background_color=COLOR_BITACORA_HEAD,
                         justification='right',
                         key='_label_ronda_'),
-                sg.Spin([i for i in range(100)],
+                sg.Spin([i for i in range(FLAG_RONDA_NO_ELIGE)],
                         initial_value=0,
                         change_submits=True,
                         key='_ronda_'),
