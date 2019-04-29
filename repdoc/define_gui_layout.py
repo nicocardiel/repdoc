@@ -204,7 +204,9 @@ def define_gui_layout(fontsize, num_titulaciones):
                [sg.Button('Continuar con nueva elección', disabled=True,
                           key='_continuar_'),
                 sg.Button('Eliminar asignatura ya elegida', disabled=True,
-                          key='_eliminar_')],
+                          key='_eliminar_'),
+               sg.Button('Finalizar elección en rondas', disabled=True,
+                         key='_profesor_finalizado_')],
                [sg.Text('_' * WIDTH_HLINE)],
                # ---
                [sg.Text('Titulación:', size=(WIDTH_TEXT_LABEL, 1),

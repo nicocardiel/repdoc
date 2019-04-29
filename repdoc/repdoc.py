@@ -26,6 +26,9 @@ from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
+from .definitions import NULL_UUID
+from .definitions import TEXT_ACTIVA_ELECCION
+from .definitions import TEXT_FINALIZA_ELECCION
 
 
 def main(args=None):
@@ -70,11 +73,13 @@ def main(args=None):
 
     # ---
     # load Excel sheets
+    # ---
 
     # variable para almacenar los UUIDs de titulaciones, asignaturas
     # y profesores
     megalist_uuid = []
 
+    # ---
     # titulaciones
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
@@ -88,6 +93,7 @@ def main(args=None):
     tabla_titulaciones['creditos_beccol'] = 0.0
     megalist_uuid += tabla_titulaciones.index.tolist()
 
+    # ---
     # asignaturas de cada titulacion
     bigdict_tablas_asignaturas = {}
     for uuid_titu in tabla_titulaciones.index:
@@ -124,6 +130,7 @@ def main(args=None):
         raise ValueError('UUIDs are not unique when mixing all the subjects!')
     megalist_uuid += dumlist
 
+    # ---
     # profesores
     tabla_profesores = read_tabla_profesores(
         xlsxfilename=args.xlsxfile.name,
@@ -139,11 +146,15 @@ def main(args=None):
     tabla_profesores['diferencia'] = \
         tabla_profesores['asignados'] - tabla_profesores['encargo']
     tabla_profesores['ronda'] = 0  # force column to be integer
+    tabla_profesores['finalizado'] = False
     for uuid_prof in tabla_profesores.index:
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
-        if (categoria == 'Colaborador') or (creditos_encargo == 0):
+        if categoria == 'Colaborador':
             tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
+        elif creditos_encargo == 0:
+            tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
+            tabla_profesores.loc[uuid_prof, 'finalizado'] = True
         else:
             if 'RyC' in categoria:
                 tabla_profesores.loc[uuid_prof, 'ronda'] = 3
@@ -164,6 +175,9 @@ def main(args=None):
     csv_colnames_asignatura = ['curso', 'semestre', 'codigo', 'asignatura',
                                'area', 'creditos_iniciales', 'comentarios',
                                'grupo']
+    csv_colvalues_asignatura_null = ['-', 0, 0, '-',
+                                     '-', 0.0, '-',
+                                     '-']
     if args.bitacora is None:
         # initialize empty dataframe with the expected columns
         bitacora = pd.DataFrame(
@@ -198,11 +212,22 @@ def main(args=None):
                 itemvalue = str(bitacora.loc[uuid_bita][item])
                 if itemvalue == 'nan' or itemvalue == 'NaN':
                     bitacora.loc[uuid_bita, item] = altnone
-            # apply selected subjects
-            status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
+            uuid_prof = bitacora.loc[uuid_bita]['uuid_prof']
+            uuid_titu = bitacora.loc[uuid_bita]['uuid_titu']
+            # activate/deactivate teacher
+            if uuid_titu == NULL_UUID:
+                explicacion = bitacora.loc[uuid_bita]['explicacion']
+                if explicacion == TEXT_FINALIZA_ELECCION:
+                    tabla_profesores.loc[uuid_prof, 'finalizado'] = True
+                elif explicacion == TEXT_ACTIVA_ELECCION:
+                    tabla_profesores.loc[uuid_prof, 'finalizado'] = False
+                else:
+                    raise ValueError('Unexpected explicacion for null UUID')
+                status = False
+            else:
+                status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
+            # apply selected subject
             if status:
-                uuid_prof = bitacora.loc[uuid_bita]['uuid_prof']
-                uuid_titu = bitacora.loc[uuid_bita]['uuid_titu']
                 uuid_asig = bitacora.loc[uuid_bita]['uuid_asig']
                 creditos_elegidos = \
                     bitacora.loc[uuid_bita]['creditos_elegidos']
@@ -298,6 +323,7 @@ def main(args=None):
         window.Element('_titulacion_').Update('---')
         window.Element('_continuar_').Update(disabled=True)
         window.Element('_eliminar_').Update(disabled=True)
+        window.Element('_profesor_finalizado_').Update(disabled=True)
 
     def clear_screen_asignatura():
         window.Element('_titulacion_').Update(values='---', disabled=True)
@@ -408,21 +434,22 @@ def main(args=None):
                     umbral = (float(ronda - 1) + 0.5) * CREDITOS_ASIGNATURA
                 print('--> ronda............:', ronda)
                 print('--> umbral (créditos):', umbral)
-                for i in range(tabla_profesores.shape[0]):
-                    nombre_completo = tabla_profesores['nombre'][i] + \
-                                      ' ' + tabla_profesores['apellidos'][i]
+                for uuid_prof in tabla_profesores.index:
+                    nombre_completo = \
+                        tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
+                        tabla_profesores.loc[uuid_prof]['apellidos']
                     ldum = len(nombre_completo)
                     if ldum < WIDTH_SPACES_FOR_UUID:
                         nombre_completo += \
                             (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                    nombre_completo += ' uuid_prof=' + \
-                                       tabla_profesores.index[i]
+                    nombre_completo += ' uuid_prof=' + uuid_prof
                     if ronda == 0:
                         num_profesores += 1
                         lista_profesores.append(nombre_completo)
-                    elif tabla_profesores['ronda'][i] <= ronda:
-                        num_profesores += 1
-                        lista_profesores.append(nombre_completo)
+                    elif tabla_profesores.loc[uuid_prof]['ronda'] <= ronda:
+                        if not tabla_profesores.loc[uuid_prof]['finalizado']:
+                            num_profesores += 1
+                            lista_profesores.append(nombre_completo)
                 export_to_html_profesores(tabla_profesores, bitacora, ronda)
                 if args.web:
                     rsync_html_files(args.course)
@@ -465,7 +492,17 @@ def main(args=None):
                         values=['---'],
                         disabled=True
                     )
-                window.Element('_continuar_').Update(disabled=False)
+                if tabla_profesores.loc[uuid_prof]['finalizado']:
+                    window.Element('_continuar_').Update(disabled=True)
+                    window.Element('_profesor_finalizado_').Update(
+                        text='Activar elección en rondas'
+                    )
+                else:
+                    window.Element('_continuar_').Update(disabled=False)
+                    window.Element('_profesor_finalizado_').Update(
+                        text='Finalizar elección en rondas'
+                    )
+                window.Element('_profesor_finalizado_').Update(disabled=False)
         # ---
         elif event == '_docencia_asignada_':
             if values['_docencia_asignada_'] == '---':
@@ -484,6 +521,7 @@ def main(args=None):
             )
             window.Element('_continuar_').Update(disabled=True)
             window.Element('_eliminar_').Update(disabled=True)
+            window.Element('_profesor_finalizado_').Update(disabled=True)
             lista_titulaciones = filtra_titulaciones(tabla_titulaciones)
             window.Element('_titulacion_').Update(
                 values=['---'] + lista_titulaciones,
@@ -582,6 +620,52 @@ def main(args=None):
                                           ronda_actual)
                 if args.web:
                     rsync_html_files(args.course)
+        # ---
+        elif event == '_profesor_finalizado_':
+            uuid_prof = values['_profesor_'][-36:]
+            if uuid_prof is None:
+                raise ValueError('Unexpected uuid_prof == None')
+            #
+            if tabla_profesores.loc[uuid_prof]['finalizado']:
+                window.Element('_profesor_finalizado_').Update(
+                    text='Finalizar elección en rondas'
+                )
+                tabla_profesores.loc[uuid_prof, 'finalizado'] = False
+                window.Element('_continuar_').Update(disabled=False)
+                explicacion = TEXT_ACTIVA_ELECCION
+            else:
+                window.Element('_profesor_finalizado_').Update(
+                    text='Activar elección en rondas'
+                )
+                tabla_profesores.loc[uuid_prof, 'finalizado'] = True
+                window.Element('_continuar_').Update(disabled=True)
+                explicacion = TEXT_FINALIZA_ELECCION
+            #
+            # prepare new entry for bitacora
+            uuid_bita = str(new_uuid(megalist_uuid))
+            uuid_titu = NULL_UUID
+            uuid_asig = NULL_UUID
+            creditos_elegidos = 0.0
+            data_row = [uuid_prof, uuid_titu, uuid_asig,
+                        datetime_short(), 'None',
+                        creditos_elegidos, explicacion]
+            for item in csv_colnames_profesor:
+                data_row.append(tabla_profesores.loc[uuid_prof][item])
+            for idum in range(len(csv_colnames_asignatura)):
+                data_row.append(csv_colvalues_asignatura_null[idum])
+            new_entry = pd.DataFrame(data=[data_row],
+                                     index=[uuid_bita],
+                                     columns=bitacora.columns.tolist())
+            bitacora = pd.concat([bitacora, new_entry])
+            bitacora.index.name = 'uuid_bita'
+            if args.debug:
+                print(bitacora)
+            export_to_html_bitacora(bitacora)
+            ronda_actual = int(values['_ronda_'])
+            export_to_html_profesores(tabla_profesores, bitacora,
+                                      ronda_actual)
+            if args.web:
+                rsync_html_files(args.course)
         # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']

@@ -94,6 +94,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 <th style="text-align: center;">Créditos<br>asignados</th>
 <th>Diferencia</th>
 <th style="text-align: center;">Siguiente<br>ronda</th>
+<th style="text-align: center;">Fin de<br>elección</th>
 </tr>
 </thead>
 
@@ -107,8 +108,9 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
         ronda = tabla_profesores.loc[uuid_prof]['ronda']
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
+        finalizado = tabla_profesores.loc[uuid_prof]['finalizado']
         #
-        if creditos_encargo == 0:
+        if (ronda == 99) or (finalizado and ronda_actual != 0):
             f.write('\n<tr style="background: ' + COLOR_NO_DISPONIBLE +
                     ';">\n')
         else:
@@ -153,6 +155,11 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         else:
             f.write('<td style="text-align: center;">' + '{:d}'.format(ronda) +
                     '</td>\n')
+        #
+        if finalizado:
+            f.write('<td style="text-align: center;"> Sí </td>\n')
+        else:
+            f.write('<td style="text-align: center;"> No </td>\n')
         f.write('</tr>\n')
     f.write('\n</tbody>\n\n')
     #

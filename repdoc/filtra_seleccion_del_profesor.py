@@ -1,4 +1,5 @@
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
+from .definitions import NULL_UUID
 
 
 def filtra_seleccion_del_profesor(uuid_prof, bitacora):
@@ -20,19 +21,20 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
         return output
 
     for i in range(ntimes):
-        dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
-        dumtxt += seleccion['asignatura'].tolist()[i] + ', '
-        dumtxt += str(
-            round(seleccion['creditos_elegidos'].tolist()[i], 4)
-        ) + ' créditos'
-        if seleccion['comentarios'].tolist()[i] != ' ':
-            dumtxt += ', ' + seleccion['comentarios'].tolist()[i]
-        if seleccion['grupo'].tolist()[i] != ' ':
-            dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
-        ldum = len(dumtxt)
-        if ldum < WIDTH_SPACES_FOR_UUID:
-            dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-        dumtxt += ' uuid_bita=' + seleccion.index.tolist()[i]
-        output.append(dumtxt)
+        if seleccion['uuid_titu'].tolist()[i] != NULL_UUID:
+            dumtxt = '[' + seleccion['curso'].tolist()[i] + '] '
+            dumtxt += seleccion['asignatura'].tolist()[i] + ', '
+            dumtxt += str(
+                round(seleccion['creditos_elegidos'].tolist()[i], 4)
+            ) + ' créditos'
+            if seleccion['comentarios'].tolist()[i] != ' ':
+                dumtxt += ', ' + seleccion['comentarios'].tolist()[i]
+            if seleccion['grupo'].tolist()[i] != ' ':
+                dumtxt += ', grupo ' + seleccion['grupo'].tolist()[i]
+            ldum = len(dumtxt)
+            if ldum < WIDTH_SPACES_FOR_UUID:
+                dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+            dumtxt += ' uuid_bita=' + seleccion.index.tolist()[i]
+            output.append(dumtxt)
 
     return output
