@@ -144,17 +144,6 @@ def define_gui_layout(fontsize, num_titulaciones):
                             auto_size_text=True,
                             key='_excluir_asignaturas_beccol_')],
                # ---
-               [sg.Checkbox('Excluir docentes RyC y asimilados',
-                            default=False,
-                            change_submits=True,
-                            auto_size_text=True,
-                            key='_excluir_RyC_'),
-                sg.Checkbox('Excluir becarios/colaboradores',
-                            default=False,
-                            change_submits=True,
-                            auto_size_text=True,
-                            key='_excluir_colaboradores_')],
-               # ---
                [sg.Text('Ronda:', size=(WIDTH_TEXT_LABEL, 1),
                         text_color='#fff',
                         background_color=COLOR_BITACORA_HEAD,

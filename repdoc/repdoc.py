@@ -385,14 +385,6 @@ def main(args=None):
             clear_screen_profesor()
             clear_screen_asignatura()
         # ---
-        elif event == '_excluir_RyC_':
-            clear_screen_asignatura()
-            clear_screen_profesor()
-        # ---
-        elif event == '_excluir_colaboradores_':
-            clear_screen_asignatura()
-            clear_screen_profesor()
-        # ---
         elif event == '_ronda_':
             clear_screen_asignatura()
             clear_screen_profesor()
@@ -417,29 +409,20 @@ def main(args=None):
                 print('--> ronda............:', ronda)
                 print('--> umbral (créditos):', umbral)
                 for i in range(tabla_profesores.shape[0]):
-                    incluir_profesor = True
-                    if values['_excluir_RyC_']:
-                        if 'RyC' in tabla_profesores['categoria'][i]:
-                            incluir_profesor = False
-                    if values['_excluir_colaboradores_']:
-                        if tabla_profesores['categoria'][i] == 'Colaborador':
-                            incluir_profesor = False
-                    if incluir_profesor:
-                        nombre_completo = tabla_profesores['nombre'][i] +\
-                                          ' ' +\
-                                          tabla_profesores['apellidos'][i]
-                        ldum = len(nombre_completo)
-                        if ldum < WIDTH_SPACES_FOR_UUID:
-                            nombre_completo += \
-                                (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                        nombre_completo += ' uuid_prof=' + \
-                                           tabla_profesores.index[i]
-                        if ronda == 0:
-                            num_profesores += 1
-                            lista_profesores.append(nombre_completo)
-                        elif tabla_profesores['ronda'][i] <= ronda:
-                            num_profesores += 1
-                            lista_profesores.append(nombre_completo)
+                    nombre_completo = tabla_profesores['nombre'][i] + \
+                                      ' ' + tabla_profesores['apellidos'][i]
+                    ldum = len(nombre_completo)
+                    if ldum < WIDTH_SPACES_FOR_UUID:
+                        nombre_completo += \
+                            (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                    nombre_completo += ' uuid_prof=' + \
+                                       tabla_profesores.index[i]
+                    if ronda == 0:
+                        num_profesores += 1
+                        lista_profesores.append(nombre_completo)
+                    elif tabla_profesores['ronda'][i] <= ronda:
+                        num_profesores += 1
+                        lista_profesores.append(nombre_completo)
                 export_to_html_profesores(tabla_profesores, bitacora, ronda)
                 if args.web:
                     rsync_html_files(args.course)
