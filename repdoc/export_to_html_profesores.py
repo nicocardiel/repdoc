@@ -102,12 +102,32 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 
 ''')
 
+    def insert_separator():
+        for idum in range(2):
+            f.write('\n<tr style="background: ' +
+                    COLOR_PROFESORES_HEAD +
+                    '; height: 2px; padding-top: 0px; ' +
+                    'padding-bottom: 0px;">')
+            f.write('<td colspan="8" style="height: 2px; ' +
+                    'padding-top: 0px; padding-bottom: 0px;">' +
+                    '</td></tr>\n')
+
+    ultima_categoria = None
     for uuid_prof in tabla_profesores.index:
+        categoria = tabla_profesores.loc[uuid_prof]['categoria']
+        if ultima_categoria is None:
+            ultima_categoria = categoria
+        else:
+            if categoria != ultima_categoria:
+                if 'RyC' in categoria and 'RyC' in ultima_categoria:
+                    pass
+                else:
+                    insert_separator()
+                ultima_categoria = categoria
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
         creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
         ronda = tabla_profesores.loc[uuid_prof]['ronda']
-        categoria = tabla_profesores.loc[uuid_prof]['categoria']
         finalizado = tabla_profesores.loc[uuid_prof]['finalizado']
         #
         if (ronda == 99) or (finalizado and ronda_actual != 0):
@@ -138,8 +158,14 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         f.write('<td style="text-align: right;">' +
                 '{0:9.4f}'.format(creditos_encargo) + '</td>\n')
         #
-        f.write('<td style="text-align: right;">' +
-                '{0:9.4f}'.format(creditos_asignados) + '</td>\n')
+        if creditos_asignados == 0:
+            f.write('<td style="text-align: right;">' +
+                    '{0:9.4f}'.format(creditos_asignados) + '</td>\n')
+        else:
+            f.write('<td style="text-align: right;">' +
+                    '<a href="repdoc_asignacion.html#' +
+                    uuid_prof + '">' +
+                    '{0:9.4f}'.format(creditos_asignados) + '</a></td>\n')
         #
         if creditos_diferencia == 0:
             color = '#000'
@@ -147,7 +173,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
             color = '#a00'
         else:
             color = '#0a0'
-        f.write('<td style="text-align: right; color:' + color + ';">' +
+        f.write('<td style="text-align: right; color: ' + color + ';">' +
                 '{0:9.4f}'.format(creditos_diferencia) + '</td>\n')
         #
         if ronda == FLAG_RONDA_NO_ELIGE:
