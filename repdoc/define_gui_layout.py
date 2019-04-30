@@ -42,7 +42,6 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
     else:
         if 'bold' not in fontname:
             fontname += ' bold'
-            print('fontname:', fontname)
 
     # define monospaced typeface for results
     fontname_header = 'courier bold'
