@@ -313,8 +313,10 @@ def main(args=None):
     layout = define_gui_layout(args.fontname, args.fontsize, num_titulaciones)
 
     # define GUI window
-    window = sg.Window('Reparto Docente (FTA), Curso ' +
-                       args.course).Layout(layout)
+    window = sg.Window(
+        'Reparto Docente (FTA), Curso ' + args.course,
+        use_default_focus=False
+    ).Layout(layout)
 
     # ---
     # define auxiliary functions

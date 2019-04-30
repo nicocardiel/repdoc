@@ -167,6 +167,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         auto_size_text=True),
                 sg.Button('Establecer ronda',
                           font=(fontname, fontsize),
+                          focus=True,
                           key='_establecer_ronda_'),
                 sg.Text('      Nº de profesores seleccionados:',
                         text_color='#aaaaaa', auto_size_text=True),
