@@ -19,7 +19,7 @@ def date_last_update():
 
     return '''\n\n
 <br><br>
-<p style="color: #999; font-family: Times; background-color: #ddd; 
+<p style="color: #999; width: 100%; background-color: #ddd; 
 text-align: center;">
 Last update: ''' + datetime_short() + '''\n
 &nbsp; &mdash; &nbsp; Created with RepDoc version ''' + version + '''

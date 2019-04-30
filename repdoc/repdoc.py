@@ -201,10 +201,6 @@ def main(args=None):
             print('Initialasing bitacora DataFrame:')
             print(bitacora)
             input('Press <CR> to continue...')
-        # export to HTML
-        export_to_html_bitacora(bitacora)
-        if args.web:
-            rsync_html_files(args.course)
     else:
         bitacora = pd.read_excel(args.bitacora.name, index_col=0)
         bitacora.index.name = 'uuid_bita'
@@ -302,7 +298,7 @@ def main(args=None):
 
     # ---
     # export to HTML files
-
+    export_to_html_bitacora(bitacora)
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora, 0)

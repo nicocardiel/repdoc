@@ -80,6 +80,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 <thead>
 <tr style="text-align: left;">
+<td style="background: #fff;"></td>
 <th>Curso</th>
 <th>Semestre</th>
 <th>Código</th>
@@ -89,7 +90,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 <th>Comentarios</th>
 <th>Grupo</th>
 <th>Bec./Col.</th>
-<th>Profesor anterior</th>
+<th>Profesor curso anterior</th>
 <th>Antigüedad</th>
 <th>Profesor próximo curso</th>
 <th>Créditos disponibles</th>
@@ -106,12 +107,14 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                         COLOR_ASIGNATURAS_HEAD +
                         '; height: 2px; padding-top: 0px; ' +
                         'padding-bottom: 0px;">')
-                f.write('<td colspan="13" style="height: 2px; ' +
+                f.write('<td colspan="14" style="height: 2px; ' +
                         'padding-top: 0px; padding-bottom: 0px;">' +
                         '</td></tr>\n')
 
         ultima_asignatura = None
+        irow = 0
         for uuid_asig in tabla_asignaturas.index:
+            irow += 1
             nueva_asignatura = tabla_asignaturas.loc[uuid_asig]['asignatura']
             if ultima_asignatura is None:
                 ultima_asignatura = nueva_asignatura
@@ -126,6 +129,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                 f.write(
                     '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
                 )
+            f.write('<td style="color: #888; background: #fff; text-align: '
+                    'right;">')
+            f.write('{:d}</td>\n'.format(irow))
             f.write('<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['curso']
             ))
@@ -171,7 +177,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         #
         f.write('<tfoot>\n\n')
         f.write('<tr>\n')
-        f.write('<td colspan="5" style="text-align: right;">SUMA</td>\n')
+        f.write('<td colspan="6" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_iniciales'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
                 'background-color: ' + COLOR_ASIGNATURAS_HEAD +

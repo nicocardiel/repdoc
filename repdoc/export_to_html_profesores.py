@@ -88,6 +88,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 
 <thead>
 <tr style="text-align: left;">
+<td style="background: #fff;"></td>
 <th>Apellidos</th>
 <th>Nombre</th>
 <th>Categoría</th>
@@ -109,12 +110,14 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                     COLOR_PROFESORES_HEAD +
                     '; height: 2px; padding-top: 0px; ' +
                     'padding-bottom: 0px;">')
-            f.write('<td colspan="8" style="height: 2px; ' +
+            f.write('<td colspan="9" style="height: 2px; ' +
                     'padding-top: 0px; padding-bottom: 0px;">' +
                     '</td></tr>\n')
 
     ultima_categoria = None
+    iprof = 0
     for uuid_prof in tabla_profesores.index:
+        iprof += 1
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         if ultima_categoria is None:
             ultima_categoria = categoria
@@ -143,6 +146,10 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                             ';">\n')
                 else:
                     f.write('\n<tr>\n')
+        #
+        f.write('<td style="color: #888; background: #fff; text-align: '
+                'right;">')
+        f.write('{:d}</td>\n'.format(iprof))
         #
         f.write('<td><a href="repdoc_asignacion.html#')
         f.write(uuid_prof)
@@ -192,7 +199,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
     #
     f.write('<tfoot>\n\n')
     f.write('<tr>\n')
-    f.write('<td colspan="3" style="text-align: right;">SUMA</td>')
+    f.write('<td colspan="4" style="text-align: right;">SUMA</td>')
     creditos_encargo = tabla_profesores['encargo'].sum()
     creditos_asignados = tabla_profesores['asignados'].sum()
     creditos_diferencia = tabla_profesores['diferencia'].sum()
@@ -294,13 +301,16 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 <h2>Asignación de asignaturas por profesor</h2>
 ''')
 
+        iprof = 0
         for uuid_prof in tabla_profesores.index:
+            iprof += 1
             creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
             creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
             creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
             ronda = tabla_profesores.loc[uuid_prof]['ronda']
             #
             f.write('<div><h3 id="' + uuid_prof + '">' +
+                    '{:d}. '.format(iprof) +
                     tabla_profesores.loc[uuid_prof]['nombre'] + ' ' +
                     tabla_profesores.loc[uuid_prof]['apellidos'] +
                     '</h3>\n')

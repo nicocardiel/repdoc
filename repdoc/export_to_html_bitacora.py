@@ -85,9 +85,13 @@ def export_to_html_bitacora(bitacora):
 <tr style="text-align: left;">
 ''')
 
-    f.write('<th style="text-align: center;">uuid bita</th>\n')
+    f.write('<td style="background: #fff;"></td>')
+    f.write('<th style="text-align: center;">(1)<br>uuid bita</th>\n')
+    icol = 1
     for colname in bitacora.columns.tolist():
+        icol += 1
         f.write('<th style="text-align: center;">' +
+                '({:d})<br>'.format(icol) +
                 re.sub('_', ' ', colname) + '</th>\n')
 
     f.write('''
@@ -98,7 +102,9 @@ def export_to_html_bitacora(bitacora):
 
 ''')
 
+    irow = 0
     for uuid_bita in bitacora.index:
+        irow += 1
         status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
         if status:
             f.write('\n<tr>\n')
@@ -106,6 +112,9 @@ def export_to_html_bitacora(bitacora):
             f.write(
                 '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
             )
+        f.write('<td style="color: #888; background: #fff; text-align: '
+                'right;">')
+        f.write('{:d}</td>\n'.format(irow))
         f.write('<td>{}</td>\n'.format(uuid_bita))
         for colname in bitacora.columns.tolist():
             typecol = type(bitacora.loc[uuid_bita][colname])
