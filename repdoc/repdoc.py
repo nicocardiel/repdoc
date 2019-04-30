@@ -29,6 +29,7 @@ from .definitions import BITACORA_XLSX_FILENAME
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
 from .definitions import NULL_UUID
+from .definitions import ROUND_ERROR
 from .definitions import TEXT_ACTIVA_ELECCION
 from .definitions import TEXT_FINALIZA_ELECCION
 
@@ -244,10 +245,16 @@ def main(args=None):
                 tabla_asignaturas = bigdict_tablas_asignaturas[titulacion]
                 if tabla_asignaturas.loc[
                     uuid_asig, 'creditos_disponibles'
-                ] >= creditos_elegidos:
+                ] >= creditos_elegidos - ROUND_ERROR:
                     tabla_asignaturas.loc[
                         uuid_asig, 'creditos_disponibles'
                     ] -= creditos_elegidos
+                    if abs(tabla_asignaturas.loc[
+                               uuid_asig, 'creditos_disponibles'
+                           ]) < ROUND_ERROR:
+                        tabla_asignaturas.loc[
+                            uuid_asig, 'creditos_disponibles'
+                        ] = 0
                     nuevo_profesor = \
                         tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
                         tabla_profesores.loc[uuid_prof]['apellidos']
@@ -840,10 +847,16 @@ def main(args=None):
             elif values['_fraccion_parte_']:
                 if tabla_asignaturas.loc[
                     uuid_asig, 'creditos_disponibles'
-                ] > creditos_elegidos:
+                ] > creditos_elegidos - ROUND_ERROR:
                     tabla_asignaturas.loc[
                         uuid_asig, 'creditos_disponibles'
                     ] -= creditos_elegidos
+                    if abs(tabla_asignaturas.loc[
+                               uuid_asig, 'creditos_disponibles'
+                           ]) < ROUND_ERROR:
+                        tabla_asignaturas.loc[
+                            uuid_asig, 'creditos_disponibles'
+                        ] = 0
                 else:
                     print('¡Créditos disponibles insuficientes!')
                     input('Press <CR> to continue...')
