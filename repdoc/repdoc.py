@@ -1,5 +1,6 @@
 import argparse
 import pandas as pd
+import os
 import PySimpleGUI as sg
 import sys
 
@@ -24,6 +25,7 @@ from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
+from .definitions import BITACORA_XLSX_FILENAME
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
 from .definitions import NULL_UUID
@@ -179,6 +181,11 @@ def main(args=None):
                                      '-', 0.0, '-',
                                      '-']
     if args.bitacora is None:
+        # check that there is not a file with the expected name
+        # (in order to avoid overwriting it)
+        if os.path.isfile(BITACORA_XLSX_FILENAME):
+            raise ValueError('File ' + BITACORA_XLSX_FILENAME +
+                             ' already exists!')
         # initialize empty dataframe with the expected columns
         bitacora = pd.DataFrame(
             data=[],

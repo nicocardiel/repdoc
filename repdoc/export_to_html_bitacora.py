@@ -4,6 +4,7 @@ from .define_gui_layout import COLOR_BITACORA_HEAD
 from .define_gui_layout import COLOR_BITACORA_EVEN
 from .define_gui_layout import COLOR_BITACORA_ODD
 from .define_gui_layout import COLOR_NO_DISPONIBLE
+from .definitions import BITACORA_XLSX_FILENAME
 
 
 def export_to_html_bitacora(bitacora):
@@ -11,9 +12,7 @@ def export_to_html_bitacora(bitacora):
 
     """
 
-    bitacora.to_excel('repdoc_bitacora.xlsx', header=True)
-
-    bitacora.to_html('repdoc_bitacora_raw.html')
+    bitacora.to_excel(BITACORA_XLSX_FILENAME, header=True)
 
     f = open('repdoc_bitacora.html', 'wt')
     f.write('''
