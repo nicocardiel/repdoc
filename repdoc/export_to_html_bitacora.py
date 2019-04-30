@@ -1,3 +1,6 @@
+import numpy as np
+import re
+
 from .date_last_update import date_last_update
 
 from .define_gui_layout import COLOR_BITACORA_HEAD
@@ -82,9 +85,10 @@ def export_to_html_bitacora(bitacora):
 <tr style="text-align: left;">
 ''')
 
-    f.write('<th>uuid_bita</th>\n')
+    f.write('<th style="text-align: center;">uuid bita</th>\n')
     for colname in bitacora.columns.tolist():
-        f.write('<th>' + colname + '</th>\n')
+        f.write('<th style="text-align: center;">' +
+                re.sub('_', ' ', colname) + '</th>\n')
 
     f.write('''
 </tr>
@@ -104,9 +108,19 @@ def export_to_html_bitacora(bitacora):
             )
         f.write('<td>{}</td>\n'.format(uuid_bita))
         for colname in bitacora.columns.tolist():
-            f.write('<td>{}</td>\n'.format(
-                bitacora.loc[uuid_bita][colname]
-            ))
+            typecol = type(bitacora.loc[uuid_bita][colname])
+            if typecol == np.dtype(np.int):
+                f.write('<td style="text-align: center;">{}</td>\n'.format(
+                    bitacora.loc[uuid_bita][colname]
+                ))
+            elif typecol == np.dtype(np.float):
+                f.write('<td style="text-align: center;">{}</td>\n'.format(
+                    round(bitacora.loc[uuid_bita][colname], 4)
+                ))
+            else:
+                f.write('<td>{}</td>\n'.format(
+                    bitacora.loc[uuid_bita][colname]
+                ))
         f.write('</tr>\n')
 
     f.write('\n</tbody>\n\n')
