@@ -310,7 +310,7 @@ def main(args=None):
 
     # define GUI layout
     num_titulaciones = tabla_titulaciones.shape[0]
-    layout = define_gui_layout(args.fontsize, num_titulaciones)
+    layout = define_gui_layout(args.fontname, args.fontsize, num_titulaciones)
 
     # define GUI window
     window = sg.Window('Reparto Docente (FTA), Curso ' +

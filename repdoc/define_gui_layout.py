@@ -32,10 +32,17 @@ COLOR_PROFESORES_ODD = '#F3F4FB'
 COLOR_NO_DISPONIBLE = '#999'
 
 
-def define_gui_layout(fontsize, num_titulaciones):
+def define_gui_layout(fontname, fontsize, num_titulaciones):
     """Define GUI layout
 
     """
+
+    if fontname is None:
+        fontname = 'Helvetica bold'
+    else:
+        if 'bold' not in fontname:
+            fontname += ' bold'
+            print('fontname:', fontname)
 
     # define monospaced typeface for results
     fontname_header = 'courier bold'
@@ -158,7 +165,9 @@ def define_gui_layout(fontsize, num_titulaciones):
                 sg.Text('(0: selecciona todos los profesores)',
                         text_color='#aaaaaa',
                         auto_size_text=True),
-                sg.Button('Establecer ronda', key='_establecer_ronda_'),
+                sg.Button('Establecer ronda',
+                          font=(fontname, fontsize),
+                          key='_establecer_ronda_'),
                 sg.Text('      Nº de profesores seleccionados:',
                         text_color='#aaaaaa', auto_size_text=True),
                 sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
@@ -202,10 +211,13 @@ def define_gui_layout(fontsize, num_titulaciones):
                               key='_docencia_asignada_')],
                # ---
                [sg.Button('Continuar con nueva elección', disabled=True,
+                          font=(fontname, fontsize),
                           key='_continuar_'),
                 sg.Button('Eliminar asignatura ya elegida', disabled=True,
+                          font=(fontname, fontsize),
                           key='_eliminar_'),
                sg.Button('Finalizar elección en rondas', disabled=True,
+                         font=(fontname, fontsize),
                          key='_profesor_finalizado_')],
                [sg.Text('_' * WIDTH_HLINE)],
                # ---
@@ -261,11 +273,16 @@ def define_gui_layout(fontsize, num_titulaciones):
                              key='_explicacion_')],
                # ---
                [sg.Button('Confirmar selección de nueva docencia',
+                          font=(fontname, fontsize),
                           disabled=True,
                           key='_confirmar_'),
-                sg.Button('Cancelar', disabled=True, key='_cancelar_'),
+                sg.Button('Cancelar', disabled=True,
+                          font=(fontname, fontsize),
+                          key='_cancelar_'),
                 sg.Text(' ', size=(52, 1)),
-                sg.Button('Salir', key='_salir_')
+                sg.Button('Salir',
+                          font=(fontname, fontsize),
+                          key='_salir_')
                 ]
                ]
 
