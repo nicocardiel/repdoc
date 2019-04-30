@@ -190,7 +190,8 @@ def main(args=None):
         bitacora = pd.DataFrame(
             data=[],
             columns=['uuid_prof', 'uuid_titu', 'uuid_asig',
-                     'date_added', 'date_removed',
+                     'date_added', 'round_added',
+                     'date_removed', 'round_removed',
                      'creditos_elegidos', 'explicacion'] +
                     csv_colnames_profesor + csv_colnames_asignatura
         )
@@ -591,8 +592,8 @@ def main(args=None):
                         sumproduct.sum()
                     # set date_removed
                     ronda_actual = int(values['_ronda_'])
-                    bitacora.loc[uuid_bita, 'date_removed'] = \
-                        datetime_short() + ' (round {:d})'.format(ronda_actual)
+                    bitacora.loc[uuid_bita, 'date_removed'] = datetime_short()
+                    bitacora.loc[uuid_bita, 'round_removed'] = ronda_actual
                 # update info for teacher
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
@@ -654,8 +655,10 @@ def main(args=None):
             uuid_titu = NULL_UUID
             uuid_asig = NULL_UUID
             creditos_elegidos = 0.0
+            ronda_actual = int(values['_ronda_'])
             data_row = [uuid_prof, uuid_titu, uuid_asig,
-                        datetime_short(), 'None',
+                        datetime_short(), ronda_actual,
+                        'None', 'None',
                         creditos_elegidos, explicacion]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])
@@ -907,8 +910,8 @@ def main(args=None):
             ronda_actual = int(values['_ronda_'])
             data_row = [
                 uuid_prof, uuid_titu, uuid_asig,
-                datetime_short() + ' (round {:d})'.format(ronda_actual),
-                'None', creditos_elegidos, values['_explicacion_']
+                datetime_short(), ronda_actual,
+                'None', 'None', creditos_elegidos, values['_explicacion_']
             ]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])

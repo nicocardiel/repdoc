@@ -9,6 +9,7 @@ from .define_gui_layout import COLOR_PROFESORES_EVEN
 from .define_gui_layout import COLOR_PROFESORES_ODD
 
 from .definitions import FLAG_RONDA_NO_ELIGE
+from .definitions import NULL_UUID
 
 
 def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
@@ -330,7 +331,8 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
             # subset of bitacora for the selected teacher
             seleccion = bitacora.loc[
                 (bitacora['uuid_prof'] == uuid_prof) &
-                (bitacora['date_removed'] == 'None')
+                (bitacora['date_removed'] == 'None') &
+                (bitacora['uuid_titu'] != NULL_UUID)
                 ].copy()
             # find how many times the selected teacher appears
             ntimes = seleccion.shape[0]
@@ -343,13 +345,14 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 <thead>
 <tr style="text-align: left;">
 <th>Curso</th>
-<th>Semestre</th>
-<th>Código</th>
+<th style="text-align: center;">Semestre</th>
+<th style="text-align: center;">Código</th>
+<th style="text-align: center;">Ronda</th>
 <th>Asignatura</th>
 <th>Área</th>
 <th style="text-align: center;">Créditos<br>iniciales</th>
 <th>Comentarios</th>
-<th>Grupo</th>
+<th style="text-align: center;">Grupo</th>
 <th style="text-align: center;">Créditos<br>elegidos</th>
 </tr>
 </thead>
@@ -369,6 +372,9 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                         seleccion['codigo'].tolist()[i]
 
                     ))
+                    f.write('<td style="text-align: center;">{}</td>\n'.format(
+                        seleccion['round_added'].tolist()[i]
+                    ))
                     f.write('<td>{}</td>\n'.format(
                         seleccion['asignatura'].tolist()[i]
                     ))
@@ -384,7 +390,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['grupo'].tolist()[i]
                     ))
-                    f.write('<td style="text-align: right;">' +
+                    f.write('<td style="text-align: center;">' +
                             '{0:9.4f}</td>\n'.format(
                                 seleccion['creditos_elegidos'].tolist()[i]
                             ))
@@ -392,9 +398,9 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                 #
                 f.write('<tfoot>\n\n')
                 f.write('<tr>\n')
-                f.write('<td colspan="8" style="text-align: right;">SUMA</td>')
+                f.write('<td colspan="9" style="text-align: right;">SUMA</td>')
                 creditos = seleccion['creditos_elegidos'].sum()
-                f.write('<td style="text-align: right; font-weight: bold; ' +
+                f.write('<td style="text-align: center; font-weight: bold; ' +
                         'background-color: ' + COLOR_ASIGNACION_HEAD +
                         '; color: white;">' +
                         '{0:9.4f}'.format(creditos) + '</td>\n')
