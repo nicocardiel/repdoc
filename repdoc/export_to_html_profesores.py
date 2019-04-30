@@ -381,9 +381,10 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                     f.write('<td>{}</td>\n'.format(
                         seleccion['area'].tolist()[i]
                     ))
-                    f.write('<td style="text-align: center;">{}</td>\n'.format(
-                        seleccion['creditos_iniciales'].tolist()[i]
-                    ))
+                    f.write('<td style="text-align: center;">' +
+                            '{0:9.4f}</td>\n'.format(
+                                seleccion['creditos_iniciales'].tolist()[i]
+                            ))
                     f.write('<td>{}</td>\n'.format(
                         seleccion['comentarios'].tolist()[i]
                     ))
