@@ -590,8 +590,9 @@ def main(args=None):
                     tabla_titulaciones.loc[uuid_titu, 'creditos_beccol'] = \
                         sumproduct.sum()
                     # set date_removed
+                    ronda_actual = int(values['_ronda_'])
                     bitacora.loc[uuid_bita, 'date_removed'] = \
-                        datetime_short()
+                        datetime_short() + ' (round {:d})'.format(ronda_actual)
                 # update info for teacher
                 encargo = tabla_profesores.loc[uuid_prof]['encargo']
                 asignados = tabla_profesores.loc[uuid_prof]['asignados']
@@ -903,9 +904,12 @@ def main(args=None):
             uuid_bita = str(new_uuid(megalist_uuid))
             megalist_uuid += [uuid_bita]
             # prepare new entry for bitacora
-            data_row = [uuid_prof, uuid_titu, uuid_asig,
-                        datetime_short(), 'None',
-                        creditos_elegidos, values['_explicacion_']]
+            ronda_actual = int(values['_ronda_'])
+            data_row = [
+                uuid_prof, uuid_titu, uuid_asig,
+                datetime_short() + ' (round {:d})'.format(ronda_actual),
+                'None', creditos_elegidos, values['_explicacion_']
+            ]
             for item in csv_colnames_profesor:
                 data_row.append(tabla_profesores.loc[uuid_prof][item])
             for item in csv_colnames_asignatura:
