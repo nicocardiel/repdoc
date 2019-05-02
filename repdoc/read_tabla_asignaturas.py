@@ -11,20 +11,27 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     if course == '2019-2020':
         skiprows = 5
-        usecols = range(1, 13)
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
                  'uuid_asig', 'creditos_iniciales', 'comentarios',
-                 'grupo', 'bec_col', 'profesor_anterior', 'antiguedad'
+                 'grupo', 'horario', 'bec_col', 'profesor_anterior',
+                 'antiguedad'
                  ]
         converters = {'curso': str, 'semestre': int, 'codigo': int,
+                      'asignatura': str,
                       'area': str, 'uuid_asig': str,
                       'creditos_iniciales': float, 'comentarios': str_nonan,
-                      'grupo': str_nonan, 'bec_col': int,
+                      'grupo': str_nonan, 'horario': str,
+                      'bec_col': int,
                       'profesor_anterior': str_nonan, 'antiguedad': int
                       }
     else:
         print('Course: ' + course)
         raise ValueError('Unexpected course!')
+
+    if len(names) != len(converters):
+        raise ValueError('Unexpected error in names and converters')
+
+    usecols = range(1, len(names) + 1)
 
     if debug:
         print('Reading ' + xlsxfilename)
