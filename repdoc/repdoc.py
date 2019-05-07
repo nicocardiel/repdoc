@@ -25,7 +25,7 @@ from .version import version
 
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 
-from .definitions import BITACORA_XLSX_FILENAME
+from .definitions import DEFAULT_BITACORA_XLSX_FILENAME
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
 from .definitions import NULL_UUID
@@ -184,8 +184,8 @@ def main(args=None):
     if args.bitacora is None:
         # check that there is not a file with the expected name
         # (in order to avoid overwriting it)
-        if os.path.isfile(BITACORA_XLSX_FILENAME):
-            raise ValueError('File ' + BITACORA_XLSX_FILENAME +
+        if os.path.isfile(DEFAULT_BITACORA_XLSX_FILENAME):
+            raise ValueError('File ' + DEFAULT_BITACORA_XLSX_FILENAME +
                              ' already exists!')
         # initialize empty dataframe with the expected columns
         bitacora = pd.DataFrame(
@@ -298,7 +298,7 @@ def main(args=None):
 
     # ---
     # export to HTML files
-    export_to_html_bitacora(bitacora)
+    export_to_html_bitacora(bitacora, args.bitacora)
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora, 0)
@@ -626,7 +626,7 @@ def main(args=None):
                     )
                 window.Element('_eliminar_').Update(disabled=True)
                 update_info_creditos()
-                export_to_html_bitacora(bitacora)
+                export_to_html_bitacora(bitacora, args.bitacora)
                 export_to_html_titulaciones(tabla_titulaciones)
                 export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
                 ronda_actual = int(values['_ronda_'])
@@ -676,7 +676,7 @@ def main(args=None):
             bitacora.index.name = 'uuid_bita'
             if args.debug:
                 print(bitacora)
-            export_to_html_bitacora(bitacora)
+            export_to_html_bitacora(bitacora, args.bitacora)
             ronda_actual = int(values['_ronda_'])
             export_to_html_profesores(tabla_profesores, bitacora,
                                       ronda_actual)
@@ -951,7 +951,7 @@ def main(args=None):
                     disabled=True
                 )
             window.Element('_continuar_').Update(disabled=False)
-            export_to_html_bitacora(bitacora)
+            export_to_html_bitacora(bitacora, args.bitacora)
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
             ronda_actual = int(values['_ronda_'])
