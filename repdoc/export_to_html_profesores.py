@@ -80,6 +80,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 <h1>Reparto Docente FTA, curso 2019-2020</h1> 
 <h2>Listado de profesores</h2>
 ''')
+    f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
 
     f.write('<p>Ronda actual: {0:d}</p>\n'.format(ronda_actual))
 
@@ -218,6 +219,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
     f.write('</tr>\n')
     #
     f.write('\n</tfoot>\n\n</table>\n\n')
+    f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
     f.write(date_last_update())
     f.write('</body>\n\n</html>\n')
     f.close()
@@ -420,6 +422,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                 f.write('\n<tfoot>\n\n')
                 f.write('</table>\n\n')
 
+            f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
             f.write('<hr class="sep"></div>\n\n')
 
         f.write(date_last_update())

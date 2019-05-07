@@ -76,6 +76,7 @@ def export_to_html_bitacora(bitacora, filename):
 <h1>Reparto Docente FTA, curso 2019-2020</h1> 
 <h2>Cuaderno de bitácora</h2>
 ''')
+    f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
 
     f.write('''
 <table id="tabla_bitacora">
@@ -133,6 +134,7 @@ def export_to_html_bitacora(bitacora, filename):
 
     f.write('\n</tbody>\n\n')
     f.write('\n</table>\n\n')
+    f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
 
     f.write(date_last_update())
     f.write('</body>\n\n</html>\n')
