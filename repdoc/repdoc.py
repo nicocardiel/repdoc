@@ -951,6 +951,7 @@ def main(args=None):
                     disabled=True
                 )
             window.Element('_continuar_').Update(disabled=False)
+            window.Element('_profesor_finalizado_').Update(disabled=False)
             export_to_html_bitacora(bitacora, args.bitacora)
             export_to_html_titulaciones(tabla_titulaciones)
             export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
