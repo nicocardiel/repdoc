@@ -1,3 +1,12 @@
+#
+# Copyright 2019 Universidad Complutense de Madrid
+#
+# This file is part of RepDoc
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from .define_gui_layout import WIDTH_SPACES_FOR_UUID
 from .definitions import NULL_UUID
 

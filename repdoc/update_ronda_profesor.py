@@ -1,3 +1,12 @@
+#
+# Copyright 2019 Universidad Complutense de Madrid
+#
+# This file is part of RepDoc
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
 from .definitions import PRIMERA_RONDA_RYC

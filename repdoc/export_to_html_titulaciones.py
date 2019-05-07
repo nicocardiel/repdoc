@@ -1,3 +1,12 @@
+#
+# Copyright 2019 Universidad Complutense de Madrid
+#
+# This file is part of RepDoc
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from .date_last_update import date_last_update
 
 from .define_gui_layout import COLOR_NO_DISPONIBLE

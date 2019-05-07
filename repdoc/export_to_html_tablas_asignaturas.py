@@ -1,3 +1,12 @@
+#
+# Copyright 2019 Universidad Complutense de Madrid
+#
+# This file is part of RepDoc
+#
+# SPDX-License-Identifier: GPL-3.0+
+# License-Filename: LICENSE.txt
+#
+
 from .date_last_update import date_last_update
 
 from .define_gui_layout import COLOR_ASIGNATURAS_HEAD
@@ -74,7 +83,8 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 <h1>Reparto Docente FTA, curso 2019-2020</h1> 
 <h2>Listado de asignaturas: {}</h2>
 '''.format(key))
-        f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
+        f.write('<p><a href="index.html">Volver a la página principal'
+                '</a></p>\n')
 
         f.write('''
 <table id="tabla_asignaturas">
@@ -193,7 +203,8 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
         f.write('\n</tfoot>\n\n')
         #
         f.write('\n</table>\n\n')
-        f.write('<p><a href="index.html">Volver a página principal</a></p>\n')
+        f.write('<p><a href="index.html">Volver a la página principal'
+                '</a></p>\n')
         f.write(date_last_update())
         f.write('</body>\n\n</html>\n')
         f.close()
