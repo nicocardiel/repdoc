@@ -1,6 +1,6 @@
 # repdoc
 
-Python tool developed by Nicolás Cardiel to facilitate the subject assignment of each teacher in the Physics of the Earth and Astrophysics Department.
+Python tool developed by Nicolás Cardiel to facilitate the subject assignment of each teacher in the [Physics of the Earth and Astrophysics Department](https://www.ucm.es/fisica_de_la_tierra_y_astrofisica/) ([Physics Faculty](https://fisicas.ucm.es/), [Universidad Complutense de Madrid](https://www.ucm.es/)).
 
 Usage:
 
