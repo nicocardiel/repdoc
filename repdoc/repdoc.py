@@ -48,6 +48,11 @@ def main(args=None):
     parser.add_argument("--bitacora",
                         help="CSV input/output filename",
                         type=argparse.FileType())
+    parser.add_argument("--warning_collaborators",
+                        help="Warning when available credits for "
+                             "collaborators falls bellow provided limit",
+                        default=0.0,
+                        type=float)
     parser.add_argument('--web',
                         help="rsync HTML files in web server",
                         action="store_true")
@@ -73,6 +78,12 @@ def main(args=None):
 
     print('Welcome con RepDoc version ' + version)
     print('Copyright ' + '\u00a9' + ' 2019 Universidad Complutense de Madrid')
+
+    global warning_collaborators
+    if args.warning_collaborators > 0:
+        warning_collaborators = args.warning_collaborators
+    else:
+        warning_collaborators = 0.0
 
     # ---
     # load Excel sheets
@@ -403,6 +414,13 @@ def main(args=None):
             value=cout.format(total_disponibles))
         window.Element('_summary_beccol_').Update(
             value=cout.format(total_disponibles_beccol))
+
+        global warning_collaborators
+        if warning_collaborators > 0.0:
+            if total_disponibles_beccol <= warning_collaborators:
+                sg.PopupOK('Se ha alcanzado límite de créditos\n'
+                           'prereservados para becarios/colaboradores')
+                warning_collaborators = 0.0
 
     def comprueba_ronda_profesor(ronda_profesor):
         ronda_actual = int(values['_ronda_'])
