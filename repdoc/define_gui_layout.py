@@ -154,7 +154,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
     layout += [[sg.Text('_' * WIDTH_HLINE)]]
     # ---
 
-    layout += [[sg.Checkbox('Excluir elección de asignaturas elegibles '
+    layout += [[sg.Checkbox('Excluir asignaturas elegibles '
                             'por becarios/colaboradores',
                             default=False,
                             change_submits=True,

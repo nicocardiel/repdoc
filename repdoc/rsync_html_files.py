@@ -18,7 +18,8 @@ def rsync_html_files(course=None, xlsxfile=None, bitacora=None):
     if course is None:
         raise ValueError('Unexpected course=None value')
 
-    command = 'rsync -arv --delete *html last_execution_command.txt '
+    command = 'rsync -arv --delete *html '
+    command += 'last_execution_command.txt z_leeme.txt '
     if xlsxfile is not None:
         command += xlsxfile.name + ' '
     if bitacora is not None:

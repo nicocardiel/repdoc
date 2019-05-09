@@ -15,16 +15,28 @@ from .define_gui_layout import COLOR_ASIGNATURAS_ODD
 from .define_gui_layout import COLOR_NO_DISPONIBLE
 
 
+def writeff(f, ff, output):
+    f.write(output)
+    if ff is not None:
+        ff.write(output)
+
+
 def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
     """Export to html bigdict_tablas_asignaturas
 
     """
 
+    ff = open('repdoc_disponibles.html', 'wt')
+
     for i, key in enumerate(bigdict_tablas_asignaturas.keys()):
         tabla_asignaturas = bigdict_tablas_asignaturas[key]
         #
         f = open('repdoc_titulacion_{:02d}.html'.format(i + 1), 'wt')
-        f.write('''
+        if i == 0:
+            fff = ff
+        else:
+            fff = None
+        writeff(f, fff, '''
 <!DOCTYPE html>
 
 <html lang="en">
@@ -79,14 +91,15 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 ''')
 
-        f.write('''
-<h1>Reparto Docente FTA, curso 2019-2020</h1> 
-<h2>Listado de asignaturas: {}</h2>
-'''.format(key))
-        f.write('<p><a href="index.html">Volver a la página principal'
+        writeff(f, fff, '<h1>Reparto Docente FTA, curso 2019-2020</h1>\n')
+        f.write('<h2>Listado de asignaturas: {}</h2>\n'.format(key))
+        ff.write('<h2>Listado de asignaturas disponibles: {}</h2>\n'.format(
+            key))
+
+        writeff(f, ff, '<p><a href="index.html">Volver a la página principal'
                 '</a></p>\n')
 
-        f.write('''
+        writeff(f, ff, '''
 <table id="tabla_asignaturas">
 
 <thead>
@@ -114,15 +127,20 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
         def insert_separator():
             for idum in range(2):
-                f.write('\n<tr style="background: ' +
+                if not separator_ff:
+                    fff = ff
+                else:
+                    fff = None
+                writeff(f, fff, '\n<tr style="background: ' +
                         COLOR_ASIGNATURAS_HEAD +
                         '; height: 2px; padding-top: 0px; ' +
                         'padding-bottom: 0px;">')
-                f.write('<td colspan="14" style="height: 2px; ' +
+                writeff(f, fff, '<td colspan="14" style="height: 2px; ' +
                         'padding-top: 0px; padding-bottom: 0px;">' +
                         '</td></tr>\n')
 
         ultima_asignatura = None
+        separator_ff = False
         for uuid_asig in tabla_asignaturas.index:
             irow = tabla_asignaturas.loc[uuid_asig]['num']
             nueva_asignatura = tabla_asignaturas.loc[uuid_asig]['asignatura']
@@ -132,78 +150,88 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                 if nueva_asignatura != ultima_asignatura:
                     insert_separator()
                     ultima_asignatura = nueva_asignatura
+                    separator_ff = True
             creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
             if creditos > 0:
-                f.write('\n<tr>\n')
+                writeff(f, ff, '\n<tr>\n')
+                fff = ff
+                separator_ff = False
             else:
                 f.write(
                     '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
                 )
-            f.write('<td style="color: #888; background: #fff; text-align: '
+                fff = None
+            writeff(f, fff,
+                    '<td style="color: #888; background: #fff; text-align: '
                     'right;">')
-            f.write('{:d}</td>\n'.format(irow))
-            f.write('<td>{}</td>\n'.format(
+            writeff(f, fff, '{:d}</td>\n'.format(irow))
+            writeff(f, fff, '<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['curso']
             ))
-            f.write('<td style="text-align: center;">{}</td>\n'.format(
+            writeff(f, fff, '<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['semestre']
             ))
-            f.write('<td style="text-align: center;">{}</td>\n'.format(
+            writeff(f, fff, '<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['codigo']
             ))
-            f.write('<td>{}</td>\n'.format(nueva_asignatura))
-            f.write('<td>{}</td>\n'.format(
+            writeff(f, fff, '<td>{}</td>\n'.format(nueva_asignatura))
+            writeff(f, fff, '<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['area']
             ))
             creditos = tabla_asignaturas.loc[uuid_asig]['creditos_iniciales']
-            f.write('<td style="text-align: right;">' +
+            writeff(f, fff, '<td style="text-align: right;">' +
                     '{0:9.4f}'.format(creditos) + '</td>\n')
-            f.write('<td>{}</td>\n'.format(
+            writeff(f, fff, '<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['comentarios']
             ))
-            f.write('<td style="text-align: center;">{}</td>\n'.format(
+            writeff(f, fff, '<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['grupo']
             ))
-            f.write('<td style="text-align: center;">{}</td>\n'.format(
+            writeff(f, fff, '<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['bec_col']
             ))
-            f.write('<td>{}</td>\n'.format(
+            writeff(f, fff, '<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['profesor_anterior']
             ))
-            f.write('<td style="text-align: center;">{}</td>\n'.format(
+            writeff(f, fff, '<td style="text-align: center;">{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['antiguedad']
             ))
-            f.write('<td>{}</td>\n'.format(
+            writeff(f, fff, '<td>{}</td>\n'.format(
                 tabla_asignaturas.loc[uuid_asig]['nuevo_profesor']
             ))
             creditos = tabla_asignaturas.loc[uuid_asig]['creditos_disponibles']
-            f.write('<td style="text-align: right;">' +
+            writeff(f, fff, '<td style="text-align: right;">' +
                     '{0:9.4f}'.format(creditos) + '</td>\n'
                     )
-            f.write('</tr>\n')
+            writeff(f, fff, '</tr>\n')
 
         insert_separator()
-        f.write('\n</tbody>\n\n')
+        writeff(f, ff, '\n</tbody>\n\n')
         #
-        f.write('<tfoot>\n\n')
-        f.write('<tr>\n')
+        writeff(f, ff, '<tfoot>\n\n')
+        writeff(f, ff, '<tr>\n')
         f.write('<td colspan="6" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_iniciales'].sum()
         f.write('<td style="text-align: right; font-weight: bold; ' +
                 'background-color: ' + COLOR_ASIGNATURAS_HEAD +
                 '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
-        f.write('<td colspan="6" style="text-align: right;">SUMA</td>\n')
+        ff.write('<td colspan="7" style="text-align: right;"> </td>\n')
+        writeff(f, ff,
+                '<td colspan="6" style="text-align: right;">SUMA</td>\n')
         creditos = tabla_asignaturas['creditos_disponibles'].sum()
-        f.write('<td style="text-align: right; font-weight: bold; ' +
+        writeff(f, ff, '<td style="text-align: right; font-weight: bold; ' +
                 'background-color: ' + COLOR_ASIGNATURAS_HEAD +
                 '; color: white;">' +
                 '{0:9.4f}'.format(creditos) + '</td>\n')
-        f.write('\n</tfoot>\n\n')
+        writeff(f, ff, '\n</tfoot>\n\n')
         #
-        f.write('\n</table>\n\n')
-        f.write('<p><a href="index.html">Volver a la página principal'
+        writeff(f, ff, '\n</table>\n\n')
+        writeff(f, ff, '<p><a href="index.html">Volver a la página principal'
                 '</a></p>\n')
         f.write(date_last_update())
-        f.write('</body>\n\n</html>\n')
+        writeff(f, ff, '</body>\n\n</html>\n')
         f.close()
+
+    ff.write(date_last_update())
+    ff.close()
