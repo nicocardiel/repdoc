@@ -196,8 +196,12 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
         if ronda == FLAG_RONDA_NO_ELIGE:
             f.write('<td style="text-align: center;"> &mdash; </td>\n')
         else:
-            f.write('<td style="text-align: center;">' + '{:d}'.format(ronda) +
-                    '</td>\n')
+            if finalizado:
+                f.write('<td style="text-align: center;">' +
+                        '({:d})'.format(ronda) + '</td>\n')
+            else:
+                f.write('<td style="text-align: center;">' +
+                        '{:d}'.format(ronda) + '</td>\n')
         #
         if finalizado:
             f.write('<td style="text-align: center;"> Sí </td>\n')
