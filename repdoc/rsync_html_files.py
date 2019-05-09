@@ -10,7 +10,7 @@
 import subprocess
 
 
-def rsync_html_files(course=None):
+def rsync_html_files(course=None, xlsxfile=None, bitacora=None):
     """Execute rsync of HTML files to server
 
     """
@@ -18,7 +18,11 @@ def rsync_html_files(course=None):
     if course is None:
         raise ValueError('Unexpected course=None value')
 
-    command = 'rsync -arv --delete *html '
+    command = 'rsync -arv --delete *html last_execution_command.txt '
+    if xlsxfile is not None:
+        command += xlsxfile.name + ' '
+    if bitacora is not None:
+        command += bitacora.name + ' '
     command += 'ncl@nartex.fis.ucm.es:public_html/repdoc/'
     command += course
     command += '/'

@@ -82,8 +82,11 @@ def main(args=None):
 
     args = parser.parse_args()
 
+    execution_command = ' '.join(sys.argv)
     if args.echo:
-        print('\033[1m\033[31mExecuting: ' + ' '.join(sys.argv) + '\033[0m\n')
+        print('\033[1m\033[31mExecuting: ' + execution_command + '\033[0m\n')
+    with open('last_execution_command.txt', 'w') as f:
+        f.write(execution_command)
 
     print('Welcome con RepDoc version ' + version)
     print('Copyright ' + '\u00a9' + ' 2019 Universidad Complutense de Madrid')
@@ -329,7 +332,7 @@ def main(args=None):
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora, 0)
     if args.web:
-        rsync_html_files(args.course)
+        rsync_html_files(args.course, args.xlsxfile, args.bitacora)
 
     # ---
     # GUI
@@ -500,7 +503,7 @@ def main(args=None):
                             lista_profesores.append(nombre_completo)
                 export_to_html_profesores(tabla_profesores, bitacora, ronda)
                 if args.web:
-                    rsync_html_files(args.course)
+                    rsync_html_files(args.course, args.xlsxfile, args.bitacora)
             clear_screen_profesor()
             window.Element('_num_prof_seleccionados_').Update(
                 str(num_profesores)
@@ -668,7 +671,7 @@ def main(args=None):
                 export_to_html_profesores(tabla_profesores, bitacora,
                                           ronda_actual)
                 if args.web:
-                    rsync_html_files(args.course)
+                    rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
         elif event == '_profesor_finalizado_':
             uuid_prof = values['_profesor_'][-36:]
@@ -716,7 +719,7 @@ def main(args=None):
             export_to_html_profesores(tabla_profesores, bitacora,
                                       ronda_actual)
             if args.web:
-                rsync_html_files(args.course)
+                rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
         elif event == '_titulacion_':
             titulacion = values['_titulacion_']
@@ -994,7 +997,7 @@ def main(args=None):
             export_to_html_profesores(tabla_profesores, bitacora,
                                       ronda_actual)
             if args.web:
-                rsync_html_files(args.course)
+                rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
         elif event == '_cancelar_':
             clear_screen_asignatura()
