@@ -81,9 +81,9 @@ def export_to_html_titulaciones(tabla_titulaciones):
 <p>Enlace a tabla de 
 <a href="repdoc_asignacion.html">asignación de asignaturas</a></p>
 <p></p>
-<p>Enlace a tabla de 
-<a href="repdoc_disponibles.html">asignaturas disponibles 
-(todas las titulaciones)</a></p>
+<p>Enlace a tabla con
+<a href="repdoc_disponibles.html">solo asignaturas disponibles 
+</a> (todas las titulaciones)</p>
 <p></p>
 <p>Enlace al
 <a href="repdoc_bitacora.html">cuaderno de bitácora</a>
