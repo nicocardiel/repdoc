@@ -131,6 +131,10 @@ def main(args=None):
         dumtable['nuevo_profesor'] = ' '
         # incluye columna con créditos disponibles
         dumtable['creditos_disponibles'] = dumtable['creditos_iniciales']
+        # incluye número de fila en la tabla
+        dumtable['num'] = 0
+        for irow, uuid_asig in enumerate(dumtable.index):
+            dumtable.loc[uuid_asig, 'num'] = irow + 1
         bigdict_tablas_asignaturas[titulacion] = dumtable.copy()
         # actualiza número total de créditos disponibles (todas las
         # asignaturas) en tabla de titulaciones
@@ -170,7 +174,9 @@ def main(args=None):
         tabla_profesores['asignados'] - tabla_profesores['encargo']
     tabla_profesores['ronda'] = 0  # force column to be integer
     tabla_profesores['finalizado'] = False
-    for uuid_prof in tabla_profesores.index:
+    tabla_profesores['num'] = 0
+    for iprof, uuid_prof in enumerate(tabla_profesores.index):
+        tabla_profesores.loc[uuid_prof, 'num'] = iprof + 1
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         if categoria == 'Colaborador':
@@ -427,7 +433,7 @@ def main(args=None):
         global warning_collaborators
         if warning_collaborators > 0.0:
             if total_disponibles_beccol <= warning_collaborators:
-                sg.PopupOK('Se ha alcanzado límite de créditos\n'
+                sg.PopupOK('Se ha alcanzado el límite de créditos\n'
                            'prereservados para becarios/colaboradores')
                 warning_collaborators = 0.0
 
@@ -475,7 +481,9 @@ def main(args=None):
                 print('--> ronda............:', ronda)
                 print('--> umbral (créditos):', umbral)
                 for uuid_prof in tabla_profesores.index:
+                    iprof = tabla_profesores.loc[uuid_prof]['num']
                     nombre_completo = \
+                        '{:2d}. '.format(iprof) + \
                         tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
                         tabla_profesores.loc[uuid_prof]['apellidos']
                     ldum = len(nombre_completo)

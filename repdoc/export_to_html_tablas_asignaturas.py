@@ -123,9 +123,8 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
                         '</td></tr>\n')
 
         ultima_asignatura = None
-        irow = 0
         for uuid_asig in tabla_asignaturas.index:
-            irow += 1
+            irow = tabla_asignaturas.loc[uuid_asig]['num']
             nueva_asignatura = tabla_asignaturas.loc[uuid_asig]['asignatura']
             if ultima_asignatura is None:
                 ultima_asignatura = nueva_asignatura

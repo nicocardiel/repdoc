@@ -28,7 +28,8 @@ def filtra_asignaturas(tabla_asignaturas,
             incluir_asignatura = True
         if incluir_asignatura:
             if tabla_asignaturas['creditos_disponibles'][i] > 0:
-                dumtxt = '[' + tabla_asignaturas['curso'][i] + '] '
+                dumtxt = '{:2d}. '.format(tabla_asignaturas['num'][i])
+                dumtxt += '[' + tabla_asignaturas['curso'][i] + '] '
                 dumtxt += tabla_asignaturas['asignatura'][i] + ', '
                 dumtxt += str(
                     round(tabla_asignaturas['creditos_disponibles'][i], 4)

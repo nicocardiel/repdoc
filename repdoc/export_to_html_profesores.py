@@ -125,9 +125,8 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                     '</td></tr>\n')
 
     ultima_categoria = None
-    iprof = 0
     for uuid_prof in tabla_profesores.index:
-        iprof += 1
+        iprof = tabla_profesores.loc[uuid_prof]['num']
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         if ultima_categoria is None:
             ultima_categoria = categoria
@@ -312,9 +311,8 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 <h2>Asignación de asignaturas por profesor</h2>
 ''')
 
-        iprof = 0
         for uuid_prof in tabla_profesores.index:
-            iprof += 1
+            iprof = tabla_profesores.loc[uuid_prof]['num']
             creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
             creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
             creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
