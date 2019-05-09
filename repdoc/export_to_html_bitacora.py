@@ -111,9 +111,9 @@ def export_to_html_bitacora(bitacora, filename):
 
 ''')
 
-    irow = 0
-    for uuid_bita in bitacora.index:
-        irow += 1
+    irow = len(bitacora.index) + 1
+    for uuid_bita in reversed(bitacora.index):
+        irow -= 1
         status = str(bitacora.loc[uuid_bita]['date_removed']) == 'None'
         if status:
             f.write('\n<tr>\n')
