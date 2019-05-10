@@ -196,9 +196,10 @@ def export_to_html_resultado(
                     f.write('<td>{}</td>\n'.format(
                         seleccion['asignatura'].tolist()[i]
                     ))
-                    f.write('<td>{}</td>\n'.format(
-                        seleccion['comentarios'].tolist()[i]
-                    ))
+                    comentarios = seleccion['comentarios'].tolist()[i]
+                    if len(comentarios) == 0 or comentarios == ' ':
+                        comentarios = seleccion['explicacion'].tolist()[i]
+                    f.write('<td>{}</td>\n'.format(comentarios))
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['grupo'].tolist()[i]
                     ))
