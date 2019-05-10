@@ -178,7 +178,7 @@ def export_to_html_resultado(
                 f.write('<td style="text-align: center;">{}</td>\n'.format(
                     tabla_asignaturas.loc[uuid_asig]['grupo']
                 ))
-                f.write('<td style="text-align: center;"> &mdash; </td>\n')
+                f.write('<td style="text-align: left;"> &mdash; </td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
             else:
                 for i in range(ntimes):
@@ -203,7 +203,7 @@ def export_to_html_resultado(
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['grupo'].tolist()[i]
                     ))
-                    f.write('<td style="text-align: center;">{}</td>\n'.format(
+                    f.write('<td style="text-align: left;">{}</td>\n'.format(
                         seleccion['nombre'].tolist()[i] + ' ' + \
                         seleccion['apellidos'].tolist()[i]
                     ))
