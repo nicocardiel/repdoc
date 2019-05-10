@@ -18,6 +18,7 @@ from .define_gui_layout import define_gui_layout
 from .display_in_terminal import display_in_terminal
 from .export_to_html_bitacora import export_to_html_bitacora
 from .export_to_html_profesores import export_to_html_profesores
+from .export_to_html_resultado import export_to_html_resultado
 from .export_to_html_tablas_asignaturas import \
     export_to_html_tablas_asignaturas
 from .export_to_html_titulaciones import export_to_html_titulaciones
@@ -90,6 +91,7 @@ def main(args=None):
 
     print('Welcome con RepDoc version ' + version)
     print('Copyright ' + '\u00a9' + ' 2019 Universidad Complutense de Madrid')
+    print('\nLoading tables (please wait):')
 
     global warning_collaborators
     if args.warning_collaborators > 0:
@@ -107,6 +109,7 @@ def main(args=None):
 
     # ---
     # titulaciones
+    print('- updating subjects')
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
         course=args.course,
@@ -162,6 +165,7 @@ def main(args=None):
 
     # ---
     # profesores
+    print('- updating teachers')
     tabla_profesores = read_tabla_profesores(
         xlsxfilename=args.xlsxfile.name,
         course=args.course,
@@ -210,6 +214,7 @@ def main(args=None):
     csv_colvalues_asignatura_null = ['-', 0, 0, '-',
                                      '-', 0.0, '-',
                                      '-']
+    print('- updating bitacora')
     if args.bitacora is None:
         # check that there is not a file with the expected name
         # (in order to avoid overwriting it)
@@ -331,6 +336,8 @@ def main(args=None):
     export_to_html_titulaciones(tabla_titulaciones)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
     export_to_html_profesores(tabla_profesores, bitacora, 0)
+    export_to_html_resultado(tabla_profesores, bigdict_tablas_asignaturas,
+                             bitacora)
     if args.web:
         rsync_html_files(args.course, args.xlsxfile, args.bitacora)
 
@@ -670,6 +677,9 @@ def main(args=None):
                 ronda_actual = int(values['_ronda_'])
                 export_to_html_profesores(tabla_profesores, bitacora,
                                           ronda_actual)
+                export_to_html_resultado(tabla_profesores,
+                                         bigdict_tablas_asignaturas,
+                                         bitacora)
                 if args.web:
                     rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
@@ -996,6 +1006,9 @@ def main(args=None):
             ronda_actual = int(values['_ronda_'])
             export_to_html_profesores(tabla_profesores, bitacora,
                                       ronda_actual)
+            export_to_html_resultado(tabla_profesores,
+                                     bigdict_tablas_asignaturas,
+                                     bitacora)
             if args.web:
                 rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
