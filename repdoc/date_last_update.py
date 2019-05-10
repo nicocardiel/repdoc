@@ -27,7 +27,7 @@ def date_last_update():
     """
 
     return '''\n\n
-<br><br>
+<br>
 <p style="color: #000; width: 100%; background-color: #ddd; 
 text-align: center;">
 Last update: ''' + datetime_short() + '''\n

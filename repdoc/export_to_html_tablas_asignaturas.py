@@ -91,7 +91,10 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
 ''')
 
-        writeff(f, fff, '<h1>Reparto Docente FTA, curso 2019-2020</h1>\n')
+        writeff(
+            f, fff,
+            '<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1>\n'
+        )
         f.write('<h2>Listado de asignaturas: {}</h2>\n'.format(key))
         ff.write('<h2>Listado de asignaturas disponibles: {}</h2>\n'.format(
             key))

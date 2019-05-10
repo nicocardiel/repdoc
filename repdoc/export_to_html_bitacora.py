@@ -82,7 +82,7 @@ def export_to_html_bitacora(bitacora, filename):
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
 <h2>Cuaderno de bitácora</h2>
 ''')
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')

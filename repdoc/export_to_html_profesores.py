@@ -86,7 +86,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
 <h2>Listado de profesores</h2>
 ''')
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
@@ -311,7 +311,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
 ''')
 
         f.write('''
-<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
 <h2>Asignación de asignaturas por profesor</h2>
 ''')
 

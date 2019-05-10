@@ -73,29 +73,32 @@ def export_to_html_titulaciones(tabla_titulaciones):
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA, curso 2019-2020</h1> 
+<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
+<h2>Tablas relevantes durante el reparto docente</h2>
 <p></p>
 <p>Enlace a tabla resumen de 
 <a href="repdoc_profesores.html">Profesores</a></p>
 <p></p>
 <p>Enlace a tabla de 
-<a href="repdoc_asignacion.html">asignación de asignaturas</a></p>
+<a href="repdoc_asignacion.html">asignación de asignaturas</a> por profesor</p>
 <p></p>
 <p>Enlace a tabla con
 <a href="repdoc_disponibles.html">solo asignaturas disponibles 
-</a> (todas las titulaciones)</p>
+</a> (todas las titulaciones) durante el reparto</p>
 <p></p>
 <p>Enlace al
 <a href="repdoc_bitacora.html">cuaderno de bitácora</a>
 del reparto docente</p>
 <p></p>
-<h2>Tabla resumen de titulaciones</h2>
 ''')
 
     f.write('''
 <table id="tabla_titulaciones">
 
 <thead>
+<tr><td colspan="5" style="text-align: center; font-size: 20px; 
+color: ''' + COLOR_TITULACIONES_HEAD + ";" + '''
+font-weight: bold;">Tabla resumen de titulaciones</td></tr>
 <tr style="text-align: left;">
 <th>Titulación</th>
 <th style="text-align: center;">Créditos iniciales</th>
@@ -163,7 +166,16 @@ del reparto docente</p>
 
     f.write('\n</tfoot>\n\n')
     #
-    f.write('\n</table>\n\n')
+    f.write('\n</table><br>\n\n')
+
+    f.write('''
+    <p></p>
+    <h2>Resultado del reparto docente</h2>
+    <p></p>
+    <p>Enlace a
+    <a href="repdoc_resultado.html">tabla final</a></p>
+    ''')
+
     f.write(date_last_update())
     f.write('</body>\n\n</html>\n')
     f.close()
