@@ -136,6 +136,7 @@ def export_to_html_resultado(
 ''')
 
 
+    creditos_totales = 0
     for i, key in enumerate(bigdict_tablas_asignaturas.keys()):
         tabla_asignaturas = bigdict_tablas_asignaturas[key]
         #
@@ -205,14 +206,24 @@ def export_to_html_resultado(
                         seleccion['nombre'].tolist()[i] + ' ' + \
                         seleccion['apellidos'].tolist()[i]
                     ))
+                    creditos = seleccion['creditos_elegidos'].tolist()[i]
                     f.write('<td style="text-align: center;">' +
-                            '{0:9.4f}</td>\n'.format(
-                                seleccion['creditos_elegidos'].tolist()[i]
-                            ))
+                            '{0:9.4f}</td>\n'.format(creditos))
+                    creditos_totales += creditos
 
         insert_separator(f, 10)
 
     f.write('\n</tbody>\n\n')
+    #
+    f.write('<tfoot>\n\n')
+    f.write('<tr>\n')
+    f.write('<td colspan="7" style="text-align: right;">SUMA</td>')
+    f.write('<td style="text-align: center; font-weight: bold; ' +
+            'background-color: ' + COLOR_ASIGNACION_HEAD +
+            '; color: white;">' +
+            '{0:9.4f}'.format(creditos_totales) + '</td>\n')
+    f.write('</tr>\n')
+    #
     f.write('\n</table>\n\n')
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
     f.write('<hr class="sep"></div>\n\n')
