@@ -8,6 +8,7 @@
 #
 
 import subprocess
+import yaml
 
 
 def rsync_html_files(course=None, xlsxfile=None, bitacora=None):
@@ -18,13 +19,19 @@ def rsync_html_files(course=None, xlsxfile=None, bitacora=None):
     if course is None:
         raise ValueError('Unexpected course=None value')
 
+    conf = yaml.load(open('configuration.yaml'))
+    username = conf['user']['username']
+    machine = conf['user']['machine']
+    directory = conf['user']['directory']
+    address = username + '@' + machine + ':' + directory
+
     command = 'rsync -arv --delete *html '
-    command += 'last_execution_command.txt z_leeme.txt '
+    command += 'last_execution_command.txt '
     if xlsxfile is not None:
         command += xlsxfile.name + ' '
     if bitacora is not None:
         command += bitacora.name + ' '
-    command += 'ncl@nartex.fis.ucm.es:public_html/repdoc/'
+    command += address
     command += course
     command += '/'
 
