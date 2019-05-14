@@ -240,6 +240,7 @@ def export_to_html_resultado(
             '{0:9.4f}'.format(creditos_totales) + '</td>\n')
     f.write('</tr>\n')
     #
+    f.write('\n</tfoot>\n\n')
     f.write('\n</table>\n\n')
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
     f.write('<hr class="sep"></div>\n\n')

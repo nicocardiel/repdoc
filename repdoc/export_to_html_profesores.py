@@ -430,7 +430,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual):
                         '{0:9.4f}'.format(creditos) + '</td>\n')
                 f.write('</tr>\n')
                 #
-                f.write('\n<tfoot>\n\n')
+                f.write('\n</tfoot>\n\n')
                 f.write('</table>\n\n')
 
             f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
