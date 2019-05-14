@@ -233,7 +233,7 @@ def export_to_html_resultado(
     #
     f.write('<tfoot>\n\n')
     f.write('<tr>\n')
-    f.write('<td colspan="7" style="text-align: right;">SUMA</td>')
+    f.write('<td colspan="8" style="text-align: right;">SUMA</td>')
     f.write('<td style="text-align: center; font-weight: bold; ' +
             'background-color: ' + COLOR_ASIGNACION_HEAD +
             '; color: white;">' +
