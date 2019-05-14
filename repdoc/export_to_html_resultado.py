@@ -127,6 +127,7 @@ def export_to_html_resultado(
 <th>Comentarios</th>
 <th>Grupo</th>
 <th>Profesor</th>
+<th>Categoría</th>
 <th>Créditos</th>
 </tr>
 </thead>
@@ -180,6 +181,7 @@ def export_to_html_resultado(
                 ))
                 f.write('<td style="text-align: left;"> &mdash; </td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
+                f.write('<td style="text-align: center;"> &mdash; </td>\n')
             else:
                 for i in range(ntimes):
                     f.write('\n<tr>')
@@ -203,13 +205,26 @@ def export_to_html_resultado(
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
                         seleccion['grupo'].tolist()[i]
                     ))
-                    f.write('<td style="text-align: left;">{}</td>\n'.format(
+                    categoria = seleccion['categoria'].tolist()[i]
+                    if categoria == 'Colaborador':
+                        color = '#282'
+                    else:
+                        color = '#000'
+                    f.write('<td style="text-align: left; ' +
+                            'color: {};">'.format(color) +
+                            '{}</td>\n'.format(
                         seleccion['nombre'].tolist()[i] + ' ' + \
                         seleccion['apellidos'].tolist()[i]
                     ))
+                    f.write('<td style="text-align: center; ' +
+                            'color: {};">'.format(color) +
+                            '{}</td>\n'.format(categoria)
+                            )
                     creditos = seleccion['creditos_elegidos'].tolist()[i]
-                    f.write('<td style="text-align: center;">' +
-                            '{0:9.4f}</td>\n'.format(creditos))
+                    f.write('<td style="text-align: center; ' +
+                            'color: {};">'.format(color) +
+                            '{0:9.4f}</td>\n'.format(creditos)
+                            )
                     creditos_totales += creditos
 
         insert_separator(f, 10)
