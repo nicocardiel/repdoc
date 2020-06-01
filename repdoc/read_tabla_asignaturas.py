@@ -18,7 +18,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     """
 
-    if course == '2019-2020':
+    if course in ['2019-2020', '2020-2021']:
         skiprows = 5
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
                  'uuid_asig', 'creditos_iniciales', 'comentarios',

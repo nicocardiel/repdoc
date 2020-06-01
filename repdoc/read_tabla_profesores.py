@@ -15,10 +15,13 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
 
     """
 
-    if course == '2019-2020':
+    if course in ['2019-2020', '2020-2021']:
         sheet_name = 'Asignación'
         skiprows = 7
-        usecols = [0, 1, 2, 3, 19]
+        if course == '2019-2020':
+            usecols = [0, 1, 2, 3, 19]
+        else:
+            usecols = [0, 1, 2, 3, 21]
         names = ['uuid_prof', 'apellidos', 'nombre', 'categoria',
                  'encargo']
         converters = {'uuid_prof': str,

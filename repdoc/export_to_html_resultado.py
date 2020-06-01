@@ -31,7 +31,7 @@ def insert_separator(f, height=2):
 def export_to_html_resultado(
         tabla_profesores,
         bigdict_tablas_asignaturas,
-        bitacora):
+        bitacora, course):
     """Export to html tabla_resultado
 
     """
@@ -111,9 +111,9 @@ def export_to_html_resultado(
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
+<h1>Reparto Docente FTA<br><small>Curso {}</small></h1> 
 <h2>Resultado final del reparto</h2>
-''')
+'''.format(course))
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
     f.write('''
 <table id="tabla_resultado">

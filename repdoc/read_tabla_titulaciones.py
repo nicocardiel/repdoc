@@ -15,7 +15,7 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
 
     """
 
-    if course == '2019-2020':
+    if course in ['2019-2020', '2020-2021']:
         sheet_name = 'Resumen Encargo'
         skiprows = 4
         usecols = [1, 2]

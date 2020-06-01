@@ -90,7 +90,7 @@ def main(args=None):
         f.write(execution_command)
 
     print('Welcome con RepDoc version ' + version)
-    print('Copyright ' + '\u00a9' + ' 2019 Universidad Complutense de Madrid')
+    print('Copyright ' + '\u00a9' + ' 2020 Universidad Complutense de Madrid')
     print('\nLoading tables (please wait):')
 
     global warning_collaborators
@@ -332,12 +332,13 @@ def main(args=None):
 
     # ---
     # export to HTML files
-    export_to_html_bitacora(bitacora, args.bitacora)
-    export_to_html_titulaciones(tabla_titulaciones)
-    export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
-    export_to_html_profesores(tabla_profesores, bitacora, 0)
+    export_to_html_bitacora(bitacora, args.bitacora, args.course)
+    export_to_html_titulaciones(tabla_titulaciones, args.course)
+    export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas,
+                                      args.course)
+    export_to_html_profesores(tabla_profesores, bitacora, 0, args.course)
     export_to_html_resultado(tabla_profesores, bigdict_tablas_asignaturas,
-                             bitacora)
+                             bitacora, args.course)
     if args.web:
         rsync_html_files(args.course, args.xlsxfile, args.bitacora)
 
@@ -508,7 +509,8 @@ def main(args=None):
                         if not tabla_profesores.loc[uuid_prof]['finalizado']:
                             num_profesores += 1
                             lista_profesores.append(nombre_completo)
-                export_to_html_profesores(tabla_profesores, bitacora, ronda)
+                export_to_html_profesores(tabla_profesores, bitacora, ronda,
+                                          args.course)
                 if args.web:
                     rsync_html_files(args.course, args.xlsxfile, args.bitacora)
             clear_screen_profesor()
@@ -671,15 +673,16 @@ def main(args=None):
                     )
                 window.Element('_eliminar_').Update(disabled=True)
                 update_info_creditos()
-                export_to_html_bitacora(bitacora, args.bitacora)
-                export_to_html_titulaciones(tabla_titulaciones)
-                export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+                export_to_html_bitacora(bitacora, args.bitacora, args.course)
+                export_to_html_titulaciones(tabla_titulaciones, args.course)
+                export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas,
+                                                  args.course)
                 ronda_actual = int(values['_ronda_'])
                 export_to_html_profesores(tabla_profesores, bitacora,
-                                          ronda_actual)
+                                          ronda_actual, args.course)
                 export_to_html_resultado(tabla_profesores,
                                          bigdict_tablas_asignaturas,
-                                         bitacora)
+                                         bitacora, args.course)
                 if args.web:
                     rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
@@ -724,10 +727,10 @@ def main(args=None):
             bitacora.index.name = 'uuid_bita'
             if args.debug:
                 print(bitacora)
-            export_to_html_bitacora(bitacora, args.bitacora)
+            export_to_html_bitacora(bitacora, args.bitacora, args.course)
             ronda_actual = int(values['_ronda_'])
             export_to_html_profesores(tabla_profesores, bitacora,
-                                      ronda_actual)
+                                      ronda_actual, args.course)
             if args.web:
                 rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---
@@ -1000,15 +1003,16 @@ def main(args=None):
                 )
             window.Element('_continuar_').Update(disabled=False)
             window.Element('_profesor_finalizado_').Update(disabled=False)
-            export_to_html_bitacora(bitacora, args.bitacora)
-            export_to_html_titulaciones(tabla_titulaciones)
-            export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas)
+            export_to_html_bitacora(bitacora, args.bitacora, args.course)
+            export_to_html_titulaciones(tabla_titulaciones, args.course)
+            export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas,
+                                              args.course)
             ronda_actual = int(values['_ronda_'])
             export_to_html_profesores(tabla_profesores, bitacora,
-                                      ronda_actual)
+                                      ronda_actual, args.course)
             export_to_html_resultado(tabla_profesores,
                                      bigdict_tablas_asignaturas,
-                                     bitacora)
+                                     bitacora, args.course)
             if args.web:
                 rsync_html_files(args.course, args.xlsxfile, args.bitacora)
         # ---

@@ -21,7 +21,7 @@ def writeff(f, ff, output):
         ff.write(output)
 
 
-def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
+def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas, course):
     """Export to html bigdict_tablas_asignaturas
 
     """
@@ -93,7 +93,7 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas):
 
         writeff(
             f, fff,
-            '<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1>\n'
+            '<h1>Reparto Docente FTA<br><small>Curso {}</small></h1>\n'.format(course)
         )
         f.write('<h2>Listado de asignaturas: {}</h2>\n'.format(key))
         ff.write('<h2>Listado de asignaturas disponibles: {}</h2>\n'.format(

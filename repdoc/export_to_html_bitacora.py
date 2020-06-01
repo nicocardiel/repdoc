@@ -16,14 +16,19 @@ from .define_gui_layout import COLOR_BITACORA_HEAD
 from .define_gui_layout import COLOR_BITACORA_EVEN
 from .define_gui_layout import COLOR_BITACORA_ODD
 from .define_gui_layout import COLOR_NO_DISPONIBLE
+from .definitions import DEFAULT_BITACORA_XLSX_FILENAME
 
 
-def export_to_html_bitacora(bitacora, filename):
+def export_to_html_bitacora(bitacora, filename, course):
     """Export bitacora to html and xlsx files
 
     """
 
-    bitacora.to_excel(filename.name, header=True)
+    if filename is None:
+        fname = DEFAULT_BITACORA_XLSX_FILENAME
+    else:
+        fname = filename.name
+    bitacora.to_excel(fname, header=True)
 
     f = open('repdoc_bitacora.html', 'wt')
     f.write('''
@@ -82,9 +87,9 @@ def export_to_html_bitacora(bitacora, filename):
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
+<h1>Reparto Docente FTA<br><small>Curso {}</small></h1> 
 <h2>Cuaderno de bitácora</h2>
-''')
+'''.format(course))
     f.write('<p><a href="index.html">Volver a la página principal</a></p>\n')
 
     f.write('''

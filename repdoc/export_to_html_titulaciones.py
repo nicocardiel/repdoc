@@ -15,7 +15,7 @@ from .define_gui_layout import COLOR_TITULACIONES_EVEN
 from .define_gui_layout import COLOR_TITULACIONES_ODD
 
 
-def export_to_html_titulaciones(tabla_titulaciones):
+def export_to_html_titulaciones(tabla_titulaciones, course):
     """Export to html tabla_titulaciones
 
     """
@@ -28,8 +28,9 @@ def export_to_html_titulaciones(tabla_titulaciones):
 
 <head>
   <meta charset="utf-8">
-  <title>FTA, 2019-2020</title>
+  <title>FTA, {}</title>\n\n'''.format(course))
 
+    f.write('''
   <style>
 
   p, h1, h2, h3 {
@@ -73,7 +74,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
 ''')
 
     f.write('''
-<h1>Reparto Docente FTA<br><small>Curso 2019-2020</small></h1> 
+<h1>Reparto Docente FTA<br><small>Curso {}</small></h1> 
 <h2>Tablas relevantes durante el reparto docente</h2>
 <p></p>
 <p>Enlace a tabla resumen de 
@@ -90,7 +91,7 @@ def export_to_html_titulaciones(tabla_titulaciones):
 <a href="repdoc_bitacora.html">cuaderno de bitácora</a>
 del reparto docente</p>
 <p></p>
-''')
+'''.format(course))
 
     f.write('''
 <table id="tabla_titulaciones">
