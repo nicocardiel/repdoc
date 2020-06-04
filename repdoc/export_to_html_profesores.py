@@ -105,6 +105,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
 <th style="text-align: center;">Encargo<br>docente</th>
 <th style="text-align: center;">Créditos<br>asignados</th>
 <th>Diferencia</th>
+<th>Porcentange<br>asignado (%)</th>
 <th style="text-align: center;">Siguiente<br>ronda</th>
 <th style="text-align: center;">Fin de<br>elección</th>
 </tr>
@@ -120,7 +121,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
                     COLOR_PROFESORES_HEAD +
                     '; height: 2px; padding-top: 0px; ' +
                     'padding-bottom: 0px;">')
-            f.write('<td colspan="9" style="height: 2px; ' +
+            f.write('<td colspan="10" style="height: 2px; ' +
                     'padding-top: 0px; padding-bottom: 0px;">' +
                     '</td></tr>\n')
 
@@ -140,6 +141,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
         creditos_asignados = tabla_profesores.loc[uuid_prof]['asignados']
         creditos_diferencia = tabla_profesores.loc[uuid_prof]['diferencia']
+        porcentage_asignado = 100 * creditos_asignados/creditos_encargo
         ronda = tabla_profesores.loc[uuid_prof]['ronda']
         finalizado = tabla_profesores.loc[uuid_prof]['finalizado']
         #
@@ -192,6 +194,12 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
             color = '#0a0'
         f.write('<td style="text-align: right; color: ' + color + ';">' +
                 '{0:9.4f}'.format(creditos_diferencia) + '</td>\n')
+        #
+        if creditos_asignados == 0:
+            f.write('<td style="text-align: center;"> &mdash; </td>\n')
+        else:
+            f.write('<td style="text-align: center; color: ' + color + ';">' +
+                    '{0:9.1f}'.format(porcentage_asignado) + '</td>\n')
         #
         if ronda == FLAG_RONDA_NO_ELIGE:
             f.write('<td style="text-align: center;"> &mdash; </td>\n')
