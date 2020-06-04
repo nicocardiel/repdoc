@@ -125,7 +125,6 @@ def export_to_html_resultado(
 <th>Código</th>
 <th>Asignatura</th>
 <th>Comentarios</th>
-<th>Grupo</th>
 <th>Profesor</th>
 <th>Categoría</th>
 <th>Créditos</th>
@@ -176,9 +175,6 @@ def export_to_html_resultado(
                 f.write('<td>{}</td>\n'.format(
                     tabla_asignaturas.loc[uuid_asig]['comentarios']
                 ))
-                f.write('<td style="text-align: center;">{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['grupo']
-                ))
                 f.write('<td style="text-align: left;"> &mdash; </td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
@@ -202,9 +198,6 @@ def export_to_html_resultado(
                     if len(comentarios) == 0 or comentarios == ' ':
                         comentarios = seleccion['explicacion'].tolist()[i]
                     f.write('<td>{}</td>\n'.format(comentarios))
-                    f.write('<td style="text-align: center;">{}</td>\n'.format(
-                        seleccion['grupo'].tolist()[i]
-                    ))
                     categoria = seleccion['categoria'].tolist()[i]
                     if categoria == 'Colaborador':
                         color = '#282'
