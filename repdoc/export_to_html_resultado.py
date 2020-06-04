@@ -158,7 +158,7 @@ def export_to_html_resultado(
             ].copy()
             ntimes = seleccion.shape[0]
             if ntimes == 0:
-                f.write('\n<tr>')
+                f.write('\n<tr style="background-color: #FFFF00;">')
                 f.write('\n<td>{}</td>\n'.format(
                     tabla_asignaturas.loc[uuid_asig]['curso']
                 ))
@@ -175,7 +175,7 @@ def export_to_html_resultado(
                 f.write('<td>{}</td>\n'.format(
                     tabla_asignaturas.loc[uuid_asig]['comentarios']
                 ))
-                f.write('<td style="text-align: left;"> &mdash; </td>\n')
+                f.write('<td style="text-align: left;">Pendiente de asignación</td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
                 f.write('<td style="text-align: center;"> &mdash; </td>\n')
             else:
