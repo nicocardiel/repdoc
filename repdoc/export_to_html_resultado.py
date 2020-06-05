@@ -158,7 +158,7 @@ def export_to_html_resultado(
             ].copy()
             ntimes = seleccion.shape[0]
             if ntimes == 0:
-                f.write('\n<tr style="background-color: #FFFF00;">')
+                f.write('\n<tr style="background-color: #FFFF88;">')
                 f.write('\n<td>{}</td>\n'.format(
                     tabla_asignaturas.loc[uuid_asig]['curso']
                 ))
