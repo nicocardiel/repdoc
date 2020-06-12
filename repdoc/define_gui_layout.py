@@ -16,6 +16,7 @@ WIDTH_HLINE = 110
 WIDTH_HLINE_SUMMARY = 62
 WIDTH_TEXT_SUMMARY = 18
 WIDTH_TEXT_LABEL = 18
+WIDTH_TEXT_NUMBERS = 8
 WIDTH_TEXT_UUID = 30
 WIDTH_INPUT_COMBO_CORTO = 50
 WIDTH_INPUT_COMBO = 75
@@ -179,7 +180,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                           key='_establecer_ronda_'),
                 sg.Text('      Nº de profesores seleccionados:',
                         text_color='#aaaaaa', auto_size_text=True),
-                sg.Text('0', text_color='#aaaaaa', auto_size_text=True,
+                sg.Text('0', text_color='#aaaaaa', size=(5, 1),
                         justification='left',
                         key='_num_prof_seleccionados_')
                 ],
@@ -196,19 +197,22 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                               disabled=True, key='_profesor_'),
                 sg.Text('    Próxima ronda:',
                         key='_label_ronda_profesor_'),
-                sg.Text('---', key='_ronda_profesor_')],
+                sg.Text('---', key='_ronda_profesor_', size=(5, 1))],
                # ---
                [sg.Text('Encargo docente:', size=(WIDTH_TEXT_LABEL, 1),
                         text_color='#fff',
                         background_color=COLOR_PROFESORES_HEAD,
                         justification='right', key='_label_encargo_prof_'),
-                sg.Text('---', key='_encargo_prof_', justification='left'),
+                sg.Text('---', key='_encargo_prof_', justification='left',
+                        size=(WIDTH_TEXT_NUMBERS, 1)),
                 sg.Text('Créditos asignados:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_asignados_prof_'),
-                sg.Text('---', key='_asignados_prof_', justification='left'),
+                sg.Text('---', key='_asignados_prof_', justification='left',
+                        size=(WIDTH_TEXT_NUMBERS, 1)),
                 sg.Text('Diferencia:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right', key='_label_diferencia_prof_'),
-                sg.Text('---', key='_diferencia_prof_', justification='left')],
+                sg.Text('---', key='_diferencia_prof_', justification='left',
+                        size=(WIDTH_TEXT_NUMBERS, 1))],
                # ---
                [sg.Text('Docencia asignada:', size=(WIDTH_TEXT_LABEL, 1),
                         justification='right',
