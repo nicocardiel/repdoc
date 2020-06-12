@@ -17,6 +17,7 @@ from .date_last_update import datetime_short
 from .define_gui_layout import define_gui_layout
 from .display_in_terminal import display_in_terminal
 from .export_to_html_bitacora import export_to_html_bitacora
+from .export_to_html_index import export_to_html_index
 from .export_to_html_profesores import export_to_html_profesores
 from .export_to_html_resultado import export_to_html_resultado
 from .export_to_html_tablas_asignaturas import \
@@ -332,6 +333,7 @@ def main(args=None):
 
     # ---
     # export to HTML files
+    export_to_html_index(args.course)
     export_to_html_bitacora(bitacora, args.bitacora, args.course)
     export_to_html_titulaciones(tabla_titulaciones, args.course)
     export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas,
