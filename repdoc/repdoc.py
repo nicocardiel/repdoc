@@ -350,6 +350,12 @@ def main(args=None):
     # set global GUI options
     sg.SetOptions(font=(args.fontname, args.fontsize))
 
+    # set theme (it must be done before defining the layout)
+    # use the following code to display available options:
+    #    import PySimpleGUI as sg
+    #    sg.theme_previewer()
+    sg.theme('SandyBeach')
+
     # define GUI layout
     num_titulaciones = tabla_titulaciones.shape[0]
     layout = define_gui_layout(args.fontname, args.fontsize, num_titulaciones)
