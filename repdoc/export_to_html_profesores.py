@@ -189,7 +189,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
                     uuid_prof + '">' +
                     '{0:9.4f}'.format(creditos_asignados) + '</a></td>\n')
         #
-        if creditos_diferencia == 0:
+        if abs(creditos_diferencia) <= 1e-5:
             color = '#000'
         elif creditos_diferencia < 0:
             color = '#a00'
