@@ -19,7 +19,7 @@ def rsync_html_files(course=None, xlsxfile=None, bitacora=None):
     if course is None:
         raise ValueError('Unexpected course=None value')
 
-    conf = yaml.load(open('configuration.yaml'))
+    conf = yaml.load(open('configuration.yaml'), Loader=yaml.FullLoader)
     username = conf['user']['username']
     machine = conf['user']['machine']
     directory = conf['user']['directory']
