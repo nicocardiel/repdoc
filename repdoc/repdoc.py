@@ -84,6 +84,9 @@ def main(args=None):
 
     args = parser.parse_args()
 
+    if args.course in ['2019-2020', '2020-2021']:
+        raise SystemExit('The course {} is blocked. No changes allowed.'.format(args.course))
+
     execution_command = ' '.join(sys.argv)
     if args.echo:
         print('\033[1m\033[31mExecuting: ' + execution_command + '\033[0m\n')
