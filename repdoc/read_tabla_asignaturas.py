@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2020 Universidad Complutense de Madrid
+# Copyright 2019-2021 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -18,7 +18,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
 
     """
 
-    if course in ['2019-2020', '2020-2021']:
+    if course in ['2019-2020', '2020-2021', '2021-2022']:
         skiprows = 5
         names = ['curso', 'semestre', 'codigo', 'asignatura', 'area',
                  'uuid_asig', 'creditos_iniciales', 'comentarios',
@@ -31,7 +31,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
                       'creditos_iniciales': float, 'comentarios': str_nonan,
                       'grupo': str_nonan, 'horario': str,
                       'bec_col': int,
-                      'profesor_anterior': str_nonan, 'antiguedad': int
+                      'profesor_anterior': str_nonan, 'antiguedad': str
                       }
     else:
         print('Course: ' + course)

@@ -35,4 +35,4 @@ Last update: ''' + datetime_short() + '''\n
 <a href="https://github.com/nicocardiel/repdoc">RepDoc</a>
 version ''' + version + '''
 \n&nbsp; &mdash; &nbsp; 
-Copyright &copy; 2020 Universidad Complutense de Madrid</p>\n\n'''
+Copyright &copy; 2021 Universidad Complutense de Madrid</p>\n\n'''

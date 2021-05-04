@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2020 Universidad Complutense de Madrid
+# Copyright 2019-2021 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -94,7 +94,7 @@ def main(args=None):
         f.write(execution_command)
 
     print('Welcome con RepDoc version ' + version)
-    print('Copyright ' + '\u00a9' + ' 2020 Universidad Complutense de Madrid')
+    print('Copyright ' + '\u00a9' + ' 2021 Universidad Complutense de Madrid')
     print('\nLoading tables (please wait):')
 
     global warning_collaborators
