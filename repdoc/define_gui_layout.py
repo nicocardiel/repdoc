@@ -41,6 +41,8 @@ COLOR_PROFESORES_EVEN = '#D8DCF0'
 COLOR_PROFESORES_ODD = '#F3F4FB'
 COLOR_NO_DISPONIBLE = '#999'
 
+COLOR_DISABLED_BUTTON = '#AAA'
+
 
 def define_gui_layout(fontname, fontsize, num_titulaciones):
     """Define GUI layout
@@ -176,6 +178,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         auto_size_text=True),
                 sg.Button('Establecer ronda',
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           focus=True,
                           key='_establecer_ronda_'),
                 sg.Text('      Nº de profesores seleccionados:',
@@ -228,12 +231,15 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                # ---
                [sg.Button('Continuar con nueva elección', disabled=True,
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           key='_continuar_'),
                 sg.Button('Eliminar asignatura ya elegida', disabled=True,
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           key='_eliminar_'),
                sg.Button('Finalizar elección en rondas', disabled=True,
                          font=(fontname, fontsize),
+                         disabled_button_color=COLOR_DISABLED_BUTTON,
                          key='_profesor_finalizado_')],
                [sg.Text('_' * WIDTH_HLINE)],
                # ---
@@ -293,14 +299,17 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                # ---
                [sg.Button('Confirmar selección de nueva docencia',
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           disabled=True,
                           key='_confirmar_'),
                 sg.Button('Cancelar', disabled=True,
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           key='_cancelar_'),
                 sg.Text(' ', size=(52, 1)),
                 sg.Button('Salir',
                           font=(fontname, fontsize),
+                          disabled_button_color=COLOR_DISABLED_BUTTON,
                           key='_salir_')
                 ]
                ]
