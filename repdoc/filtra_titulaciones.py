@@ -23,7 +23,7 @@ def filtra_titulaciones(tabla_titulaciones):
             ldum = len(nombre_titulacion)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            nombre_titulacion += ' uuid_titu=' + tabla_titulaciones.index[i]
+            nombre_titulacion += '  --> uuid_titu=' + tabla_titulaciones.index[i]
             lista_titulaciones.append(nombre_titulacion)
 
     return lista_titulaciones

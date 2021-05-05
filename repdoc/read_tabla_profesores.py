@@ -41,6 +41,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
         print('Reading ' + xlsxfilename)
         print('-> Sheet: "' + sheet_name + '"')
 
+    print('Step 1')
     tabla_inicial = pd.read_excel(
         xlsxfilename,
         sheet_name=sheet_name,
@@ -50,6 +51,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
         names=names,
         converters=converters
     )
+    print('Step 2')
 
     # remove unnecessary rows
     lok = tabla_inicial['uuid_prof'].notnull()

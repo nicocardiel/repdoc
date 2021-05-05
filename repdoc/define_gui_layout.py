@@ -193,6 +193,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         justification='right', key='_label_profesor_'),
                 sg.InputCombo(values=['---'],
                               size=(WIDTH_INPUT_COMBO_CORTO, 1),
+                              auto_size_text=False,
                               enable_events=True,
                               disabled=True, key='_profesor_'),
                 sg.Text('    Próxima ronda:',
@@ -221,6 +222,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         key='_label_docencia_asignada_'),
                 sg.InputCombo(values=['---'], disabled=True,
                               size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              auto_size_text=False,
                               key='_docencia_asignada_')],
                # ---
                [sg.Button('Continuar con nueva elección', disabled=True,
@@ -240,6 +242,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         justification='right', key='_label_titulacion_'),
                 sg.InputCombo(values=['---'], disabled=True,
                               size=(WIDTH_INPUT_COMBO_CORTO, 1),
+                              auto_size_text=False,
                               enable_events=True,
                               key='_titulacion_')],
                # ---
@@ -249,7 +252,9 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                         background_color=COLOR_ASIGNATURAS_HEAD,
                         key='_label_asignatura_elegida_'),
                 sg.InputCombo(values=['---'], disabled=True,
-                              size=(WIDTH_INPUT_COMBO, 1), enable_events=True,
+                              size=(WIDTH_INPUT_COMBO, 1),
+                              auto_size_text=False,
+                              enable_events=True,
                               key='_asignatura_elegida_')],
                # ---
                [sg.Text('', size=(WIDTH_TEXT_LABEL, 1)),

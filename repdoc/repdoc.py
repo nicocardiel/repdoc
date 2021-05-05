@@ -510,9 +510,8 @@ def main(args=None):
                         tabla_profesores.loc[uuid_prof]['apellidos']
                     ldum = len(nombre_completo)
                     if ldum < WIDTH_SPACES_FOR_UUID:
-                        nombre_completo += \
-                            (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                    nombre_completo += ' uuid_prof=' + uuid_prof
+                        nombre_completo += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
+                    nombre_completo += '  --> uuid_prof=' + uuid_prof
                     if ronda == 0:
                         num_profesores += 1
                         lista_profesores.append(nombre_completo)

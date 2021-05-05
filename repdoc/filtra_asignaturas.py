@@ -41,7 +41,7 @@ def filtra_asignaturas(tabla_asignaturas,
                 ldum = len(dumtxt)
                 if ldum < WIDTH_SPACES_FOR_UUID:
                     dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-                dumtxt += ' uuid_asig=' + tabla_asignaturas.index[i]
+                dumtxt += '  --> uuid_asig=' + tabla_asignaturas.index[i]
                 lista_asignaturas.append(dumtxt)
 
     return lista_asignaturas

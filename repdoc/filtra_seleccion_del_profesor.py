@@ -43,7 +43,7 @@ def filtra_seleccion_del_profesor(uuid_prof, bitacora):
             ldum = len(dumtxt)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
-            dumtxt += ' uuid_bita=' + seleccion.index.tolist()[i]
+            dumtxt += '  --> uuid_bita=' + seleccion.index.tolist()[i]
             output.append(dumtxt)
 
     return output
