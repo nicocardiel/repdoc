@@ -75,6 +75,10 @@ def main(args=None):
                         help="font name for GUI",
                         default=12,
                         type=int)
+    parser.add_argument("--theme",
+                        help="PySimpleGUI theme",
+                        default="SandyBeach",
+                        type=str)
     parser.add_argument("--debug",
                         help="run code in debugging mode",
                         action="store_true")
@@ -357,7 +361,7 @@ def main(args=None):
     # use the following code to display available options:
     #    import PySimpleGUI as sg
     #    sg.theme_previewer()
-    sg.theme('SandyBeach')    # Another good option is 'Default'
+    sg.theme(args.theme)    # Another good option is 'Default'
 
     # define GUI layout
     num_titulaciones = tabla_titulaciones.shape[0]
