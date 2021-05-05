@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2020 Universidad Complutense de Madrid
+# Copyright 2019-2021 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -237,7 +237,7 @@ def define_gui_layout(fontname, fontsize, num_titulaciones):
                           font=(fontname, fontsize),
                           disabled_button_color=COLOR_DISABLED_BUTTON,
                           key='_eliminar_'),
-               sg.Button('Finalizar elección en rondas', disabled=True,
+                sg.Button('Finalizar elección en rondas', disabled=True,
                          font=(fontname, fontsize),
                          disabled_button_color=COLOR_DISABLED_BUTTON,
                          key='_profesor_finalizado_')],
