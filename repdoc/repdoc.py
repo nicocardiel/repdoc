@@ -357,7 +357,7 @@ def main(args=None):
     # use the following code to display available options:
     #    import PySimpleGUI as sg
     #    sg.theme_previewer()
-    sg.theme('SandyBeach')
+    sg.theme('SandyBeach')    # Another good option is 'Default'
 
     # define GUI layout
     num_titulaciones = tabla_titulaciones.shape[0]
