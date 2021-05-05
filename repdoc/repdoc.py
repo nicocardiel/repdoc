@@ -200,8 +200,8 @@ def main(args=None):
             tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
             tabla_profesores.loc[uuid_prof, 'finalizado'] = True
         else:
-            if 'RyC' in categoria:
-                tabla_profesores.loc[uuid_prof, 'ronda'] = 3
+            if 'RyC' in categoria or 'JdC' in categoria:
+                tabla_profesores.loc[uuid_prof, 'ronda'] = 2
             else:
                 tabla_profesores.loc[uuid_prof, 'ronda'] = 1
 
