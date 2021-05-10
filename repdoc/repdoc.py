@@ -40,6 +40,7 @@ from .definitions import DEFAULT_BITACORA_XLSX_FILENAME
 from .definitions import CREDITOS_ASIGNATURA
 from .definitions import FLAG_RONDA_NO_ELIGE
 from .definitions import NULL_UUID
+from .definitions import PRIMERA_RONDA_RYC
 from .definitions import ROUND_ERROR
 from .definitions import TEXT_ACTIVA_ELECCION
 from .definitions import TEXT_FINALIZA_ELECCION
@@ -201,7 +202,7 @@ def main(args=None):
             tabla_profesores.loc[uuid_prof, 'finalizado'] = True
         else:
             if 'RyC' in categoria or 'JdC' in categoria:
-                tabla_profesores.loc[uuid_prof, 'ronda'] = 2
+                tabla_profesores.loc[uuid_prof, 'ronda'] = PRIMERA_RONDA_RYC
             else:
                 tabla_profesores.loc[uuid_prof, 'ronda'] = 1
 

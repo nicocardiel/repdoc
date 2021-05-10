@@ -135,6 +135,8 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
             if categoria != ultima_categoria:
                 if 'RyC' in categoria and 'RyC' in ultima_categoria:
                     pass
+                if 'JdC' in categoria and 'JdC' in ultima_categoria:
+                    pass
                 else:
                     insert_separator()
                 ultima_categoria = categoria
