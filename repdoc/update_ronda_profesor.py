@@ -24,7 +24,8 @@ def update_ronda_profesor(tabla_profesores, uuid_prof):
             tabla_profesores.loc[uuid_prof]['asignados'] /
             CREDITOS_ASIGNATURA + 0.5
         ) + 1
-        if 'RyC' in tabla_profesores.loc[uuid_prof]['categoria']:
+        if ('RyC' in tabla_profesores.loc[uuid_prof]['categoria']) or \
+                ('JdC' in tabla_profesores.loc[uuid_prof]['categoria']):
             ronda_profesor += (PRIMERA_RONDA_RYC - 1)
             if ronda_profesor < PRIMERA_RONDA_RYC:
                 ronda_profesor = PRIMERA_RONDA_RYC
