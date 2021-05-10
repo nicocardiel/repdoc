@@ -816,6 +816,15 @@ def main(args=None):
                     'titulacion']
                 creditos_max_asignatura = bigdict_tablas_asignaturas[
                     titulacion].loc[uuid_asig]['creditos_disponibles']
+                antiguedad_asignatura_str = bigdict_tablas_asignaturas[
+                    titulacion].loc[uuid_asig]['antiguedad']
+                try:
+                    antiguedad_asignatura = float(antiguedad_asignatura_str)
+                    warning_antiguedad = (antiguedad_asignatura >= 6)
+                except:
+                    warning_antiguedad = True
+                if warning_antiguedad:
+                    sg.PopupOK(f'Antigüedad: {antiguedad_asignatura_str}')
                 window.Element('_fraccion_todo_').Update(
                     value=False, disabled=False
                 )
