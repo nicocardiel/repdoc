@@ -818,13 +818,17 @@ def main(args=None):
                     titulacion].loc[uuid_asig]['creditos_disponibles']
                 antiguedad_asignatura_str = bigdict_tablas_asignaturas[
                     titulacion].loc[uuid_asig]['antiguedad']
+                profesor_anterior = bigdict_tablas_asignaturas[
+                    titulacion].loc[uuid_asig]['profesor_anterior']
                 try:
                     antiguedad_asignatura = float(antiguedad_asignatura_str)
                     warning_antiguedad = (antiguedad_asignatura >= 6)
                 except:
                     warning_antiguedad = True
                 if warning_antiguedad:
-                    sg.PopupOK(f'Antigüedad: {antiguedad_asignatura_str}')
+                    info = f'Antigüedad: {antiguedad_asignatura_str} cursos\n'
+                    info += f'Profesor/a anterior: {profesor_anterior}'
+                    sg.PopupOK(info)
                 window.Element('_fraccion_todo_').Update(
                     value=False, disabled=False
                 )
