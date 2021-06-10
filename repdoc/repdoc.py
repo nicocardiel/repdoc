@@ -8,8 +8,9 @@
 #
 
 import argparse
-import pandas as pd
+from datetime import datetime
 import os
+import pandas as pd
 import PySimpleGUI as sg
 import sys
 
@@ -96,7 +97,8 @@ def main(args=None):
     if args.echo:
         print('\033[1m\033[31mExecuting: ' + execution_command + '\033[0m\n')
     with open('last_execution_command.txt', 'w') as f:
-        f.write(execution_command)
+        f.write(f'{datetime.now()}\n')
+        f.write(f'{execution_command}\n\n')
 
     print('Welcome con RepDoc version ' + version)
     print('Copyright ' + '\u00a9' + ' 2021 Universidad Complutense de Madrid')
