@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2021 Universidad Complutense de Madrid
+# Copyright 2019-2022 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #

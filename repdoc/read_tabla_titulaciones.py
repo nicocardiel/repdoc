@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2021 Universidad Complutense de Madrid
+# Copyright 2019-2022 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -15,7 +15,7 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
 
     """
 
-    if course in ['2019-2020', '2020-2021', '2021-2022']:
+    if course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023']:
         sheet_name = 'Resumen Encargo'
         skiprows = 4
         usecols = [1, 2]
