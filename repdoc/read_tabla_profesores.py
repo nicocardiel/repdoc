@@ -69,6 +69,10 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
 
     # check that uuid's are unique
     if len(tabla_profesores.index) != len(set(tabla_profesores.index)):
+        dumlist = tabla_profesores.index.tolist()
+        duplicates = set([item for item in dumlist if dumlist.count(item) > 1])
+        for item in duplicates:
+            print(tabla_profesores.loc[item])
         raise ValueError('UUIDs are not unique!')
 
     if debug:
