@@ -125,7 +125,7 @@ def export_to_html_resultado(
 <th>Código</th>
 <th>Asignatura</th>
 <th>Comentarios</th>
-<th>Profesor</th>
+<th>Profesor/a</th>
 <th>Categoría</th>
 <th>Créditos</th>
 </tr>

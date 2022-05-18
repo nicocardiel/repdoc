@@ -78,10 +78,10 @@ def export_to_html_titulaciones(tabla_titulaciones, course):
 <h2>Tablas relevantes durante el reparto docente</h2>
 <p></p>
 <p>Enlace a tabla resumen de 
-<a href="repdoc_profesores.html">Profesores</a></p>
+<a href="repdoc_profesores.html">Profesores/as</a></p>
 <p></p>
 <p>Enlace a tabla de 
-<a href="repdoc_asignacion.html">asignación de asignaturas</a> por profesor</p>
+<a href="repdoc_asignacion.html">asignación de asignaturas</a> por profesor/a</p>
 <p></p>
 <p>Enlace a tabla con
 <a href="repdoc_disponibles.html">solo asignaturas disponibles 

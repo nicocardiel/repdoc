@@ -117,9 +117,9 @@ def export_to_html_tablas_asignaturas(bigdict_tablas_asignaturas, course):
 <th>Comentarios</th>
 <th>Grupo</th>
 <th>Bec./Col.</th>
-<th>Profesor curso anterior</th>
+<th>Profesor/a curso anterior</th>
 <th>Antigüedad curso anterior</th>
-<th>Profesor próximo curso</th>
+<th>Profesor/a próximo curso</th>
 <th>Créditos disponibles</th>
 </tr>
 </thead>
