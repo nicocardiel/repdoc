@@ -7,12 +7,15 @@
 # License-Filename: LICENSE.txt
 #
 
+from .ctext import ctext
+
+
 def display_in_terminal(event, values):
     """Show 'event' and 'values' in the terminal
 
     """
 
-    print("\nEvent: '" + str(event) + "'")
+    print(ctext(f"\nEvent: '{str(event)}'", fg='cyan'))
     for key in values:
         output = "    '" + key + "': "
         if isinstance(values[key], str):

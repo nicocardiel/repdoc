@@ -102,8 +102,9 @@ def main(args=None):
         f.write(f'\n{datetime.now()}\n')
         f.write(f'{execution_command}\n')
 
-    print('Welcome con RepDoc version ' + version)
-    print('Copyright ' + '\u00a9' + ' 2019-2023 Universidad Complutense de Madrid')
+    print(ctext(f'Welcome to RepDoc version {version}', bold=True))
+    copyright_symbol = '\u00a9'
+    print(f'Copyright {copyright_symbol} 2019-2023 Universidad Complutense de Madrid')
     print('\nLoading tables (please wait):')
 
     global warning_collaborators
@@ -122,7 +123,7 @@ def main(args=None):
 
     # ---
     # titulaciones
-    print('- updating subjects')
+    print(ctext('\n-> Updating subjects', fg='green', bold=True))
     tabla_titulaciones = read_tabla_titulaciones(
         xlsxfilename=args.xlsxfile.name,
         course=args.course,
@@ -178,7 +179,7 @@ def main(args=None):
 
     # ---
     # profesores
-    print('- updating teachers')
+    print(ctext('\n-> Updating teachers', fg='green', bold=True))
     tabla_profesores = read_tabla_profesores(
         xlsxfilename=args.xlsxfile.name,
         course=args.course,
@@ -227,7 +228,7 @@ def main(args=None):
     csv_colvalues_asignatura_null = ['-', 0, 0, '-',
                                      '-', 0.0, '-',
                                      '-']
-    print('- updating bitacora')
+    print(ctext('\n-> Updating bitacora', fg='green', bold=True))
     if args.bitacora is None:
         # check that there is not a file with the expected name
         # (in order to avoid overwriting it)

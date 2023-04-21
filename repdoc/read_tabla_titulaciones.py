@@ -9,6 +9,7 @@
 
 import pandas as pd
 
+from .ctext import ctext
 from .definitions import VALID_COURSES
 
 
@@ -28,8 +29,8 @@ def read_tabla_titulaciones(xlsxfilename, course, debug=False):
         raise ValueError('Unexpected course!')
 
     if debug:
-        print('Reading ' + xlsxfilename)
-        print('-> Sheet: "' + sheet_name + '"')
+        print(ctext(f'\nReading {xlsxfilename}', fg="blue"))
+        print('Sheet: "' + sheet_name + '"')
 
     tabla_inicial = pd.read_excel(
         xlsxfilename,

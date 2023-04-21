@@ -9,6 +9,7 @@
 
 import pandas as pd
 
+from .ctext import ctext
 from .definitions import VALID_COURSES
 
 from .fill_cell_with_previous_value import fill_cell_with_previous_value
@@ -45,7 +46,7 @@ def read_tabla_asignaturas(xlsxfilename, course, sheet_name, debug=False):
     usecols = range(1, len(names) + 1)
 
     if debug:
-        print('Reading ' + xlsxfilename)
+        print(ctext(f'\nReading {xlsxfilename}', fg='blue'))
         print('-> Sheet: "' + sheet_name + '"')
 
     tabla_inicial = pd.read_excel(
