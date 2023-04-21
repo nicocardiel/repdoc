@@ -96,9 +96,10 @@ def main(args=None):
     execution_command = ' '.join(sys.argv)
     if args.echo:
         print('\033[1m\033[31mExecuting: ' + execution_command + '\033[0m\n')
-    with open('last_execution_command.txt', 'w') as f:
-        f.write(f'{datetime.now()}\n')
-        f.write(f'{execution_command}\n\n')
+    with open('last_execution_command.txt', 'a') as f:
+        f.write('-' * 79)
+        f.write(f'\n{datetime.now()}\n')
+        f.write(f'{execution_command}\n')
 
     print('Welcome con RepDoc version ' + version)
     print('Copyright ' + '\u00a9' + ' 2019-2023 Universidad Complutense de Madrid')
