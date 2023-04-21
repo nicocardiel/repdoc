@@ -14,6 +14,7 @@ import pandas as pd
 import PySimpleGUI as sg
 import sys
 
+from .ctext import ctext
 from .date_last_update import datetime_short
 from .define_gui_layout import define_gui_layout
 from .display_in_terminal import display_in_terminal
@@ -95,7 +96,7 @@ def main(args=None):
 
     execution_command = ' '.join(sys.argv)
     if args.echo:
-        print('\033[1m\033[31mExecuting: ' + execution_command + '\033[0m\n')
+        print(ctext(f'Executing: {execution_command}', fg='red', bold=True))
     with open('last_execution_command.txt', 'a') as f:
         f.write('-' * 79)
         f.write(f'\n{datetime.now()}\n')
