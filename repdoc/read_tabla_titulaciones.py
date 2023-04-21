@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2023 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -9,13 +9,15 @@
 
 import pandas as pd
 
+from .definitions import VALID_COURSES
+
 
 def read_tabla_titulaciones(xlsxfilename, course, debug=False):
     """Lee hoja Excel con lista de titulaciones.
 
     """
 
-    if course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023']:
+    if course in VALID_COURSES:
         sheet_name = 'Resumen Encargo'
         skiprows = 4
         usecols = [1, 2]
