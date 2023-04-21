@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2023 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -91,7 +91,7 @@ def main(args=None):
     args = parser.parse_args()
 
     if args.course in ['2019-2020', '2020-2021', '2021-2022']:
-        raise SystemExit('The course {} is blocked. No changes allowed.'.format(args.course))
+        raise SystemExit(f'The course {args.course} is blocked. No changes allowed.')
 
     execution_command = ' '.join(sys.argv)
     if args.echo:
@@ -101,7 +101,7 @@ def main(args=None):
         f.write(f'{execution_command}\n\n')
 
     print('Welcome con RepDoc version ' + version)
-    print('Copyright ' + '\u00a9' + ' 2019-2022 Universidad Complutense de Madrid')
+    print('Copyright ' + '\u00a9' + ' 2019-2023 Universidad Complutense de Madrid')
     print('\nLoading tables (please wait):')
 
     global warning_collaborators
@@ -425,7 +425,7 @@ def main(args=None):
         cout = '{0:7.3f}'
         num_titulaciones = tabla_titulaciones.shape[0]
         for i in range(num_titulaciones):
-            clabel = '_{:02d}_'.format(i + 1)
+            clabel = f'_{i + 1:02d}_'
             uuid_titu = tabla_titulaciones.index[i]
             titulacion = tabla_titulaciones.loc[uuid_titu]['titulacion']
             window.Element('_summary_titulacion' + clabel).Update(titulacion)
@@ -512,7 +512,7 @@ def main(args=None):
                 for uuid_prof in tabla_profesores.index:
                     iprof = tabla_profesores.loc[uuid_prof]['num']
                     nombre_completo = \
-                        '{:2d}. '.format(iprof) + \
+                        f'{iprof:2d}. ' + \
                         tabla_profesores.loc[uuid_prof]['nombre'] + ' ' + \
                         tabla_profesores.loc[uuid_prof]['apellidos']
                     ldum = len(nombre_completo)

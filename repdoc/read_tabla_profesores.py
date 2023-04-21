@@ -19,18 +19,18 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
     if course in VALID_COURSES:
         sheet_name = 'Asignación'
         skiprows = 7
+        names = ['uuid_prof', 'apellidos', 'nombre', 'categoria', 'encargo']
+        # indicate column numbers for the previous labels
         if course == '2019-2020':
             usecols = [0, 1, 2, 3, 19]
         elif course == '2020-2021':
             usecols = [0, 1, 2, 3, 21]
         elif course == '2021-2022':
             usecols = [0, 2, 3, 4, 23]
-        elif course == '2022-2023':
+        elif course in ['2022-2023', '2023-2024']:
             usecols = [0, 2, 3, 4, 19]
         else:
             raise SystemExit(f'Invalid course: {course}')
-        names = ['uuid_prof', 'apellidos', 'nombre', 'categoria',
-                 'encargo']
         converters = {'uuid_prof': str,
                       'apellidos': str,
                       'nombre': str,
