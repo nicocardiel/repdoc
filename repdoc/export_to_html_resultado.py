@@ -137,7 +137,7 @@ def export_to_html_resultado(
 
 
     creditos_totales = 0
-    for i, key in enumerate(bigdict_tablas_asignaturas.keys()):
+    for key in bigdict_tablas_asignaturas.keys():
         tabla_asignaturas = bigdict_tablas_asignaturas[key]
         #
         ultima_asignatura = None
@@ -150,75 +150,76 @@ def export_to_html_resultado(
                     insert_separator(f)
                     ultima_asignatura = nueva_asignatura
 
-            # subset of bitacora for the selected subject
-            seleccion = bitacora.loc[
-                (bitacora['uuid_asig'] == uuid_asig) &
-                (bitacora['date_removed'] == 'None') &
-                (bitacora['uuid_titu'] != NULL_UUID)
-            ].copy()
-            ntimes = seleccion.shape[0]
-            if ntimes == 0:
-                f.write('\n<tr style="background-color: #FFFF88;">')
-                f.write('\n<td>{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['curso']
-                ))
-                f.write('<td style="text-align: center;">{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['semestre']
-                ))
-                f.write('<td style="text-align: center;">{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['codigo']
-
-                ))
-                f.write('<td>{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['asignatura']
-                ))
-                f.write('<td>{}</td>\n'.format(
-                    tabla_asignaturas.loc[uuid_asig]['comentarios']
-                ))
-                f.write('<td style="text-align: left;">Pendiente de asignación</td>\n')
-                f.write('<td style="text-align: center;"> &mdash; </td>\n')
-                f.write('<td style="text-align: center;"> &mdash; </td>\n')
-            else:
-                for i in range(ntimes):
-                    f.write('\n<tr>')
+            if tabla_asignaturas.loc[uuid_asig]['creditos_iniciales'] > 0:
+                # subset of bitacora for the selected subject
+                seleccion = bitacora.loc[
+                    (bitacora['uuid_asig'] == uuid_asig) &
+                    (bitacora['date_removed'] == 'None') &
+                    (bitacora['uuid_titu'] != NULL_UUID)
+                ].copy()
+                ntimes = seleccion.shape[0]
+                if ntimes == 0:
+                    f.write('\n<tr style="background-color: #FFFF88;">')
                     f.write('\n<td>{}</td>\n'.format(
-                        seleccion['curso'].tolist()[i]
+                        tabla_asignaturas.loc[uuid_asig]['curso']
                     ))
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
-                        seleccion['semestre'].tolist()[i]
+                        tabla_asignaturas.loc[uuid_asig]['semestre']
                     ))
                     f.write('<td style="text-align: center;">{}</td>\n'.format(
-                        seleccion['codigo'].tolist()[i]
+                        tabla_asignaturas.loc[uuid_asig]['codigo']
 
                     ))
                     f.write('<td>{}</td>\n'.format(
-                        seleccion['asignatura'].tolist()[i]
+                        tabla_asignaturas.loc[uuid_asig]['asignatura']
                     ))
-                    comentarios = seleccion['comentarios'].tolist()[i]
-                    if len(comentarios) == 0 or comentarios == ' ':
-                        comentarios = seleccion['explicacion'].tolist()[i]
-                    f.write('<td>{}</td>\n'.format(comentarios))
-                    categoria = seleccion['categoria'].tolist()[i]
-                    if categoria == 'Colaborador':
-                        color = '#282'
-                    else:
-                        color = '#000'
-                    f.write('<td style="text-align: left; ' +
-                            'color: {};">'.format(color) +
-                            '{}</td>\n'.format(
-                        seleccion['nombre'].tolist()[i] + ' ' + \
-                        seleccion['apellidos'].tolist()[i]
+                    f.write('<td>{}</td>\n'.format(
+                        tabla_asignaturas.loc[uuid_asig]['comentarios']
                     ))
-                    f.write('<td style="text-align: center; ' +
-                            'color: {};">'.format(color) +
-                            '{}</td>\n'.format(categoria)
-                            )
-                    creditos = seleccion['creditos_elegidos'].tolist()[i]
-                    f.write('<td style="text-align: center; ' +
-                            'color: {};">'.format(color) +
-                            '{0:9.4f}</td>\n'.format(creditos)
-                            )
-                    creditos_totales += creditos
+                    f.write('<td style="text-align: left;">Pendiente de asignación</td>\n')
+                    f.write('<td style="text-align: center;"> &mdash; </td>\n')
+                    f.write('<td style="text-align: center;"> &mdash; </td>\n')
+                else:
+                    for i in range(ntimes):
+                        f.write('\n<tr>')
+                        f.write('\n<td>{}</td>\n'.format(
+                            seleccion['curso'].tolist()[i]
+                        ))
+                        f.write('<td style="text-align: center;">{}</td>\n'.format(
+                            seleccion['semestre'].tolist()[i]
+                        ))
+                        f.write('<td style="text-align: center;">{}</td>\n'.format(
+                            seleccion['codigo'].tolist()[i]
+
+                        ))
+                        f.write('<td>{}</td>\n'.format(
+                            seleccion['asignatura'].tolist()[i]
+                        ))
+                        comentarios = seleccion['comentarios'].tolist()[i]
+                        if len(comentarios) == 0 or comentarios == ' ':
+                            comentarios = seleccion['explicacion'].tolist()[i]
+                        f.write('<td>{}</td>\n'.format(comentarios))
+                        categoria = seleccion['categoria'].tolist()[i]
+                        if categoria == 'Colaborador':
+                            color = '#282'
+                        else:
+                            color = '#000'
+                        f.write('<td style="text-align: left; ' +
+                                'color: {};">'.format(color) +
+                                '{}</td>\n'.format(
+                            seleccion['nombre'].tolist()[i] + ' ' + \
+                            seleccion['apellidos'].tolist()[i]
+                        ))
+                        f.write('<td style="text-align: center; ' +
+                                'color: {};">'.format(color) +
+                                '{}</td>\n'.format(categoria)
+                                )
+                        creditos = seleccion['creditos_elegidos'].tolist()[i]
+                        f.write('<td style="text-align: center; ' +
+                                'color: {};">'.format(color) +
+                                '{0:9.4f}</td>\n'.format(creditos)
+                                )
+                        creditos_totales += creditos
 
         insert_separator(f, 10)
 
