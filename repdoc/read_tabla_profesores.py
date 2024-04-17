@@ -28,7 +28,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
             usecols = [0, 1, 2, 3, 21]
         elif course == '2021-2022':
             usecols = [0, 2, 3, 4, 23]
-        elif course in ['2022-2023', '2023-2024']:
+        elif course in ['2022-2023', '2023-2024', '2024-2025']:
             usecols = [0, 2, 3, 4, 19]
         else:
             raise SystemExit(f'Invalid course: {course}')
