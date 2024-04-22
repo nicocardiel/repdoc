@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2024 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -78,17 +78,17 @@ def export_to_html_titulaciones(tabla_titulaciones, course):
 <h2>Tablas relevantes durante el reparto docente</h2>
 <p></p>
 <p>Enlace a tabla resumen de 
-<a href="repdoc_profesores.html">Profesores/as</a></p>
+<a href="repdoc_profesores.html" target="_blank">Profesores/as</a></p>
 <p></p>
 <p>Enlace a tabla de 
-<a href="repdoc_asignacion.html">asignación de asignaturas</a> por profesor/a</p>
+<a href="repdoc_asignacion.html" target="_blank">asignación de asignaturas</a> por profesor/a</p>
 <p></p>
 <p>Enlace a tabla con
-<a href="repdoc_disponibles.html">solo asignaturas disponibles 
+<a href="repdoc_disponibles.html" target="_blank">solo asignaturas disponibles 
 </a> (todas las titulaciones) durante el reparto</p>
 <p></p>
 <p>Enlace al
-<a href="repdoc_bitacora.html">cuaderno de bitácora</a>
+<a href="repdoc_bitacora.html" target="_blank">cuaderno de bitácora</a>
 del reparto docente</p>
 <p></p>
 '''.format(course))
@@ -121,7 +121,7 @@ font-weight: bold;">Tabla resumen de titulaciones</td></tr>
             f.write(
                 '\n<tr style="background: ' + COLOR_NO_DISPONIBLE + ';">\n'
             )
-        f.write('<td><a href="repdoc_titulacion_{0:02d}.html">'.format(i + 1))
+        f.write('<td><a href="repdoc_titulacion_{0:02d}.html" target="_blank">'.format(i + 1))
         f.write('{}</a></td>\n'.format(
             tabla_titulaciones.loc[uuid_titu]['titulacion']
         ))
@@ -174,7 +174,7 @@ font-weight: bold;">Tabla resumen de titulaciones</td></tr>
     <h2>Resultado del reparto docente</h2>
     <p></p>
     <p>Enlace a
-    <a href="repdoc_resultado.html">tabla final</a></p>
+    <a href="repdoc_resultado.html" target="_blank">tabla final</a></p>
     ''')
 
     f.write(date_last_update())

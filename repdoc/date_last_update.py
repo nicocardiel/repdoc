@@ -32,7 +32,7 @@ def date_last_update():
 text-align: center;">
 Last update: ''' + datetime_short() + '''\n
 &nbsp; &mdash; &nbsp; Created with 
-<a href="https://github.com/nicocardiel/repdoc">RepDoc</a>
+<a href="https://github.com/nicocardiel/repdoc" target="_blank">RepDoc</a>
 version ''' + version + '''
 \n&nbsp; &mdash; &nbsp; 
 Copyright &copy; 2019-2024 Universidad Complutense de Madrid</p>\n\n'''
