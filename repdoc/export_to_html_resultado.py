@@ -198,6 +198,10 @@ def export_to_html_resultado(
                         comentarios = seleccion['comentarios'].tolist()[i]
                         if len(comentarios) == 0 or comentarios == ' ':
                             comentarios = seleccion['explicacion'].tolist()[i]
+                            if len(comentarios) == 0:
+                                comentarios = ' '
+                            elif comentarios.lower() == 'bloqueo':
+                                comentarios = ' '
                         f.write('<td>{}</td>\n'.format(comentarios))
                         categoria = seleccion['categoria'].tolist()[i]
                         if categoria == 'Colaborador':
