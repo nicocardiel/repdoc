@@ -465,15 +465,18 @@ def main(args=None):
         global warning_collaborators
         if warning_collaborators > 0.0:
             if total_disponibles_beccol <= warning_collaborators:
-                sg.PopupOK('Se ha alcanzado el límite de créditos\n'
-                           'prereservados para becarios/colaboradores')
+                msg = 'Se ha alcanzado el límite de créditos\nprereservados para becarios/colaboradores'
+                print(ctext(msg, bg='red'))
+                sg.PopupOK(msg, auto_close=True, auto_close_duration=5)
                 warning_collaborators = 0.0
 
     def comprueba_ronda_profesor(ronda_profesor):
         ronda_actual = int(values['_ronda_'])
         if ronda_actual != 0:
             if ronda_profesor > ronda_actual:
-                sg.PopupOK('Se ha superado la ronda actual')
+                msg = 'Se ha superado la ronda actual'
+                print(ctext(msg, bg='yellow'))
+                sg.PopupOK(msg, auto_close=True, auto_close_duration=2)
 
     # update initial info
     window.Read(timeout=1)  # for next function to work
@@ -833,7 +836,8 @@ def main(args=None):
                 if warning_antiguedad:
                     info = f'Antigüedad: {antiguedad_asignatura_str} cursos\n'
                     info += f'Profesor/a anterior: {profesor_anterior}'
-                    sg.PopupOK(info)
+                    print(ctext(info, bg='red'))
+                    sg.PopupOK(info, auto_close=True, auto_close_duration=5)
                 window.Element('_fraccion_todo_').Update(
                     value=False, disabled=False
                 )
@@ -1071,7 +1075,7 @@ def main(args=None):
         elif event is None or event == "_salir_":
             coption = ''
             while coption != 'y' and coption != 'n':
-                coption = input('Do you really want to exit (y/n) [y] ? ')
+                coption = input(ctext('Do you really want to exit (y/n) [y] ? ', bg='red'))
                 if coption == '':
                     coption = 'y'
                 if coption != 'y' and coption != 'n':
