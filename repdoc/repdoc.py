@@ -622,8 +622,12 @@ def main(args=None):
             uuid_titu = tmp_series['uuid_titu']
             uuid_asig = tmp_series['uuid_asig']
             creditos_a_recuperar = tmp_series['creditos_elegidos']
-            dummy = sg.PopupYesNo('¿Seguro que quiere eliminar esta selección')
-            if dummy == 'Yes':
+            msg = '¿Seguro que quiere eliminar esta selección (y/n)? '
+            """
+            dummy = sg.PopupYesNo(msg)
+            """
+            dummy = input(ctext(msg, bg='green'))
+            if dummy.lower() == 'y':
                 devolucion_correcta = True
                 if tabla_profesores.loc[
                     uuid_prof, 'asignados'
@@ -883,11 +887,17 @@ def main(args=None):
                 values['_creditos_elegidos_']
             limite_maximo = creditos_max_asignatura
             while loop:
+                msg = f'¿Créditos a elegir (0 < valor < {round(limite_maximo, 5)})? '
+                sg.Popup(msg, auto_close=True, auto_close_duration=3)
+                """
                 dumtxt = sg.PopupGetText(
                     '¿Créditos a elegir?  (0 < valor < ' +
                     str(limite_maximo) + ')',
                     '¿Créditos?'
                 )
+                """
+                dumtxt = input(ctext(msg, bg='green'))
+                print(dumtxt, type(dumtxt))
                 if dumtxt is None:
                     loop = False
                 else:
@@ -895,15 +905,15 @@ def main(args=None):
                     try:
                         creditos_elegidos = float(dumtxt)
                     except ValueError:
-                        sg.Popup('ERROR', 'Número inválido')
+                        print(ctext('ERROR: Número inválido', bg='red'))
+                        sg.Popup('ERROR', 'Número inválido', auto_close=True, auto_close_duration=5)
                         lfloat = False
                     if lfloat:
                         if 0 < creditos_elegidos < limite_maximo:
                             loop = False
                         else:
-                            sg.Popup('ERROR',
-                                     '¡Número fuera del intervalo válido!\n' +
-                                     '0 < valor < ' + str(limite_maximo))
+                            msg = f'¡Número fuera del intervalo válido!\n0 < valor < {limite_maximo}'
+                            sg.Popup('ERROR', msg, auto_close=True, auto_close_duration=5)
             window.Element('_creditos_elegidos_').Update(
                            str(float(creditos_elegidos))
             )
