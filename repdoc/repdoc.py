@@ -11,6 +11,7 @@ import argparse
 from datetime import datetime
 import os
 import pandas as pd
+import platform
 import PySimpleGUI as sg
 import sys
 
@@ -100,6 +101,7 @@ def main(args=None):
     with open('last_execution_command.txt', 'a') as f:
         f.write('-' * 79)
         f.write(f'\n{datetime.now()}\n')
+        f.write(f'{platform.uname().node}\n')
         f.write(f'{execution_command}\n')
 
     print(ctext(f'Welcome to RepDoc version {version}', bold=True))
