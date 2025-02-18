@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2024 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -92,7 +92,7 @@ def main(args=None):
 
     args = parser.parse_args()
 
-    if args.course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023']:
+    if args.course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024']:
         raise SystemExit(f'The course {args.course} is blocked. No changes allowed.')
 
     execution_command = ' '.join(sys.argv)
