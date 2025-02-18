@@ -132,11 +132,11 @@ def export_to_html_bitacora(bitacora, filename, course):
         f.write('<td>{}</td>\n'.format(uuid_bita))
         for colname in bitacora.columns.tolist():
             typecol = type(bitacora.loc[uuid_bita][colname])
-            if typecol == np.dtype(np.int):
+            if typecol in [np.dtype(np.int32), np.dtype(np.int64)]:
                 f.write('<td style="text-align: center;">{}</td>\n'.format(
                     bitacora.loc[uuid_bita][colname]
                 ))
-            elif typecol == np.dtype(np.float):
+            elif typecol in [np.dtype(np.float32), np.dtype(np.float64)]:
                 f.write('<td style="text-align: center;">{}</td>\n'.format(
                     round(bitacora.loc[uuid_bita][colname], 4)
                 ))
