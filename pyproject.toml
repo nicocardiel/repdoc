@@ -1,0 +1,56 @@
+[build-system]
+# Minimum requirements for the build system to execute.
+# (include packages imported in the different modules; otherwise
+# a ModuleNotFoundError is raised when using $ pip install -e .)
+requires = ["setuptools >= 43.0.0", "wheel", "numpy", "pandas",
+            "pyyaml", "xlrd", "openpyxl", "pysimplegui"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "repdoc"
+dynamic = ["version"]
+description = "Application for distributing subjects among teachers"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "GPL-3.0-or-later"}
+authors = [
+  {name = "Nicolás Cardiel", email = "cardiel@ucm.es"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "pyyaml",
+    "xlrd",
+    "openpyxl",
+    "pysimplegui"
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+
+[project.urls]
+Homepage = "https://github.com/nicocardiel/repdoc"
+Repository = "https://github.com/nicocardiel/repdoc.git"
+
+[project.scripts]
+repdoc = "repdoc.repdoc:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "repdoc.__version__"}
+
+# performs autodetection
+[tool.setuptools.packages.find]
+where = ["src"]
