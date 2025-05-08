@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2023 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -28,7 +28,7 @@ def read_tabla_profesores(xlsxfilename, course, debug=False):
             usecols = [0, 1, 2, 3, 21]
         elif course == '2021-2022':
             usecols = [0, 2, 3, 4, 23]
-        elif course in ['2022-2023', '2023-2024', '2024-2025']:
+        elif course in ['2022-2023', '2023-2024', '2024-2025', '2025-2026']:
             usecols = [0, 2, 3, 4, 19]
         else:
             raise SystemExit(f'Invalid course: {course}')

@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2024 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -17,4 +17,4 @@ PRIMERA_RONDA_RYC = 2
 ROUND_ERROR = 0.00001  # créditos
 TEXT_ACTIVA_ELECCION = 'Activa elección en rondas'
 TEXT_FINALIZA_ELECCION = 'Finaliza elección en rondas'
-VALID_COURSES = ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025']
+VALID_COURSES = ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026']

@@ -92,7 +92,7 @@ def main(args=None):
 
     args = parser.parse_args()
 
-    if args.course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024']:
+    if args.course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025']:
         raise SystemExit(f'The course {args.course} is blocked. No changes allowed.')
 
     execution_command = ' '.join(sys.argv)
@@ -106,7 +106,7 @@ def main(args=None):
 
     print(ctext(f'Welcome to RepDoc version {version}', bold=True))
     copyright_symbol = '\u00a9'
-    print(f'Copyright {copyright_symbol} 2019-2024 Universidad Complutense de Madrid')
+    print(f'Copyright {copyright_symbol} 2019-2025 Universidad Complutense de Madrid')
     print('\nLoading tables (please wait):')
 
     global warning_collaborators
