@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -386,7 +386,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
 <th style="text-align: center;">Ronda</th>
 <th>Asignatura</th>
 <th>Área</th>
-<th style="text-align: center;">Créditos<br>iniciales</th>
+<th style="text-align: center; color: #AAAAAA">Créditos<br>iniciales</th>
 <th>Comentarios</th>
 <th style="text-align: center;">Grupo</th>
 <th style="text-align: center;">Créditos<br>elegidos</th>
@@ -417,7 +417,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
                     f.write('<td>{}</td>\n'.format(
                         seleccion['area'].tolist()[i]
                     ))
-                    f.write('<td style="text-align: center;">' +
+                    f.write('<td style="text-align: center; color: #AAAAAA">' +
                             '{0:9.4f}</td>\n'.format(
                                 seleccion['creditos_iniciales'].tolist()[i]
                             ))
