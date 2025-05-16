@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -204,7 +204,7 @@ def export_to_html_resultado(
                                 comentarios = ' '
                         f.write('<td>{}</td>\n'.format(comentarios))
                         categoria = seleccion['categoria'].tolist()[i]
-                        if categoria == 'Colaborador':
+                        if categoria in ['Colaborador', 'Colaboradora']:
                             color = '#282'
                         else:
                             color = '#000'

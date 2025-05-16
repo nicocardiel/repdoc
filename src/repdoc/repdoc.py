@@ -202,7 +202,7 @@ def main(args=None):
         tabla_profesores.loc[uuid_prof, 'num'] = iprof + 1
         categoria = tabla_profesores.loc[uuid_prof]['categoria']
         creditos_encargo = tabla_profesores.loc[uuid_prof]['encargo']
-        if categoria == 'Colaborador':
+        if categoria in ['Colaborador', 'Colaboradora']:
             tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
         elif creditos_encargo == 0:
             tabla_profesores.loc[uuid_prof, 'ronda'] = FLAG_RONDA_NO_ELIGE
@@ -467,7 +467,7 @@ def main(args=None):
         global warning_collaborators
         if warning_collaborators > 0.0:
             if total_disponibles_beccol <= warning_collaborators:
-                msg = 'Se ha alcanzado el límite de créditos\nprereservados para becarios/colaboradores'
+                msg = 'Se ha alcanzado el límite de créditos\nprereservados para PIF'
                 print(ctext(msg + '\nclick [OK]', bg='red'))
                 sg.PopupOK(msg)
                 ### sg.PopupOK(msg, auto_close=True, auto_close_duration=5)

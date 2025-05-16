@@ -157,7 +157,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
             if ronda_actual == 0:
                 f.write('\n<tr>\n')
             else:
-                if (categoria == 'Colaborador') or (ronda > ronda_actual):
+                if (categoria in ['Colaborador', 'Colaboradora']) or (ronda > ronda_actual):
                     f.write('\n<tr style="background: ' + COLOR_NO_DISPONIBLE +
                             ';">\n')
                 else:

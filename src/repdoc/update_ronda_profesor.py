@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2025 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -17,7 +17,7 @@ def update_ronda_profesor(tabla_profesores, uuid_prof):
 
     encargo = tabla_profesores.loc[uuid_prof]['encargo']
     categoria = tabla_profesores.loc[uuid_prof]['categoria']
-    if (encargo == 0) or (categoria == 'Colaborador'):
+    if (encargo == 0) or (categoria in ['Colaborador', 'Colaboradora']):
         ronda_profesor = FLAG_RONDA_NO_ELIGE
     else:
         ronda_profesor = int(
