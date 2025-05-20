@@ -628,8 +628,6 @@ def main(args=None):
             creditos_a_recuperar = tmp_series['creditos_elegidos']
             msg = '¿Seguro que quiere eliminar esta selección (y/n)? '
             dummy = sg.PopupYesNo(msg)
-            print(dummy)
-            print(dummy.lower())
             ### dummy = input(ctext(msg, bg='green'))
             if dummy.lower() in ['y', 'yes']:
                 devolucion_correcta = True
