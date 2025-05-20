@@ -229,6 +229,8 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
     creditos_encargo = tabla_profesores['encargo'].sum()
     creditos_asignados = tabla_profesores['asignados'].sum()
     creditos_diferencia = tabla_profesores['diferencia'].sum()
+    if abs(creditos_diferencia) <= 1e-8:
+        creditos_diferencia = 0.0
     f.write('<td style="text-align: right; font-weight: bold; ' +
             'background-color: ' + COLOR_PROFESORES_HEAD +
             '; color: white;">' +
@@ -248,6 +250,7 @@ def export_to_html_profesores(tabla_profesores, bitacora, ronda_actual, course):
     f.write(date_last_update())
     f.write('</body>\n\n</html>\n')
     f.close()
+
 
     # tabla de asignación por profesor
 
