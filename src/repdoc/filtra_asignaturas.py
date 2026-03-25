@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2026 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -20,24 +20,24 @@ def filtra_asignaturas(tabla_asignaturas,
     lista_asignaturas = []
     for i in range(num_asignaturas):
         if excluir_asignaturas_beccol:
-            if tabla_asignaturas['bec_col'][i] == 1:
+            if tabla_asignaturas['bec_col'].iloc[i] == 1:
                 incluir_asignatura = False
             else:
                 incluir_asignatura = True
         else:
             incluir_asignatura = True
         if incluir_asignatura:
-            if tabla_asignaturas['creditos_disponibles'][i] > 0:
-                dumtxt = '{:2d}. '.format(tabla_asignaturas['num'][i])
-                dumtxt += '[' + tabla_asignaturas['curso'][i] + '] '
-                dumtxt += tabla_asignaturas['asignatura'][i] + ', '
+            if tabla_asignaturas['creditos_disponibles'].iloc[i] > 0:
+                dumtxt = '{:2d}. '.format(tabla_asignaturas['num'].iloc[i])
+                dumtxt += '[' + tabla_asignaturas['curso'].iloc[i] + '] '
+                dumtxt += tabla_asignaturas['asignatura'].iloc[i] + ', '
                 dumtxt += str(
-                    round(tabla_asignaturas['creditos_disponibles'][i], 4)
+                    round(tabla_asignaturas['creditos_disponibles'].iloc[i], 4)
                 ) + ' créditos'
-                if tabla_asignaturas['comentarios'][i] != ' ':
-                    dumtxt += ', ' + tabla_asignaturas['comentarios'][i]
-                if tabla_asignaturas['grupo'][i] != ' ':
-                    dumtxt += ', grupo ' + tabla_asignaturas['grupo'][i]
+                if tabla_asignaturas['comentarios'].iloc[i] != ' ':
+                    dumtxt += ', ' + tabla_asignaturas['comentarios'].iloc[i]
+                if tabla_asignaturas['grupo'].iloc[i] != ' ':
+                    dumtxt += ', grupo ' + tabla_asignaturas['grupo'].iloc[i]
                 ldum = len(dumtxt)
                 if ldum < WIDTH_SPACES_FOR_UUID:
                     dumtxt += (WIDTH_SPACES_FOR_UUID - ldum) * ' '

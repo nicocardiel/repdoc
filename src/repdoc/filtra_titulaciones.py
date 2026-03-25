@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2026 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -18,8 +18,8 @@ def filtra_titulaciones(tabla_titulaciones):
     num_titulaciones = tabla_titulaciones.shape[0]
     lista_titulaciones = []
     for i in range(num_titulaciones):
-        if tabla_titulaciones['creditos_disponibles'][i] > 0:
-            nombre_titulacion = tabla_titulaciones['titulacion'][i]
+        if tabla_titulaciones['creditos_disponibles'].iloc[i] > 0:
+            nombre_titulacion = tabla_titulaciones['titulacion'].iloc[i]
             ldum = len(nombre_titulacion)
             if ldum < WIDTH_SPACES_FOR_UUID:
                 nombre_titulacion += (WIDTH_SPACES_FOR_UUID - ldum) * ' '
