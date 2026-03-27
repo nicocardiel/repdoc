@@ -83,6 +83,9 @@ def main(args=None):
                         help="PySimpleGUI theme",
                         default="SandyBeach",
                         type=str)
+    parser.add_argument("--override_course",
+                        help="override course check",
+                        action="store_true")
     parser.add_argument("--debug",
                         help="run code in debugging mode",
                         action="store_true")
@@ -93,7 +96,14 @@ def main(args=None):
     args = parser.parse_args()
 
     if args.course in ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025', '2025-2026']:
-        raise SystemExit(f'The course {args.course} is blocked. No changes allowed.')
+        print(ctext(f'WARNING: The course {args.course} is blocked.', fg='red', bold=True))
+        if not args.override_course:
+            print(f'Use --override_course to override this check.')
+            raise SystemExit('Execution aborted.')
+        else:
+            continue_anyway = input('Do you want to continue anyway (y/[n])? ')
+            if continue_anyway.lower() not in ['y', 'yes']:
+                raise SystemExit('Execution aborted by user.')
 
     execution_command = ' '.join(sys.argv)
     if args.echo:
