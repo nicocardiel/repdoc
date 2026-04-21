@@ -264,19 +264,25 @@ def main(args=None):
     else:
         bitacora = pd.read_excel(args.bitacora.name, index_col=0)
         bitacora.index.name = 'uuid_bita'
+        # Forzar dtype object en columnas que deben contener strings pero
+        # pueden llegar como float64 desde Excel si están vacías
+        str_columns = ['date_removed', 'explicacion', 'comentarios', 'grupo']
+        for col in str_columns:
+            bitacora[col] = bitacora[col].astype('object')
+        # Reemplazar NaN por los valores alternativos correspondientes
+        fill_values = {
+            'date_removed': 'None',
+            'explicacion': ' ',
+            'comentarios': ' ',
+            'grupo': ' '
+        }
+        bitacora.fillna(value=fill_values, inplace=True)
         if args.debug:
             print('Initialising bitacora from previous file:')
             print(bitacora)
             input('Press <CR> to continue...')
 
         for uuid_bita in bitacora.index.tolist():
-            # convert NaNs to something else
-            non_nan = ['date_removed', 'explicacion', 'comentarios', 'grupo']
-            alternative = ['None', ' ', ' ', ' ']
-            for item, altnone in zip(non_nan, alternative):
-                itemvalue = str(bitacora.loc[uuid_bita][item])
-                if itemvalue == 'nan' or itemvalue == 'NaN':
-                    bitacora.loc[uuid_bita, item] = altnone
             uuid_prof = bitacora.loc[uuid_bita]['uuid_prof']
             uuid_titu = bitacora.loc[uuid_bita]['uuid_titu']
             # activate/deactivate teacher

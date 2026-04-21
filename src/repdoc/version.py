@@ -1,5 +1,5 @@
 #
-# Copyright 2019-2022 Universidad Complutense de Madrid
+# Copyright 2019-2026 Universidad Complutense de Madrid
 #
 # This file is part of RepDoc
 #
@@ -9,4 +9,4 @@
 
 """repdoc version"""
 
-version = '2.4'
+version = '2.5'
