@@ -331,6 +331,10 @@ def main(args=None):
                         tabla_asignaturas.loc[uuid_asig, 'nuevo_profesor'] = \
                             nuevo_profesor
                 else:
+                    print(f'Titulación: {tabla_titulaciones.loc[uuid_titu, "titulacion"]}')
+                    print(f'¡Error en la asignación de la asignatura {tabla_asignaturas.loc[uuid_asig, "asignatura"]}!')
+                    print(f'Créditos disponibles: {tabla_asignaturas.loc[uuid_asig, "creditos_disponibles"]}')
+                    print(f'Créditos elegidos: {creditos_elegidos}')
                     print('¡Créditos disponibles insuficientes!')
                     asignacion_es_correcta = False
                 if asignacion_es_correcta:
